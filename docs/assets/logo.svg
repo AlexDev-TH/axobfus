@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">AxObfus</title>
-  <desc id="desc">เครื่องหมาย A และ O สีชาร์โคลและส้ม</desc>
+  <desc id="desc">เครื่องหมาย A และ O สีชาร์โคลและแดง</desc>
   <rect x="1" y="1" width="62" height="62" fill="#ffffff" stroke="#20201e" stroke-width="2"/>
-  <rect x="1" y="1" width="9" height="62" fill="#ef582f"/>
+  <rect x="1" y="1" width="9" height="62" fill="#d92d20"/>
   <path d="M18 45 28 18h6l10 27h-7l-2-6H25l-2 6Zm9-12h6l-3-9Z" fill="#20201e"/>
-  <path d="M46 17h8v8h-8z" fill="#ef582f"/>
+  <path d="M46 17h8v8h-8z" fill="#d92d20"/>
 </svg>

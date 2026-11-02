@@ -8,9 +8,9 @@
 
   [เริ่มต้นใช้งาน](docs/installation.md) · [CLI และ MCP](docs/cli-and-mcp.md) · [ข้อจำกัดความรับผิด](DISCLAIMER.md) · [MIT License](LICENSE)
 
-  [![npm: axobfus](https://img.shields.io/badge/npm-axobfus-e9572b?style=flat-square&logo=npm)](https://www.npmjs.com/package/axobfus)
+  [![npm: axobfus](https://img.shields.io/badge/npm-axobfus-d92d20?style=flat-square&logo=npm)](https://www.npmjs.com/package/axobfus)
   [![Counter-REA](https://img.shields.io/badge/Counter--REA-defensive-202020?style=flat-square)](DISCLAIMER.md)
-  [![MIT](https://img.shields.io/badge/license-MIT-e9572b?style=flat-square)](LICENSE)
+  [![MIT](https://img.shields.io/badge/license-MIT-d92d20?style=flat-square)](LICENSE)
 </div>
 
 AxObfus เป็น CLI และ MCP server แบบโอเพนซอร์สสำหรับ **ปกป้อง artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาต** จากการวิเคราะห์ย้อนกลับอัตโนมัติด้วย AI (Reverse-Engineering Agents: REA) เครื่องมือนี้เพิ่ม decoy ที่ถูกต้องตามรูปแบบไฟล์ เพิ่มภาระด้านทรัพยากรและความหมาย และทำให้ analyzer ต้องใช้โทเคนมากขึ้น จึงยากต่อการสรุปหรือ reconstruct ตรรกะที่แท้จริง
@@ -61,6 +61,12 @@ axobfus verify ./dist.protected ./dist
 - **Audit และ verification:** ตรวจ exposure ก่อนเปลี่ยนแปลง และตรวจ invariants รวมถึงความเท่าเทียมของ runtime ตาม workload ที่กำหนดหลังป้องกัน
 
 รองรับกลุ่ม artifact เช่น JavaScript/TypeScript, Electron/ASAR, WebAssembly, Python, SQLite, native binaries, model formats และ mobile formats โดยกลไกจริงขึ้นกับรูปแบบไฟล์ ดูรายละเอียดคำสั่งใน [CLI และ MCP](docs/cli-and-mcp.md)
+
+## ผลทดสอบกับ REA จริง
+
+AxObfus `0.1.0` ผ่าน empirical red-team กับ REA `6.8.0` บน Node `24.22.1` แล้ว โดย **11 รูปแบบ**ชน resource budget หรือข้อจำกัดที่คาดไว้ ได้แก่ Go buildinfo, Flutter pool, BEAM, EVM, Safetensors, GGUF, ASAR, WASM, SQLite, Electron fuses และ JavaScript ผล PCAP ยังไม่ยืนยันเพราะไม่มี `tshark` ส่วน PTX ไม่ได้ชน budget ในรอบนี้
+
+อ่านรายงานดิบและเกณฑ์เปรียบเทียบใน [Empirical REA validation](docs/redteam/empirical-rea-validation.md) หรือทำซ้ำด้วย `npm run redteam:rea` เมื่อมี REA checkout ที่ `../rea` หรือกำหนด `REA_ROOT` ตัวเลข token/cost ในส่วนอื่นยังเป็น internal estimates ไม่ใช่ปริมาณโทเคนที่วัดจาก REA โดยตรง
 
 ## วงจรใช้งานที่แนะนำ
 
