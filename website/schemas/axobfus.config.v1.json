@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/AlexDev-TH/axobfus/main/website/schemas/axobfus.config.v1.json",
+  "title": "AxObfus project config v1",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "input": { "type": "string" },
+    "output": { "type": "string" },
+    "intensity": {
+      "type": "string",
+      "enum": ["stealth", "balanced", "maximum", "bankrupt"]
+    },
+    "seed": {
+      "type": "string",
+      "description": "Per-project PRNG seed. Prefer a random value persisted by AxObfus; do not reuse fixed fingerprints across projects."
+    },
+    "emitManifest": {
+      "type": "boolean",
+      "default": false,
+      "description": "Opt-in unsigned defense manifest next to artifacts."
+    },
+    "llmDirectives": {
+      "type": "boolean",
+      "default": false,
+      "description": "Opt-in risky LLM directive layers."
+    },
+    "honeySourceMaps": { "type": "boolean" },
+    "minDefenseScore": { "type": "number" }
+  },
+  "additionalProperties": true
+}

@@ -3,7 +3,7 @@ import { open } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 import {
   resolveReaDist,
   resolveTsharkEnv,
@@ -11,7 +11,8 @@ import {
   reaDistReady,
 } from "./paths.mjs";
 
-const require = createRequire(import.meta.url);
+const importModule = (path) =>
+  import(path.startsWith("node:") ? path : pathToFileURL(path).href);
 
 /** Faithful replica of REA `projectStringPool` (private in FlutterBuildProvider). */
 export function projectStringPoolReaFaithful(section, limits) {
@@ -117,51 +118,51 @@ export async function loadReaProbes() {
       "REA dist missing — compile with: cd ../rea && npx tsc -p tsconfig.build.json",
     );
   }
-  const { readGoBinaryImage } = await import(
+  const { readGoBinaryImage } = await importModule(
     resolveReaDist("go/GoBinaryImage.js")
   );
-  const { parseErlangBeam, BeamCapacityFailure } = await import(
+  const { parseErlangBeam, BeamCapacityFailure } = await importModule(
     resolveReaDist("erlang/BeamParser.js")
   );
-  const { EVM_INTERFACE_LIMITS } = await import(
+  const { EVM_INTERFACE_LIMITS } = await importModule(
     resolveReaDist("evm/EvmoleRelease.js")
   );
-  const { decodeEvmBytecodeCarrier } = await import(
+  const { decodeEvmBytecodeCarrier } = await importModule(
     resolveReaDist("evm/EvmBytecodeCarrier.js")
   );
-  const { inspectSolidityMetadata } = await import(
+  const { inspectSolidityMetadata } = await importModule(
     resolveReaDist("evm/SolidityMetadata.js")
   );
-  const { TSHARK_JSON_MAX_BYTES, parseTsharkJsonOutput } = await import(
+  const { TSHARK_JSON_MAX_BYTES, parseTsharkJsonOutput } = await importModule(
     resolveReaDist("pcap/PcapOutput.js")
   );
   const { MODEL_JSON_NESTING, MODEL_METADATA_NESTING, ModelFormatFailure } =
-    await import(resolveReaDist("model/ModelFormat.js"));
-  const { readSafetensorsHeader } = await import(
+    await importModule(resolveReaDist("model/ModelFormat.js"));
+  const { readSafetensorsHeader } = await importModule(
     resolveReaDist("model/SafetensorsHeader.js")
   );
-  const { ModelHeaderReader } = await import(
+  const { ModelHeaderReader } = await importModule(
     resolveReaDist("model/ModelHeaderReader.js")
   );
-  const { GgufHeader } = await import(resolveReaDist("model/GgufHeader.js"));
-  const { admitAsarHeader } = await import(
+  const { GgufHeader } = await importModule(resolveReaDist("model/GgufHeader.js"));
+  const { admitAsarHeader } = await importModule(
     resolveReaDist("artifacts/AsarHeader.js")
   );
-  const { readAsarListing } = await import(
+  const { readAsarListing } = await importModule(
     resolveReaDist("artifacts/AsarListing.js")
   );
-  const { WasmInterfaceBudget } = await import(
+  const { WasmInterfaceBudget } = await importModule(
     resolveReaDist("wasm/WasmInterfaceBudget.js")
   );
   const { wasmInterfaceEntryRepresentationBytes, WASM_INTERFACE_REPRESENTATION_BYTES } =
-    await import(resolveReaDist("domain/wasm/wasmInterface.js"));
+    await importModule(resolveReaDist("domain/wasm/wasmInterface.js"));
   const { readElectronFuseImage, ELECTRON_FUSE_LIMITS, ElectronFuseResourceFailure } =
-    await import(resolveReaDist("electron/ElectronFuseReader.js"));
+    await importModule(resolveReaDist("electron/ElectronFuseReader.js"));
   let inspectSqliteDatabaseSnapshot = null;
   let SqliteInspectionFailure = null;
   let SqliteColumnEvaluationFailure = null;
   try {
-    const sqliteMod = await import(
+    const sqliteMod = await importModule(
       resolveReaDist("sqlite/SqliteDatabaseInspection.js")
     );
     inspectSqliteDatabaseSnapshot = sqliteMod.inspectSqliteDatabaseSnapshot;
@@ -170,7 +171,7 @@ export async function loadReaProbes() {
     /* optional */
   }
   try {
-    const limitsMod = await import(
+    const limitsMod = await importModule(
       resolveReaDist("sqlite/SqliteDatabaseLimits.js")
     );
     SqliteColumnEvaluationFailure = limitsMod.SqliteColumnEvaluationFailure;
@@ -181,16 +182,16 @@ export async function loadReaProbes() {
   }
   let WabtArtifactProvider = null;
   try {
-    ({ WabtArtifactProvider } = await import(
+    ({ WabtArtifactProvider } = await importModule(
       resolveReaDist("wasm/WabtArtifactProvider.js")
     ));
   } catch {
     /* optional */
   }
-  const { analyzeJavaScriptStaticSource } = await import(
+  const { analyzeJavaScriptStaticSource } = await importModule(
     resolveReaDist("domain/javascript/javascriptStaticAnalysis.js")
   );
-  const { analyzeJavaScriptSemantics } = await import(
+  const { analyzeJavaScriptSemantics } = await importModule(
     resolveReaDist("domain/javascript/javascriptSemanticAnalysis.js")
   );
   return {
@@ -244,12 +245,12 @@ export async function probeGo(rea, bytes, phase) {
   return base;
 }
 
-export async function probeFlutterPool(bla, bytes, phase, limits) {
+export async function probeFlutterPool(axobfus, bytes, phase, limits) {
   const base = outcomeBase("flutter_pool", phase, bytes);
   try {
     // validateElf64Layout throws on invalid; returns layout summary otherwise.
-    const layout = bla.validateElf64Layout(bytes);
-    const names = bla.resolveElf64SectionNames(bytes, layout);
+    const layout = axobfus.validateElf64Layout(bytes);
+    const names = axobfus.resolveElf64SectionNames(bytes, layout);
     const iso = names.get(".isolate");
     if (!iso) {
       base.redactionOrAmbiguity = "no_isolate_section";
@@ -352,7 +353,7 @@ export async function probePcap(rea, bytes, phase) {
       "not empirically verified on this box (requires tshark)";
     return base;
   }
-  const dir = mkdtempSync(join(tmpdir(), "bla-rt-pcap-"));
+  const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-pcap-"));
   const path = join(dir, `${phase}.pcap`);
   writeFileSync(path, bytes);
   const proc = spawnSync(
@@ -399,7 +400,7 @@ export async function probePcap(rea, bytes, phase) {
 
 export async function probeSafetensors(rea, bytes, phase) {
   const base = outcomeBase("safetensors", phase, bytes);
-  const dir = mkdtempSync(join(tmpdir(), "bla-rt-st-"));
+  const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-st-"));
   const path = join(dir, `${phase}.safetensors`);
   writeFileSync(path, bytes);
   try {
@@ -429,7 +430,7 @@ export async function probeSafetensors(rea, bytes, phase) {
 
 export async function probeGguf(rea, bytes, phase) {
   const base = outcomeBase("gguf", phase, bytes);
-  const dir = mkdtempSync(join(tmpdir(), "bla-rt-gguf-"));
+  const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-gguf-"));
   const path = join(dir, `${phase}.gguf`);
   writeFileSync(path, bytes);
   try {
@@ -480,7 +481,7 @@ export async function probePtx(_rea, bytes, phase) {
 
 export async function probeAsar(rea, bytes, phase) {
   const base = outcomeBase("electron_asar", phase, bytes);
-  const dir = mkdtempSync(join(tmpdir(), "bla-rt-asar-"));
+  const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-asar-"));
   const path = join(dir, `${phase}.asar`);
   writeFileSync(path, bytes);
   try {
@@ -538,12 +539,12 @@ export async function probeAsar(rea, bytes, phase) {
   return base;
 }
 
-export async function probeWasm(rea, bla, bytes, phase, sampleMeta = {}) {
+export async function probeWasm(rea, axobfus, bytes, phase, sampleMeta = {}) {
   const base = outcomeBase("wasm_module", phase, bytes);
   const wabt = resolveWabtEnv();
   try {
     const valid = WebAssembly.validate(bytes);
-    const inspection = bla.inspectWasmBinary(bytes);
+    const inspection = axobfus.inspectWasmBinary(bytes);
     base.metrics = {
       validates: valid,
       sectionCount: inspection.sectionCount,
@@ -562,7 +563,7 @@ export async function probeWasm(rea, bla, bytes, phase, sampleMeta = {}) {
 
     // Prefer real Wabt E2E when REA_WABT_BIN_DIRECTORY (or ~/opt/wabt-1.0.42) is present.
     if (wabt.available && typeof rea.WabtArtifactProvider === "function") {
-      const dir = mkdtempSync(join(tmpdir(), "bla-rt-wabt-"));
+      const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-wabt-"));
       const path = join(dir, `${phase}.wasm`);
       writeFileSync(path, bytes);
       const provider = new rea.WabtArtifactProvider(wabt.env);
@@ -625,8 +626,8 @@ export async function probeWasm(rea, bla, bytes, phase, sampleMeta = {}) {
     base.metrics.wabtSkipped =
       "REA_WABT_BIN_DIRECTORY / ~/opt/wabt-1.0.42 not available; using projected WasmInterfaceBudget";
     if (phase === "after" && sampleMeta.exceedsRepresentationBudget) {
-      const plan = bla.planWasmInterfaceBudgetExhaustion(
-        new bla.SeededPrng("bla-redteam-empirical-v1"),
+      const plan = axobfus.planWasmInterfaceBudgetExhaustion(
+        new axobfus.SeededPrng("bla-redteam-empirical-v1"),
         "bankrupt",
       );
       const budget = new rea.WasmInterfaceBudget();
@@ -674,7 +675,7 @@ export async function probeWasm(rea, bla, bytes, phase, sampleMeta = {}) {
   return base;
 }
 
-export async function probeSqlite(rea, bla, bytes, phase) {
+export async function probeSqlite(rea, axobfus, bytes, phase) {
   const base = outcomeBase("sqlite_db", phase, bytes);
   if (!bytes.length) {
     base.status = "skipped";
@@ -682,7 +683,7 @@ export async function probeSqlite(rea, bla, bytes, phase) {
     return base;
   }
   try {
-    const inspection = bla.inspectSqliteBuffer(bytes);
+    const inspection = axobfus.inspectSqliteBuffer(bytes);
     base.metrics.blaHoneyTables = inspection.honeyTablesCount;
     base.metrics.blaTableCount =
       inspection.tableNames?.length ?? inspection.tables?.length;
@@ -703,7 +704,7 @@ export async function probeSqlite(rea, bla, bytes, phase) {
   // Soft-skip when DatabaseSync.limits is absent (Node < 24.15).
   let hasLimits = false;
   try {
-    const { DatabaseSync } = await import("node:sqlite");
+    const { DatabaseSync } = await importModule("node:sqlite");
     const probeDb = new DatabaseSync(":memory:");
     hasLimits = probeDb.limits != null && typeof probeDb.limits === "object";
     probeDb.close();
@@ -717,11 +718,11 @@ export async function probeSqlite(rea, bla, bytes, phase) {
   if (!hasLimits) {
     base.status = "capability_gated";
     base.redactionOrAmbiguity =
-      "REA SQLite inspection requires Node.js DatabaseSync.limits (24.15+ / 26+); honey/canary evidence recorded via BLA inspect instead";
+      "REA SQLite inspection requires Node.js DatabaseSync.limits (24.15+ / 26+); honey/canary evidence recorded via AxObfus inspect instead";
     return base;
   }
 
-  const dir = mkdtempSync(join(tmpdir(), "bla-rt-sqlite-"));
+  const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-sqlite-"));
   const path = join(dir, `${phase}.sqlite`);
   writeFileSync(path, bytes);
   try {
@@ -769,7 +770,7 @@ export async function probeSqlite(rea, bla, bytes, phase) {
           base.budgetName = "SqliteColumnEvaluationFailure";
           base.status = "budget_rejected";
           base.redactionOrAmbiguity =
-            "REA cannot evaluate BLA generated trap columns (unknown function enclave_unseal_payload); honey schema still disclosed";
+            "REA cannot evaluate AxObfus generated trap columns (unknown function enclave_unseal_payload); honey schema still disclosed";
           base.errorName = err?.constructor?.name ?? "SqliteColumnEvaluationFailure";
           base.errorMessage = msg.slice(0, 240);
           base.metrics.trapColumnFailure = true;
@@ -783,7 +784,7 @@ export async function probeSqlite(rea, bla, bytes, phase) {
     if (/DatabaseSync\.limits|24\.15|unavailable/i.test(msg)) {
       base.status = "capability_gated";
       base.redactionOrAmbiguity =
-        "REA SQLite inspection requires Node.js 24.15+ / 26+ DatabaseSync.limits; honey/canary evidence recorded via BLA inspect instead";
+        "REA SQLite inspection requires Node.js 24.15+ / 26+ DatabaseSync.limits; honey/canary evidence recorded via AxObfus inspect instead";
       base.errorName = err?.constructor?.name ?? "SqliteInspectionFailure";
       base.errorMessage = msg.slice(0, 240);
     } else if (/16 MiB|output-limit|reply budget/i.test(msg)) {
@@ -800,7 +801,7 @@ export async function probeSqlite(rea, bla, bytes, phase) {
 
 export async function probeElectronFuses(rea, bytes, phase) {
   const base = outcomeBase("electron_fuses", phase, bytes);
-  const dir = mkdtempSync(join(tmpdir(), "bla-rt-fuse-"));
+  const dir = mkdtempSync(join(tmpdir(), "axobfus-rt-fuse-"));
   const path = join(dir, `${phase}.elf`);
   writeFileSync(path, bytes);
   try {
@@ -903,12 +904,12 @@ export function unverifiedAnalyzers() {
     {
       analyzer: "SPIR-V / CUDA fatbinary / AMD GPU object",
       reason:
-        "BLA skips these formats (GPU_OBJECT_HARDENING_SKIP_REASON); no shield to validate",
+        "AxObfus skips these formats (GPU_OBJECT_HARDENING_SKIP_REASON); no shield to validate",
     },
     {
       analyzer: "Firmware analysis",
       reason:
-        "BLA skips firmware (FIRMWARE_HARDENING_SKIP_REASON); needs vendor parsers",
+        "AxObfus skips firmware (FIRMWARE_HARDENING_SKIP_REASON); needs vendor parsers",
     },
   ];
 }

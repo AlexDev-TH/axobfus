@@ -19,7 +19,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
 
 export const ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
@@ -32,7 +32,7 @@ export const FIXTURE_DIR = join(V6_DIR, ".fixture");
 export const SCHEMA = "bla-crackme-v6-seal/v2";
 export const SEED = "bla-crackme-v6-harden-native-2026-11";
 export const INTENSITY = "bankrupt";
-/** Files handed to hardenProject() — the same tree `bla harden <dir>` sees. */
+/** Files handed to hardenProject() — the same tree `axobfus harden <dir>` sees. */
 export const STAGE_FILES = ["vault.cjs", "panel.html", "core.wasm"];
 /** Committed outputs (core.wasm is gzipped: bankrupt WASM is ~7 MB raw). */
 export const COMMITTED_FILES = ["vault.cjs", "panel.html", "core.wasm.gz"];
@@ -140,8 +140,8 @@ export function ensureDistBuilt() {
  */
 export async function hardenChallenge({ key, flag, outDir, seed = SEED }) {
   ensureDistBuilt();
-  const { hardenProject } = await import(pathToFileURL(join(ROOT, "dist", "engine", "harden.js")).href);
-  const { BLA_IDENTITY } = await import(pathToFileURL(join(ROOT, "dist", "identity.js")).href);
+  const { hardenProject } = await import("../../dist/engine/harden.js");
+  const { AXOBFUS_IDENTITY } = await import("../../dist/identity.js");
   const work = mkdtempSync(join(tmpdir(), "bla-crackme-v6-"));
   try {
     const stage = join(work, "app");
@@ -181,7 +181,7 @@ export async function hardenChallenge({ key, flag, outDir, seed = SEED }) {
     artifacts["core.wasm"] = { sha256: sha256Hex(rawWasm), bytes: rawWasm.length, note: "raw harden output; committed gzipped" };
 
     return {
-      blaVersion: BLA_IDENTITY.version,
+      axobfusVersion: AXOBFUS_IDENTITY.version,
       artifacts,
       hardenSummary: report.artifacts.map((a) => ({
         relativePath: a.relativePath.replaceAll("\\", "/"),

@@ -128,7 +128,7 @@ export interface AuditReport {
   readonly byteSize: number;
   readonly timestamp: string;
   readonly exposureScore: number; // 0 (fully shielded) to 100 (completely exposed to REA)
-  readonly protectionStatus: "UNPROTECTED" | "PARTIALLY_SHIELDED" | "BLA_PROTECTED";
+  readonly protectionStatus: "UNPROTECTED" | "PARTIALLY_SHIELDED" | "AXOBFUS_PROTECTED";
   readonly reaSimulation: ReaSemanticSimulationResult;
   readonly exposedItems: readonly ExposedSymbolOrModule[];
   readonly vulnerableReaVectors: readonly ReaAttackVectorId[];
@@ -247,7 +247,7 @@ export interface ShowcaseCaseResult {
 
 export interface BenchmarkReport {
   readonly timestamp: string;
-  readonly blaVersion: string;
+  readonly axobfusVersion: string;
   readonly cases: readonly ShowcaseCaseResult[];
   readonly aggregateTokenMultiplier: number;
   readonly aggregateCostMultiplier: number;

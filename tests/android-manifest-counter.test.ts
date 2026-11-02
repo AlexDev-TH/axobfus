@@ -63,7 +63,7 @@ describe("android manifest component decoy (REA #7379 / #7818)", () => {
     }
   });
 
-  it("plants the decoy under assets/bla-shield/ without rewriting the root manifest", () => {
+  it("plants the decoy under assets/axobfus/ without rewriting the root manifest", () => {
     const rootManifest = Buffer.from(
       '<manifest package="com.example.app"><application/></manifest>',
       "utf8",
@@ -92,18 +92,18 @@ describe("android manifest component decoy (REA #7379 / #7818)", () => {
     // Red line: developer's root manifest bytes are untouched.
     expect(root!.data.equals(rootManifest)).toBe(true);
     expect(
-      entries.some((e) => e.name === "assets/bla-shield/AndroidManifest.xml"),
+      entries.some((e) => e.name === "assets/axobfus/AndroidManifest.xml"),
     ).toBe(true);
     expect(
       entries.some(
-        (e) => e.name === "assets/bla-shield/AndroidManifest-decoy.xml",
+        (e) => e.name === "assets/axobfus/AndroidManifest-decoy.xml",
       ),
     ).toBe(true);
     const decoy = entries
-      .find((e) => e.name === "assets/bla-shield/AndroidManifest.xml")!
+      .find((e) => e.name === "assets/axobfus/AndroidManifest.xml")!
       .data.toString("utf8");
     expect(decoy).toContain("TeeAttestationBridge$DetailsActivity");
-    expect(decoy).toContain("bla-shield: decoy AndroidManifest");
+    expect(decoy).toContain("axobfus-shield: decoy AndroidManifest");
   });
 });
 

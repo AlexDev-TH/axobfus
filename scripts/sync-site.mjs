@@ -1,40 +1,46 @@
 #!/usr/bin/env node
 /**
- * Syncs ./website/* from qybaihe/bla to https://github.com/qybaihe/bla-site
+ * Validates the local website tree. This script performs no network access,
+ * git mutations, or publishing.
  * Usage: npm run sync:site
  */
-import { execSync } from "node:child_process";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, "..");
-const websiteDir = path.join(rootDir, "website");
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "bla-site-sync-"));
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const requiredFiles = [
+  "website/index.html",
+  "website/get-started/index.html",
+  "website/showcase/index.html",
+  "website/guides/index.html",
+  "website/faq/index.html",
+  "website/assets/styles.css",
+  "website/assets/main.js",
+  "website/assets/i18n.js",
+  "website/assets/home.js",
+  "website/assets/logo.svg",
+  "website/assets/logo.png",
+  "website/assets/favicon.svg",
+  "website/assets/favicon.png",
+  "website/assets/social-card.svg",
+  "website/schemas/axobfus.config.v1.json",
+  "website/schemas/defense-manifest-v1.json",
+];
 
-try {
-  console.log("Cloning qybaihe/bla-site...");
-  execSync(`git clone --depth 1 https://github.com/qybaihe/bla-site.git "${tmpDir}"`, {
-    stdio: "inherit",
-  });
-
-  // Copy all files from website/ to tmpDir
-  fs.cpSync(websiteDir, tmpDir, { recursive: true, force: true });
-
-  const status = execSync("git status --porcelain", { cwd: tmpDir, encoding: "utf8" }).trim();
-  if (!status) {
-    console.log("qybaihe/bla-site is already up to date with ./website.");
-  } else {
-    execSync("git add -A", { cwd: tmpDir, stdio: "inherit" });
-    execSync('git commit -m "chore(site): sync website from qybaihe/bla"', {
-      cwd: tmpDir,
-      stdio: "inherit",
-    });
-    execSync("git push origin main", { cwd: tmpDir, stdio: "inherit" });
-    console.log("Successfully synced ./website to https://github.com/qybaihe/bla-site");
+for (const relativePath of requiredFiles) {
+  if (!existsSync(join(rootDir, relativePath))) {
+    throw new Error(`Missing required website file: ${relativePath}`);
   }
-} finally {
-  fs.rmSync(tmpDir, { recursive: true, force: true });
 }
+
+for (const schemaName of ["axobfus.config.v1.json", "defense-manifest-v1.json"]) {
+  const relativePath = `website/schemas/${schemaName}`;
+  const schema = JSON.parse(readFileSync(join(rootDir, relativePath), "utf8"));
+  const expectedId = `https://raw.githubusercontent.com/AlexDev-TH/axobfus/main/${relativePath}`;
+  if (schema.$id !== expectedId) {
+    throw new Error(`Unexpected $id in ${relativePath}: ${schema.$id ?? "missing"}`);
+  }
+}
+
+console.log(`Validated ${requiredFiles.length} local website files and 2 schemas. No sync or publishing performed.`);

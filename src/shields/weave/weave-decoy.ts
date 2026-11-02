@@ -12,8 +12,8 @@ import { detectArtifactFormat } from "../../core/detector.js";
 import type { ArtifactFormat } from "../../core/types.js";
 
 export const WEAVE_DECOY_DOC_PATH = "docs/weave-decoy-mcp.md" as const;
-export const WEAVE_DECOY_SCHEMA = "bla-weave-plan/v1" as const;
-export const WEAVE_DIRECTIVES_URI = "bla://directives/weave-decoy" as const;
+export const WEAVE_DECOY_SCHEMA = "axobfus-weave-plan/v1" as const;
+export const WEAVE_DIRECTIVES_URI = "axobfus://directives/weave-decoy" as const;
 
 /** How far today's pipeline already weaves decoys into customer logic. */
 export type WeaveMaturity =
@@ -132,11 +132,11 @@ export const WEAVE_FORBIDDEN: readonly WeaveForbiddenPattern[] = Object.freeze([
     id: "pure-noise-layer",
     titleZh: "纯噪声层 / 可整层剥离的 honeypot 文件",
     whyZh:
-      "WorkBuddy 类智能体会把空 `_bla_*`、同质 scare 包、与业务无关的 sidecar 识别为可丢弃噪声，难度不升反降。",
+      "WorkBuddy 类智能体会把空 `_axobfus_*`、同质 scare 包、与业务无关的 sidecar 识别为可丢弃噪声，难度不升反降。",
   },
   {
     id: "greppable-banners",
-    titleZh: "可 grep 的 BLA-SHIELD / `_bla_` 横幅",
+    titleZh: "可 grep 的 AXOBFUS-SHIELD / `_axobfus_` 横幅",
     whyZh: "提供「这是防护层」的明确证据，方便过滤器一刀切。",
   },
   {
@@ -152,7 +152,7 @@ export const WEAVE_FORBIDDEN: readonly WeaveForbiddenPattern[] = Object.freeze([
   {
     id: "offensive-content",
     titleZh: "破解 / RE / 绕过 PoC 与攻击剧本",
-    whyZh: "BLA 只做防御加固；MCP 与文档不得提供进攻内容。",
+    whyZh: "AXOBFUS 只做防御加固；MCP 与文档不得提供进攻内容。",
   },
 ]);
 
@@ -162,7 +162,7 @@ export const WEAVE_ACCEPTANCE_TESTS: readonly WeaveAcceptanceTest[] =
       id: "no-forbidden-markers",
       titleZh: "无禁止标记",
       checkEn:
-        "Hardened output has no greppable `_bla_` / `BLA-SHIELD` banners (auditor phrase `runtime attestation boundary` may remain).",
+        "Hardened output has no greppable `_axobfus_` / `AXOBFUS-SHIELD` banners (auditor phrase `runtime attestation boundary` may remain).",
     },
     {
       id: "mixed-stems",
@@ -209,14 +209,14 @@ export const WEAVE_EXECUTOR_CHECKLIST: readonly WeaveChecklistStep[] =
       phase: "analyze",
       titleZh: "生成织入计划",
       actionEn:
-        "Call MCP `bla_weave_plan` on the project/build path; keep the returned JSON as the work order.",
+        "Call MCP `axobfus_weave_plan` on the project/build path; keep the returned JSON as the work order.",
     },
     {
       id: "prefer-pipeline-flag",
       phase: "apply",
       titleZh: "走 harden 管线旗标",
       actionEn:
-        "Call `bla_harden` / `bla_defend` / `bla_protect` with `weave_decoys: true` so Python structural customer-def weave runs (JS AST weave is always on).",
+        "Call `axobfus_harden` / `axobfus_defend` / `axobfus_protect` with `weave_decoys: true` so Python structural customer-def weave runs (JS AST weave is always on).",
     },
     {
       id: "js-entangle",
@@ -300,7 +300,7 @@ function actionsForMaturity(maturity: WeaveMaturity): readonly string[] {
   switch (maturity) {
     case "woven":
       return Object.freeze([
-        "Run bla_harden/bla_protect with weave_decoys:true (JS always weaves; Python structural customer-def weave).",
+        "Run axobfus_harden/axobfus_protect with weave_decoys:true (JS always weaves; Python structural customer-def weave).",
         "Verify opaque entanglement, shared-slot touch, and mixed stems on output.",
       ]);
     case "warm-init-only":
@@ -316,7 +316,7 @@ function actionsForMaturity(maturity: WeaveMaturity): readonly string[] {
       ]);
     case "gap":
       return Object.freeze([
-        "Use standard bla_harden today.",
+        "Use standard axobfus_harden today.",
         "File follow-up only for defensive customer-path entanglement.",
       ]);
     default:
@@ -327,7 +327,7 @@ function actionsForMaturity(maturity: WeaveMaturity): readonly string[] {
 const SCAN_SKIP = new Set([
   ".git",
   "node_modules",
-  ".bla-hardened",
+  ".axobfus-hardened",
   "dist",
   "coverage",
   ".venv",
@@ -369,7 +369,7 @@ function listCandidateFiles(root: string, limit: number): string[] {
     }
     for (const ent of entries) {
       if (out.length >= limit) break;
-      if (ent.name.startsWith(".") && ent.name !== ".blarc") {
+      if (ent.name.startsWith(".") && ent.name !== ".axobfusrc") {
         if (SCAN_SKIP.has(ent.name)) continue;
       }
       if (SCAN_SKIP.has(ent.name)) continue;
@@ -459,7 +459,7 @@ export function buildWeavePlan(
   const overallStatus = overallFromTargets(targets);
   const summaryZh =
     overallStatus === "ready"
-      ? "目标以 JS/Python 源码织入成熟度为主；可直接 bla_harden(weave_decoys:true) 并跑验收。"
+      ? "目标以 JS/Python 源码织入成熟度为主；可直接 axobfus_harden(weave_decoys:true) 并跑验收。"
       : overallStatus === "partial"
         ? "部分格式已织入或仅有 warm-init/sidecar；按 checklist 执行（.py 需 weave_decoys:true 激活客户 def 织入）。"
         : overallStatus === "gap"
@@ -507,13 +507,13 @@ export function getWeaveDirectivesMarkdown(): string {
     (s) => `- [${s.phase}] **${s.id}** — ${s.titleZh}: ${s.actionEn}`,
   ).join("\n");
 
-  return `# Weave-decoy directives (BLA Counter-REA)
+  return `# Weave-decoy directives (AXOBFUS Counter-REA)
 
 > 防御专用。禁止输出破解 / RE / 绕过 PoC。完整叙述见 \`${WEAVE_DECOY_DOC_PATH}\`。
 
 ## 为何空/同质 scare 诱饵失败（WorkBuddy）
 
-可剥离的空 \`_bla_*\`、同质 TEE 词表、与业务无关的 honeypot 层会被智能体整层过滤，难度不升。诱饵必须巧妙织入真实业务路径。
+可剥离的空 \`_axobfus_*\`、同质 TEE 词表、与业务无关的 honeypot 层会被智能体整层过滤，难度不升。诱饵必须巧妙织入真实业务路径。
 
 ## 织入原则
 
@@ -534,8 +534,8 @@ ${acceptance}
 ## MCP
 
 1. \`resources/read\` → \`${WEAVE_DIRECTIVES_URI}\`
-2. \`bla_weave_plan\` → 只读计划 JSON（\`${WEAVE_DECOY_SCHEMA}\`）
-3. \`bla_harden\` / \`bla_defend\` / \`bla_protect\` 传 \`weave_decoys: true\`
+2. \`axobfus_weave_plan\` → 只读计划 JSON（\`${WEAVE_DECOY_SCHEMA}\`）
+3. \`axobfus_harden\` / \`axobfus_defend\` / \`axobfus_protect\` 传 \`weave_decoys: true\`
 
 ## 管线现状
 

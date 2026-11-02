@@ -1,272 +1,130 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BLA (bla-agents) — Blind LLM Agents · Blue Defense Shield</title>
-    <meta
-      name="description"
-      content="BLA (Blind LLM Agents) is the open-source Blue Defense MCP and CLI built to protect software artifacts against automated AI reverse-engineering workflows."
-    />
-    <meta property="og:title" content="BLA: Blind LLM Agents — Blue Defense Shield" />
-    <meta property="og:image" content="assets/logo.png" />
-    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AxObfus — Defensive Counter-REA โดย AlexDev</title>
+    <meta name="description" content="AxObfus คือ CLI และ MCP สำหรับปกป้อง artifact ของคุณด้วย decoys, resource/semantic exhaustion และการเพิ่ม token consumption ของ analyzer" />
+    <meta property="og:title" content="AxObfus — Defensive Counter-REA" />
+    <meta property="og:description" content="ปกป้องสิ่งที่คุณสร้าง เพิ่มต้นทุนการวิเคราะห์ย้อนกลับ โดยไม่อ้างการป้องกันแบบสมบูรณ์" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="assets/social-card.svg" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/main.js" defer></script>
   </head>
   <body>
+    <a class="skip-link" href="#content">ข้ามไปยังเนื้อหา</a>
     <header class="site-header">
       <div class="container nav-bar">
-        <a href="./" class="brand">
-          <img src="assets/logo.png" alt="BLA Shield Logo" class="brand-logo" width="38" height="38" />
-          <span>BLA</span>
-          <span class="brand-badge" data-i18n="nav.badge">BLUE SHIELD v1.5</span>
+        <a class="brand" href="./" aria-label="AxObfus หน้าหลัก">
+          <img src="assets/logo.svg" alt="" width="40" height="40" />
+          <span><span class="brand-name">AxObfus</span><span class="brand-by">by AlexDev</span></span>
         </a>
-        <nav class="nav-links">
-          <a href="./" class="nav-link active" data-i18n="nav.overview">Overview</a>
-          <a href="get-started/" class="nav-link" data-i18n="nav.getStarted">Get Started</a>
-          <a href="showcase/" class="nav-link" data-i18n="nav.showcase">Benchmarks</a>
-          <a href="crackme/" class="nav-link" data-i18n="nav.crackme">CrackMe</a>
-          <a href="guides/" class="nav-link" data-i18n="nav.guides">Guides</a>
-          <a href="faq/" class="nav-link" data-i18n="nav.faq">FAQ</a>
+        <nav class="nav-links" aria-label="เมนูหลัก">
+          <a href="./" aria-current="page">ภาพรวม</a>
+          <a href="get-started/">เริ่มต้น</a>
+          <a href="showcase/">ประเมินผล</a>
+          <a href="faq/">คำถามพบบ่อย</a>
         </nav>
-        <div class="nav-actions">
-          <select id="bla-lang-select" class="lang-select" aria-label="Select Language">
-            <option value="en">🌐 English</option>
-            <option value="zh-CN">🌐 简体中文</option>
-            <option value="zh-TW">🌐 繁體中文</option>
-            <option value="ja">🌐 日本語</option>
-            <option value="ko">🌐 한국어</option>
-            <option value="es">🌐 Español</option>
-            <option value="fr">🌐 Français</option>
-            <option value="de">🌐 Deutsch</option>
-          </select>
-          <a href="https://github.com/qybaihe/bla" class="nav-cta" target="_blank" rel="noopener">
-            <span>★</span>
-            <span data-i18n="nav.star">Star</span>
-            <span class="star-pill" data-gh-stars>★</span>
-          </a>
-        </div>
+        <a class="nav-repo" href="https://github.com/AlexDev-TH/axobfus">GitHub</a>
       </div>
     </header>
 
-    <main>
-      <!-- Hero Section -->
+    <main id="content">
       <section class="hero">
-        <div class="container">
-          <img src="assets/logo.png" alt="BLA Blue Shield Logo" class="hero-logo" width="84" height="84" />
-          <div class="hero-pill">
-            <span class="dot-red" data-i18n="hero.pill.red">RE = Reverse Engineering</span>
-            <span>·</span>
-            <span data-i18n="hero.pill.blue">BL = Blue Defense (Blind LLM Agents)</span>
+        <div class="container hero-grid">
+          <div>
+            <p class="eyebrow">Defensive Counter-REA / CLI + MCP</p>
+            <h1>ปกป้องสิ่งที่คุณสร้าง.<br /><span>เพิ่มต้นทุนการวิเคราะห์.</span></h1>
+            <p class="lead">AxObfus เพิ่ม decoys ที่ถูกต้องตามรูปแบบไฟล์ สร้างภาระด้านทรัพยากรและความหมาย และเพิ่มโทเคนที่ analyzer ต้องใช้ เพื่อปกป้อง artifact ที่คุณเป็นเจ้าของจาก Reverse-Engineering Agents</p>
+            <div class="hero-actions">
+              <a class="button" href="get-started/">เริ่มต้นใช้งาน</a>
+              <a class="button secondary" href="showcase/">ดูแนวทางประเมินผล</a>
+            </div>
           </div>
-          <h1 class="hero-title" data-i18n-html="hero.title">
-            Protect Build Artifacts.<br />
-            <span class="text-blue">Disrupt Automated Reverse Engineering.</span>
-          </h1>
-          <p class="hero-subtitle" data-i18n="hero.subtitle">
-            One MCP server and CLI for auditing, protecting, and verifying JavaScript, Electron, WebAssembly, Python, SQLite, AI Models, and Native Binaries against AI reverse-engineering workflows—while preserving 100% of original runtime behavior.
-          </p>
-
-          <div class="command-box">
-            <code class="command-code">npx bla-agents@latest setup &amp;&amp; npx bla-agents@latest harden .</code>
-            <button
-              class="copy-btn"
-              data-copy="npx bla-agents@latest setup && npx bla-agents@latest harden ."
-              data-i18n="hero.copy"
-            >
-              Copy
-            </button>
-          </div>
-
-          <div class="hero-actions">
-            <a href="get-started/" class="btn-primary" data-i18n="hero.ctaPrimary">Quick Start →</a>
-            <a href="showcase/" class="btn-secondary" data-i18n="hero.ctaSecondary">View Benchmarks</a>
-            <a href="https://github.com/qybaihe/bla" target="_blank" rel="noopener" class="btn-star">
-              <span>⭐</span>
-              <span data-i18n="hero.starBtn">Star on GitHub</span>
-              <span class="star-pill" data-gh-stars>★</span>
-            </a>
-          </div>
-
-          <p class="star-welcome">
-            <a href="https://github.com/qybaihe/bla" target="_blank" rel="noopener" data-i18n="hero.starWelcome">
-              ⭐ Open-source under the MIT License — if BLA is helpful to your project, welcome to give us a Star on GitHub!
-            </a>
-          </p>
+          <aside class="hero-panel" aria-label="ข้อมูลผลิตภัณฑ์">
+            <div class="hero-mark" aria-hidden="true">AX<span>/</span>O</div>
+            <dl>
+              <div class="spec"><dt>Creator</dt><dd>AlexDev</dd></div>
+              <div class="spec"><dt>Package</dt><dd><code>axobfus</code></dd></div>
+              <div class="spec"><dt>Runtime</dt><dd>Node.js 22.23.4+ / 24+</dd></div>
+              <div class="spec"><dt>License</dt><dd>MIT · เปิดเผยที่มาต้นฉบับ</dd></div>
+            </dl>
+          </aside>
         </div>
       </section>
 
-      <!-- Interactive Analysis Comparison -->
-      <section class="section">
+      <div class="container command-wrap">
+        <div class="command">
+          <code>npx axobfus setup &amp;&amp; npx axobfus harden .</code>
+          <button class="copy-button" type="button" data-copy="npx axobfus setup && npx axobfus harden .">คัดลอก</button>
+        </div>
+        <p class="copy-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <section class="section" aria-labelledby="defense-title">
         <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="sim.eyebrow">Static &amp; Semantic Analysis Comparison</div>
-            <h2 class="section-title" data-i18n="sim.title">Unprotected Baseline vs. Protected with BLA (`bla-agents`)</h2>
-            <p class="section-lead" data-i18n-html="sim.lead">
-              Select a target format below to see how <code>npx bla-agents harden</code> changes static analyzer output, resource budget consumption, and reconstruction status.
-            </p>
+          <div class="section-head">
+            <span class="section-index">01 / กลไก</span>
+            <div><h2 id="defense-title">เปลี่ยนเส้นทางวิเคราะห์ ไม่ใช่แค่เปลี่ยนชื่อตัวแปร</h2><p class="section-intro">กลไกแต่ละชั้นมีเป้าหมายเพิ่มจำนวนหลักฐานและงบประมาณที่ analyzer ต้องใช้ โดยขึ้นกับรูปแบบ artifact และเครื่องมือวิเคราะห์</p></div>
           </div>
-
-          <div class="sim-tabs">
-            <button class="sim-tab active" data-scenario="electron" data-i18n="sim.tab.electron">Electron .asar</button>
-            <button class="sim-tab" data-scenario="dxball" data-i18n="sim.tab.dxball">JavaScript / TypeScript</button>
-            <button class="sim-tab" data-scenario="native" data-i18n="sim.tab.native">Native ELF / Mach-O / PE</button>
-            <button class="sim-tab" data-scenario="model" data-i18n="sim.tab.model">SQLite &amp; Safetensors / GGUF</button>
-          </div>
-
-          <div class="duel-grid">
-            <div class="duel-panel red">
-              <div class="duel-badge red" data-i18n="sim.red.badge">🔴 UNPROTECTED BASELINE (REA ANALYSIS)</div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.red.timeLabel">Analysis Time</span>
-                <span class="metric-val red" id="sim-red-time">38s (5 MCP calls)</span>
-              </div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.red.tokensLabel">Estimated Token Usage</span>
-                <span class="metric-val red" id="sim-red-tokens">4,800 tokens</span>
-              </div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.red.costLabel">Estimated API Cost</span>
-                <span class="metric-val red" id="sim-red-cost">$0.20 USD</span>
-              </div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.red.verdictLabel">Analysis Status</span>
-                <span class="metric-val red" id="sim-red-verdict">Complete</span>
-              </div>
-              <details class="evidence-drawer">
-                <summary data-i18n="sim.red.drawer">View Baseline Static &amp; Semantic Output</summary>
-                <div class="drawer-body" id="sim-red-trace"></div>
-              </details>
-            </div>
-
-            <div class="duel-panel blue">
-              <div class="duel-badge blue" data-i18n="sim.blue.badge">🔵 PROTECTED WITH BLA (`bla-agents`)</div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.blue.timeLabel">Analysis Duration</span>
-                <span class="metric-val blue" id="sim-blue-time">17+ min (Budget Limited)</span>
-              </div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.blue.tokensLabel">Estimated Token Usage</span>
-                <span class="metric-val blue" id="sim-blue-tokens">198,400 tokens (41.3x)</span>
-              </div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.blue.costLabel">Estimated API Cost</span>
-                <span class="metric-val blue" id="sim-blue-cost">$14.88 USD</span>
-              </div>
-              <div class="metric-row">
-                <span class="metric-label" data-i18n="sim.blue.verdictLabel">Analysis Status</span>
-                <span class="metric-val blue" id="sim-blue-verdict">Limited</span>
-              </div>
-              <details class="evidence-drawer">
-                <summary data-i18n="sim.blue.drawer">View Protected Analyzer Output</summary>
-                <div class="drawer-body" id="sim-blue-trace"></div>
-              </details>
-            </div>
+          <div class="three-col">
+            <article class="principle"><span class="number">01 — DECOYS</span><h3>หลักฐานลวงที่สอดคล้องกัน</h3><p>เพิ่ม metadata, diagnostics, control flow และ semantic paths ที่นำการอนุมานออกจากตรรกะจริง</p></article>
+            <article class="principle"><span class="number">02 — EXHAUSTION</span><h3>ภาระด้านทรัพยากรและความหมาย</h3><p>ขยาย headers, nesting, interfaces และ call graphs เพื่อเพิ่มงานหรือเข้าถึงขีดจำกัดของ analyzer</p></article>
+            <article class="principle"><span class="number">03 — TOKEN COST</span><h3>โทเคนที่ต้องอ่านมากขึ้น</h3><p>เพิ่มหลักฐานที่โมเดลต้องพิจารณา ทำให้การสรุปและ reconstruction ใช้ขั้นตอนกับโทเคนเพิ่มขึ้น</p></article>
           </div>
         </div>
       </section>
 
-      <!-- Three Core Pillars -->
-      <section class="section">
+      <section class="section alt" aria-labelledby="workflow-title">
         <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="pillars.eyebrow">How BLA Works</div>
-            <h2 class="section-title" data-i18n="pillars.title">Three Defense Layers Aligned with Analyzer Internals</h2>
-            <p class="section-lead" data-i18n-html="pillars.lead">
-              Rather than relying solely on identifier renaming, BLA targets the static resource limits, call-graph traversal budgets, and evidence rules used by automated reverse-engineering tools.
-            </p>
+          <div class="section-head">
+            <span class="section-index">02 / เวิร์กโฟลว์</span>
+            <div><h2 id="workflow-title">จาก exposure สู่หลักฐานที่ตรวจทานได้</h2><p class="section-intro">ทำงานบนสำเนาใน staging เก็บต้นฉบับ และใช้รายงาน HTML แบบ standalone ที่เปิดออฟไลน์ได้ประกอบการตัดสินใจ release</p></div>
           </div>
-
-          <div class="grid-3">
-            <div class="card">
-              <span class="card-tag" data-i18n="pillars.c1.tag">01 · Resource Budget Guards</span>
-              <h3 data-i18n="pillars.c1.title">Saturate Static &amp; Semantic Limits</h3>
-              <p data-i18n-html="pillars.c1.desc">
-                Triggers analyzer admission caps (<code>primitive-candidates &gt; 256</code>, <code>alias-selections &gt; 512</code>, <code>primitive-bytes &gt; 1 MiB</code>) and expands <code>ReconstructionObligationPolicies</code> across strongly connected call-graph meshes.
-              </p>
-            </div>
-
-            <div class="card">
-              <span class="card-tag" data-i18n="pillars.c2.tag">02 · Evidence &amp; Control-Flow Decoys</span>
-              <h3 data-i18n="pillars.c2.title">Demote Real Paths, Surface Decoy Logic</h3>
-              <p data-i18n-html="pillars.c2.desc">
-                Demotes core business logic to <code>status: "unknown"</code> under static inspection while presenting self-consistent shadow state machines, enclave delegation metadata, and decoy source maps.
-              </p>
-            </div>
-
-            <div class="card">
-              <span class="card-tag" data-i18n="pillars.c3.tag">03 · One-Command Workflow</span>
-              <h3 data-i18n="pillars.c3.title">MCP Server, CLI &amp; Bundler Plugins</h3>
-              <p data-i18n-html="pillars.c3.desc">
-                Run <code>npx bla-agents setup</code> to register with Claude Code, Cursor, Codex, Windsurf, or Gemini CLI, then run the 5-stage protection pipeline with <code>bla_harden</code> or <code>npx bla-agents harden</code>.
-              </p>
-            </div>
+          <div class="workflow">
+            <div class="workflow-row"><span class="number">01</span><h3>AUDIT</h3><p>ตรวจ exposure และจุดเสี่ยง แล้วบันทึกด้วย <code>axobfus audit ./dist --report ./reports/audit.html</code></p></div>
+            <div class="workflow-row"><span class="number">02</span><h3>DEFEND</h3><p>ใช้ pipeline ป้องกันและเก็บผลด้วย <code>axobfus defend ./dist --report ./reports/defend.html</code></p></div>
+            <div class="workflow-row"><span class="number">03</span><h3>VERIFY</h3><p>เปรียบเทียบกับต้นฉบับด้วย <code>axobfus verify ./dist.protected ./dist</code> แล้วรัน test suite ของผลิตภัณฑ์</p></div>
           </div>
         </div>
       </section>
 
-      <!-- 6-Card Supported Formats Overview -->
-      <section class="section">
+      <section class="section" aria-labelledby="formats-title">
         <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="formats.eyebrow">19 Supported Artifact Formats</div>
-            <h2 class="section-title" data-i18n="formats.title">Full-Stack &amp; Binary Coverage, Zero External Dependencies</h2>
-            <p class="section-lead" data-i18n="formats.lead">
-              Every static, bytecode, database, model, and binary protection pass runs locally in Node.js 22.13+ / 24+.
-            </p>
+          <div class="section-head">
+            <span class="section-index">03 / Artifact</span>
+            <div><h2 id="formats-title">การป้องกันที่เข้ากับรูปแบบไฟล์</h2><p class="section-intro">AxObfus เลือกกลไกตามชนิด artifact แทนการใช้วิธีเดียวกับทุกไฟล์</p></div>
           </div>
+          <div class="format-grid">
+            <article class="format-item"><h3>JavaScript / Electron</h3><p>Semantic decoys, IPC protection, source-map controls และ analyzer workload</p></article>
+            <article class="format-item"><h3>WebAssembly / Python</h3><p>Custom sections, interface expansion, marshal metadata และ decoy paths</p></article>
+            <article class="format-item"><h3>Native binaries</h3><p>ELF, Mach-O และ PE metadata รวมถึง compile-time header integration</p></article>
+            <article class="format-item"><h3>Data / Models / Mobile</h3><p>SQLite, Safetensors, GGUF, DEX และ IL2CPP structures ตามความเหมาะสม</p></article>
+          </div>
+        </div>
+      </section>
 
-          <div class="grid-3">
-            <div class="card">
-              <span class="card-tag" data-i18n="formats.f1.tag">JS / TS / Bundlers</span>
-              <h3 data-i18n="formats.f1.title">Web &amp; Node Bundles</h3>
-              <p data-i18n="formats.f1.desc">Opaque ternary guards, dynamic alias selectors, call-graph state machines, decoy SourceMaps, and Vite/Webpack/Rollup/esbuild plugins.</p>
-            </div>
-            <div class="card">
-              <span class="card-tag" data-i18n="formats.f2.tag">Electron .asar &amp; Fuses</span>
-              <h3 data-i18n="formats.f2.title">Desktop Applications</h3>
-              <p data-i18n="formats.f2.desc">De-literalizes IPC channels, adds duplicate decoy handlers, hardens Electron V1 Fuses (RunAsNode=0), and exceeds the 32-sentinel scan limit.</p>
-            </div>
-            <div class="card">
-              <span class="card-tag" data-i18n="formats.f3.tag">ELF / Mach-O / PE</span>
-              <h3 data-i18n="formats.f3.title">Native Binaries</h3>
-              <p data-i18n="formats.f3.desc">Exceeds MAX_RUSTC_HASHES = 64, adds decoy .dep-v0 &amp; Go buildinfo metadata, and emits C/C++, Rust, and Go compile-time headers.</p>
-            </div>
-            <div class="card">
-              <span class="card-tag" data-i18n="formats.f4.tag">WebAssembly &amp; Python</span>
-              <h3 data-i18n="formats.f4.title">.wasm &amp; .py / .pyc</h3>
-              <p data-i18n="formats.f4.desc">Expands WABT interface descriptors, adds custom decoy sections, and appends CPython marshal constant-pool entries.</p>
-            </div>
-            <div class="card">
-              <span class="card-tag" data-i18n="formats.f5.tag">SQLite &amp; AI Models</span>
-              <h3 data-i18n="formats.f5.title">.sqlite, .safetensors, .gguf</h3>
-              <p data-i18n="formats.f5.desc">Adds virtual generated-column guards on read-only snapshots and exceeds 32-level JSON/GGUF metadata nesting limits.</p>
-            </div>
-            <div class="card">
-              <span class="card-tag" data-i18n="formats.f6.tag">Android &amp; Unity</span>
-              <h3 data-i18n="formats.f6.title">DEX, APK &amp; IL2CPP</h3>
-              <p data-i18n="formats.f6.desc">Appends decoy DEX string descriptors with recomputed SHA-1/Adler32 headers and adds decoy metadata entries in Unity global-metadata.dat.</p>
-            </div>
+      <section class="section alt" aria-labelledby="limits-title">
+        <div class="container">
+          <div class="notice">
+            <h2 id="limits-title">เพิ่มต้นทุน ไม่ใช่คำมั่นถึงความลับสมบูรณ์</h2>
+            <p>ไม่มี client-side protection ใดรับประกันการป้องกันนักวิเคราะห์ที่มีเวลา เครื่องมือ และสิทธิ์ runtime ไม่จำกัด เก็บ private keys และ master secrets ไว้ฝั่งเซิร์ฟเวอร์ ใช้ AxObfus เป็นส่วนหนึ่งของ defense-in-depth และประเมินผลกับ artifact ของคุณเอง</p>
+            <p><a href="https://github.com/AlexDev-TH/axobfus/blob/main/DISCLAIMER.md">อ่านข้อจำกัดด้านกฎหมายและเทคนิค</a></p>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-inner">
-        <div data-i18n-html="footer.tagline">
-          <strong>BLA (`bla-agents`)</strong> · Blind LLM Agents · Software Protection MCP &amp; CLI · MIT License
+      <div class="container">
+        <div class="footer-grid">
+          <div><div class="footer-brand">AxObfus <span class="orange">/</span> AlexDev</div><p class="footer-note">Defensive Counter-REA toolkit สำหรับ artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาต</p></div>
+          <div class="footer-links"><a href="get-started/">เริ่มต้น</a><a href="faq/">FAQ</a><a href="https://www.npmjs.com/package/axobfus">npm</a><a href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div>
         </div>
-        <div>
-          <a href="https://github.com/qybaihe/bla">GitHub ★</a> ·
-          <a href="https://www.npmjs.com/package/bla-agents">npm (`bla-agents`)</a> ·
-          <a href="get-started/" data-i18n="nav.getStarted">Get Started</a>
-        </div>
+        <div class="footer-bottom">MIT LICENSE · ORIGINAL ATTRIBUTION: github.com/qybaihe/bla</div>
       </div>
     </footer>
-
-    <script src="assets/i18n.js"></script>
-    <script src="assets/main.js"></script>
-    <script src="assets/home.js"></script>
   </body>
 </html>

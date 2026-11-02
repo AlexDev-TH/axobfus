@@ -1,7 +1,7 @@
 {
-  "name": "bla-agents",
-  "version": "1.6.4",
-  "description": "BLA (Blind LLM Agents) \u2014 Adversarial defense shield that protects binaries, Electron apps, JS bundles, Python, WebAssembly, SQLite, AI Models, and Android DEX/IL2CPP against AI reverse-engineering agents like REA.",
+  "name": "axobfus",
+  "version": "0.1.0",
+  "description": "AxObfus \u2014 Defensive Counter-REA toolkit that protects binaries, Electron apps, JS bundles, Python, WebAssembly, SQLite, AI Models, and Android DEX/IL2CPP against AI reverse-engineering agents like REA.",
   "keywords": [
     "reverse-engineering-defense",
     "anti-rea",
@@ -19,21 +19,19 @@
     "claude-code",
     "cursor"
   ],
-  "homepage": "https://bla.tools",
+  "homepage": "https://github.com/AlexDev-TH/axobfus",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/qybaihe/bla.git"
+    "url": "git+https://github.com/AlexDev-TH/axobfus.git"
   },
   "bugs": {
-    "url": "https://github.com/qybaihe/bla/issues"
+    "url": "https://github.com/AlexDev-TH/axobfus/issues"
   },
   "license": "MIT",
-  "author": "BLA Contributors",
+  "author": "AlexDev",
   "type": "module",
   "bin": {
-    "bla": "./dist/cli.js",
-    "bla-agents": "./dist/cli.js",
-    "bla-shield": "./dist/cli.js"
+    "axobfus": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -49,7 +47,7 @@
   },
   "files": [
     "dist",
-    ".agents/skills/blind-llm-agents",
+    ".agents/skills/axobfus",
     "README.md",
     "LICENSE",
     "DISCLAIMER.md"
@@ -66,8 +64,8 @@
     "benchmark": "node dist/cli.js benchmark",
     "version": "node scripts/sync-version.mjs && git add src/identity.ts",
     "sync:site": "node scripts/sync-site.mjs",
-    "release:patch": "npm version patch -m 'chore(release): bla-agents v%s' && git push --follow-tags",
-    "release:minor": "npm version minor -m 'chore(release): bla-agents v%s' && git push --follow-tags",
+    "release:patch": "npm version patch -m 'chore(release): axobfus v%s' && git push --follow-tags",
+    "release:minor": "npm version minor -m 'chore(release): axobfus v%s' && git push --follow-tags",
     "prepublishOnly": "npm run build && npm test",
     "verify:rea": "node scripts/verify-rea-constants.mjs",
     "redteam:rea": "node scripts/redteam/run.mjs",

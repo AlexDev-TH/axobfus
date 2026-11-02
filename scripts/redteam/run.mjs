@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Empirical red-team harness: unhardened vs BLA-hardened samples against
+ * Empirical red-team harness: unhardened vs AxObfus-hardened samples against
  * real in-process REA parsers. Writes docs/redteam/empirical-rea-validation.{md,json}.
  */
 import { spawnSync } from "node:child_process";
 import {
-  BLA_ROOT,
+  AXOBFUS_ROOT,
   REA_ROOT,
   resolveTsharkEnv,
   reaDistReady,
@@ -46,9 +46,9 @@ async function main() {
     process.exit(0);
   }
   const tshark = resolveTsharkEnv();
-  const { bla, intensity, seed, samples } = await buildSampleMatrix();
+  const { axobfus, intensity, seed, samples } = await buildSampleMatrix();
   const rea = await loadReaProbes();
-  const limits = bla.REA_INTERNAL_LIMITS;
+  const limits = axobfus.REA_INTERNAL_LIMITS;
 
   const pairs = [];
 
@@ -64,8 +64,8 @@ async function main() {
       sampleMeta: s.meta,
       blaLimits: limits,
     });
-    const flBefore = await probeFlutterPool(bla, s.before, "before", limits);
-    const flAfter = await probeFlutterPool(bla, s.after, "after", limits);
+    const flBefore = await probeFlutterPool(axobfus, s.before, "before", limits);
+    const flAfter = await probeFlutterPool(axobfus, s.after, "after", limits);
     pairs.push({
       format: "flutter_pool",
       before: flBefore,
@@ -157,8 +157,8 @@ async function main() {
     const s = samples.wasm_module;
     pairs.push({
       format: "wasm_module",
-      before: await probeWasm(rea, bla, s.before, "before", s.meta),
-      after: await probeWasm(rea, bla, s.after, "after", s.meta),
+      before: await probeWasm(rea, axobfus, s.before, "before", s.meta),
+      after: await probeWasm(rea, axobfus, s.after, "after", s.meta),
       sampleMeta: s.meta,
       blaLimits: limits,
     });
@@ -168,8 +168,8 @@ async function main() {
     const s = samples.sqlite_db;
     pairs.push({
       format: "sqlite_db",
-      before: await probeSqlite(rea, bla, s.before, "before"),
-      after: await probeSqlite(rea, bla, s.after, "after"),
+      before: await probeSqlite(rea, axobfus, s.before, "before"),
+      after: await probeSqlite(rea, axobfus, s.after, "after"),
       sampleMeta: s.meta,
       blaLimits: limits,
     });
@@ -202,7 +202,8 @@ async function main() {
       timeZone: "Asia/Shanghai",
       hour12: false,
     }),
-    blaRoot: BLA_ROOT,
+    blaRoot: AXOBFUS_ROOT,
+    axobfusVersion: axobfus.AXOBFUS_IDENTITY.version,
     reaRoot: REA_ROOT,
     intensity,
     seed,

@@ -1,100 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Technical Guides — BLA (bla-agents)</title>
-    <link rel="icon" type="image/png" href="../assets/favicon.png" />
-    <link rel="stylesheet" href="../assets/styles.css" />
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>คู่มือการป้องกัน — AxObfus</title>
+    <meta name="description" content="แนวทางเลือก workflow และตรวจสอบ artifact ด้วย AxObfus ตามรูปแบบไฟล์" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" /><link rel="stylesheet" href="../assets/styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container nav-bar">
-        <a href="../" class="brand">
-          <img src="../assets/logo.png" alt="BLA Shield Logo" class="brand-logo" width="38" height="38" />
-          <span>BLA</span>
-          <span class="brand-badge" data-i18n="nav.badge">BLUE SHIELD v1.5</span>
-        </a>
-        <nav class="nav-links">
-          <a href="../" class="nav-link" data-i18n="nav.overview">Overview</a>
-          <a href="../get-started/" class="nav-link" data-i18n="nav.getStarted">Get Started</a>
-          <a href="../showcase/" class="nav-link" data-i18n="nav.showcase">Benchmarks</a>
-          <a href="../crackme/" class="nav-link" data-i18n="nav.crackme">CrackMe</a>
-          <a href="./" class="nav-link active" data-i18n="nav.guides">Guides</a>
-          <a href="../faq/" class="nav-link" data-i18n="nav.faq">FAQ</a>
-        </nav>
-        <div class="nav-actions">
-          <select id="bla-lang-select" class="lang-select" aria-label="Select Language">
-            <option value="en">🌐 English</option>
-            <option value="zh-CN">🌐 简体中文</option>
-            <option value="zh-TW">🌐 繁體中文</option>
-            <option value="ja">🌐 日本語</option>
-            <option value="ko">🌐 한국어</option>
-            <option value="es">🌐 Español</option>
-            <option value="fr">🌐 Français</option>
-            <option value="de">🌐 Deutsch</option>
-          </select>
-          <a href="https://github.com/qybaihe/bla" class="nav-cta" target="_blank" rel="noopener">
-            <span>★</span>
-            <span data-i18n="nav.star">Star</span>
-            <span class="star-pill" data-gh-stars>★</span>
-          </a>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <section class="section">
-        <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="gd.eyebrow">Technical Architecture Guides</div>
-            <h1 class="section-title" data-i18n="gd.title">How BLA Protects Build Artifacts</h1>
-            <p class="section-lead" data-i18n-html="gd.lead">
-              Each protection pass is designed around the static analyzers, resource caps, and evidence rules used by automated reverse-engineering pipelines.
-            </p>
-          </div>
-
-          <div class="grid-2">
-            <div class="card">
-              <span class="card-tag" data-i18n="pillars.c1.tag">01 · Resource Budget Guards</span>
-              <h3 data-i18n="pillars.c1.title">Saturate Static &amp; Semantic Limits</h3>
-              <p data-i18n-html="pillars.c1.desc">
-                Triggers analyzer admission caps with O(1) runtime identities inside unreachable branches.
-              </p>
-              <details class="evidence-drawer">
-                <summary>View Analyzer Limit Mapping</summary>
-                <div class="drawer-body">• SEMANTIC_PRIMITIVE_CANDIDATE_LIMIT = 256 -> 9-chunk opaque ternary (512)
-• SEMANTIC_ALIAS_SELECTION_LIMIT = 512 -> 528+ dynamic selector states
-• SEMANTIC_PRIMITIVE_JSON_BYTES_LIMIT = 1 MiB -> (codeUnits * 6 + 2) expansion
-• ReconstructionObligationPolicies -> 22-family obligation expansion</div>
-              </details>
-            </div>
-
-            <div class="card">
-              <span class="card-tag" data-i18n="pillars.c2.tag">02 · Evidence &amp; Control-Flow Decoys</span>
-              <h3 data-i18n="pillars.c2.title">Demote Real Paths, Surface Decoy Logic</h3>
-              <p data-i18n-html="pillars.c2.desc">
-                Demotes core business logic to status: "unknown" under static inspection while presenting self-consistent shadow state machines.
-              </p>
-              <details class="evidence-drawer">
-                <summary>View Shadow Business Logic Strategy</summary>
-                <div class="drawer-body">1. Demote real logic to status: "unknown" via static budget guards.
-2. Provide self-consistent Shadow Business Logic (Shamir-Ed25519 rings, tiered billing matrices, TPM2 PCR0 quotes).
-3. Include enclave delegation metadata (vsock CID 16) and decoy VLQ source maps.</div>
-              </details>
-            </div>
-          </div>
-        </div>
-      </section>
+    <a class="skip-link" href="#content">ข้ามไปยังเนื้อหา</a>
+    <header class="site-header"><div class="container nav-bar"><a class="brand" href="../" aria-label="AxObfus หน้าหลัก"><img src="../assets/logo.svg" alt="" width="40" height="40" /><span><span class="brand-name">AxObfus</span><span class="brand-by">by AlexDev</span></span></a><nav class="nav-links" aria-label="เมนูหลัก"><a href="../">ภาพรวม</a><a href="../get-started/">เริ่มต้น</a><a href="../showcase/">ประเมินผล</a><a href="../faq/">คำถามพบบ่อย</a></nav><a class="nav-repo" href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></header>
+    <main id="content">
+      <section class="page-hero"><div class="container"><p class="eyebrow">Guides / Format-aware defense</p><h1>เลือกการป้องกัน<br />ตาม artifact จริง.</h1><p class="lead">เริ่มจาก audit ใช้กลไกที่เหมาะกับชนิดไฟล์ และตรวจทั้งความถูกต้องของรูปแบบและพฤติกรรมโปรแกรม</p></div></section>
+      <section class="section alt"><div class="container"><div class="section-head"><span class="section-index">01 / แนวทาง</span><div><h2>คำสั่งฐานเดียวกัน บริบทตรวจสอบต่างกัน</h2><p class="section-intro">ตัวอย่างนี้ใช้กับ artifact ที่คุณเป็นเจ้าของ ปรับ path ให้ตรงกับ output ของคุณ</p></div></div><pre><code>axobfus audit ./dist --report ./reports/audit.html
+axobfus defend ./dist --report ./reports/defend.html
+axobfus verify ./dist.protected ./dist</code></pre><div class="format-grid">
+        <article class="format-item"><h3>JavaScript / Electron</h3><p>ตรวจ IPC, source maps, module loading และ functional behavior ของ renderer/main process</p></article>
+        <article class="format-item"><h3>WASM / Python</h3><p>ตรวจ exports, imports, format validation และ runtime compatibility หลังเพิ่ม metadata หรือ decoys</p></article>
+        <article class="format-item"><h3>Native binaries</h3><p>ตรวจ sections, exports, signing, packaging และ workload บนแพลตฟอร์มเป้าหมาย</p></article>
+        <article class="format-item"><h3>SQLite / Models / Mobile</h3><p>ตรวจ schema, tensor data, checksums, installation และการเปิดไฟล์ด้วย runtime ปกติ</p></article>
+      </div></div></section>
+      <section class="section"><div class="container two-col"><article class="info-block"><h2>อ่านรายงานอย่างมีวิจารณญาณ</h2><p>แยกสิ่งที่เครื่องมือสังเกตได้ออกจากค่าประมาณ token/cost และจากผล analyzer ที่คุณรันเอง เก็บ environment และเวอร์ชันประกอบทุกครั้ง</p></article><article class="info-block"><h2>ไม่มีการป้องกันสมบูรณ์</h2><p>AxObfus เพิ่มต้นทุนด้าน resource, semantics และโทเคน แต่ไม่รับประกันความลับ เก็บความลับสำคัญไว้ฝั่งเซิร์ฟเวอร์และใช้ defense-in-depth</p></article></div></section>
     </main>
-
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <div data-i18n-html="footer.tagline"><strong>BLA (`bla-agents`)</strong> · Blind LLM Agents · Software Protection MCP &amp; CLI</div>
-        <div><a href="https://github.com/qybaihe/bla">GitHub ★</a> · <a href="../" data-i18n="nav.overview">Overview</a></div>
-      </div>
-    </footer>
-    <script src="../assets/i18n.js"></script>
-    <script src="../assets/main.js"></script>
+    <footer class="site-footer"><div class="container"><div class="footer-grid"><div><div class="footer-brand">AxObfus <span class="orange">/</span> AlexDev</div><p class="footer-note">Defensive Counter-REA toolkit</p></div><div class="footer-links"><a href="../get-started/">เริ่มต้น</a><a href="../faq/">FAQ</a><a href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></div><div class="footer-bottom">MIT LICENSE · ORIGINAL ATTRIBUTION: github.com/qybaihe/bla</div></div></footer>
   </body>
 </html>

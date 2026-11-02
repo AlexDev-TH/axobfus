@@ -1,5 +1,5 @@
-# Example GitHub Actions snippet for hardening release artifacts with BLA
-name: Harden Build with BLA Blue Shield
+# Example GitHub Actions snippet for hardening release artifacts with AxObfus
+name: Harden Build with AxObfus
 on:
   workflow_dispatch:
 
@@ -11,4 +11,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npx -y bla-agents@latest defend ./dist -o ./dist-shielded --manifest
+      - run: npx -y axobfus@latest defend ./dist -o ./dist-shielded --manifest

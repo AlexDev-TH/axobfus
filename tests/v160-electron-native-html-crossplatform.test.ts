@@ -478,7 +478,7 @@ describe("v1.6.0 Signed & Standalone Native Binary Integrity Guard + Sidecar Dec
     expect(readFileSync(peOut).equals(signedPeBytes)).toBe(true);
     expect(existsSync(`${peOut}.bunfs-snapshot`)).toBe(true);
     expect(detectBunStandaloneGraph(readFileSync(`${peOut}.bunfs-snapshot`)).kind).not.toBe("none");
-    expect(peReport.protection.afterAudit.protectionStatus).toBe("BLA_PROTECTED");
+    expect(peReport.protection.afterAudit.protectionStatus).toBe("AXOBFUS_PROTECTED");
     expect(peReport.verification.overallPassed).toBe(true);
 
     // On macOS with clang + codesign, verify a real compiled Mach-O binary under `codesign --strict`
@@ -555,7 +555,7 @@ describe("v1.6.0 HTML Bundle Multi-Script Isolation, Importmap/JSON Preservation
       seed: "v160-html-multi",
     });
 
-    expect(report.protection.afterAudit.protectionStatus).toBe("BLA_PROTECTED");
+    expect(report.protection.afterAudit.protectionStatus).toBe("AXOBFUS_PROTECTED");
     expect(report.protection.afterAudit.reaSimulation.parseStatus).toBe("complete");
     expect(report.verification.overallPassed).toBe(true);
 
@@ -627,7 +627,7 @@ describe("v1.6.0 HTML Bundle Multi-Script Isolation, Importmap/JSON Preservation
       seed: "v160-html-vite",
     });
 
-    expect(report.protection.afterAudit.protectionStatus).toBe("BLA_PROTECTED");
+    expect(report.protection.afterAudit.protectionStatus).toBe("AXOBFUS_PROTECTED");
     expect(report.verification.overallPassed).toBe(true);
     const outHtml = readFileSync(htmlOut, "utf8");
     expect(outHtml).toContain('src="/assets/index-D8f2a.js"');
@@ -689,7 +689,7 @@ describe("v1.6.0 Cross-Platform Windows SARIF & CrackMe v5.2 Anti-Virtualization
       vulnerableReaVectors: ["js-static-semantics"],
       agentEstimates: [],
       headlineWarning: "DANGER",
-      recommendedCommand: "npx bla-agents protect",
+      recommendedCommand: "npx axobfus protect",
     };
 
     const sarif = buildSarifReport(fakeAudit, {

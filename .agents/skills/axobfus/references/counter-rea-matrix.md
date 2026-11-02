@@ -1,6 +1,6 @@
-# Complete 24-Vector Counter-REA Matrix (`morluto/rea` vs `bla-agents`)
+# Complete 24-Vector Counter-REA Matrix (`morluto/rea` vs `axobfus`)
 
-| # | REA Source File (`morluto/rea`) | REA Mechanism / Limit | BLA Countermeasure Module |
+| # | REA Source File (`morluto/rea`) | REA Mechanism / Limit | AxObfus Countermeasure Module |
 | :- | :--- | :--- | :--- |
 | 1 | `javascriptSemanticResourceLimits.ts:7` | `SEMANTIC_PRIMITIVE_CANDIDATE_LIMIT = 256` | `ast-shield.ts` ($\ge 9$-chunk opaque ternaries $\to 512$ candidates) |
 | 2 | `javascriptSemanticResourceLimits.ts:9` | `SEMANTIC_EXPRESSION_DEPTH_LIMIT = 256` | `rea-budget-matrix.ts` (nested arithmetic identity chains) |

@@ -7,8 +7,8 @@ import vm from "node:vm";
 import { parse } from "@babel/parser";
 import { describe, expect, it } from "vitest";
 import {
-  blaEsbuildPlugin,
-  blaRollupPlugin,
+  axobfusEsbuildPlugin,
+  axobfusRollupPlugin,
   inferCarrierFromRollupFormat,
   inferEsbuildLoader,
 } from "../src/bundler/index.js";
@@ -538,7 +538,7 @@ describe("P1 Format Contracts (#13 ASAR, #14 Python, #15 JS/Bundler, #16 ELF64, 
       expect(inferEsbuildLoader("src/util.cts")).toBe("ts");
       expect(inferEsbuildLoader("src/index.mjs")).toBe("js");
 
-      const rollupPlugin = blaRollupPlugin({ honeySourceMap: false });
+      const rollupPlugin = axobfusRollupPlugin({ honeySourceMap: false });
       const iifeChunk = rollupPlugin.renderChunk(
         "(() => { const x = 1; })();",
         { fileName: "app.js" },
@@ -547,8 +547,8 @@ describe("P1 Format Contracts (#13 ASAR, #14 Python, #15 JS/Bundler, #16 ELF64, 
       expect(iifeChunk).not.toBeNull();
       expect(/\bexport\b/.test(iifeChunk!.code)).toBe(false);
 
-      // Test blaEsbuildPlugin onLoad with .tsx and .jsx files
-      const tmpDir = mkdtempSync(join(tmpdir(), "bla-esbuild-test-"));
+      // Test axobfusEsbuildPlugin onLoad with .tsx and .jsx files
+      const tmpDir = mkdtempSync(join(tmpdir(), "axobfus-esbuild-test-"));
       try {
         const tsxPath = join(tmpDir, "Widget.tsx");
         const jsxPath = join(tmpDir, "Button.jsx");
@@ -568,7 +568,7 @@ describe("P1 Format Contracts (#13 ASAR, #14 Python, #15 JS/Bundler, #16 ELF64, 
               path: string;
             }) => Promise<{ contents: string; loader: string } | null>)
           | undefined;
-        const esbuildPlugin = blaEsbuildPlugin();
+        const esbuildPlugin = axobfusEsbuildPlugin();
         esbuildPlugin.setup({
           onLoad(_opts, cb) {
             registeredCallback = cb;

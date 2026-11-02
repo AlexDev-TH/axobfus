@@ -1,28 +1,44 @@
-# Legal & Technical Disclaimer
+# ข้อจำกัดความรับผิดทางกฎหมายและเทคนิค
 
-**BLA (`bla-agents` — Blind LLM Agents)** is a **defensive** software-engineering and intellectual-property protection toolkit. It is intended for software authors, independent developers, and security researchers to protect **their own** first-party software artifacts against automated AI reverse-engineering pipelines such as REA.
+**AxObfus โดย AlexDev (`axobfus`)** เป็นชุดเครื่องมือ defensive Counter-REA สำหรับนักพัฒนา เจ้าของซอฟต์แวร์ และนักวิจัยความมั่นคง เพื่อปกป้อง artifact ที่ตนเป็นเจ้าของหรือได้รับอนุญาตจากการวิเคราะห์ย้อนกลับอัตโนมัติด้วย AI
 
-## 1. Defensive use only — protect your own software
+## 1. ใช้เพื่อป้องกัน artifact ของตนเองเท่านั้น
 
-You may only run BLA on software, bundles, models, and binaries that **you own** or have **explicit authorization** to modify and distribute. BLA is **not** a tool for attacking, probing, or reverse-engineering third-party software you do not control.
+คุณต้องเป็นเจ้าของหรือมีสิทธิ์ชัดแจ้งในการแก้ไขและเผยแพร่ซอฟต์แวร์ bundle โมเดล หรือ binary ที่นำเข้า AxObfus ห้ามใช้เครื่องมือนี้เพื่อโจมตี สอดแนม หรือวิเคราะห์ย้อนกลับซอฟต์แวร์ของบุคคลอื่นโดยไม่ได้รับอนุญาต
 
-Protective payloads (decoy metadata, honey tables, nesting breakers, canary credentials, synthetic diagnostics) are inert under normal application execution. They are designed to activate **only when an automated reverse-engineering / inspection pipeline** reads the protected artifact — not when your users run the product.
+กลไกป้องกัน เช่น decoy metadata, honey structures, synthetic diagnostics และ resource/semantic workload มีวัตถุประสงค์ให้ analyzer ที่อ่าน artifact ต้องประมวลผลหลักฐานเพิ่มขึ้น ไม่ใช่เพื่อขัดขวางการใช้งานปกติของผู้ใช้
 
-## 2. Benign structures only
+## 2. โครงสร้างป้องกันที่ไม่ใช่ payload ทำลาย
 
-All artifacts generated or modified by BLA contain strictly benign, inert software-protection structures:
+AxObfus ใช้กลไกเชิงป้องกัน เช่น
 
-- Number-theoretic opaque predicates ($O(1)$ arithmetic invariants at runtime)
-- Inert synthetic state-machine functions and decoy cross-references
-- Decoy architectural metadata (simulated TEE/SGX enclave manifests, honey VLQ source maps, synthetic compiler commit strings)
-- Format-valid canary / diagnostic metadata that preserves original runtime behavior
+- opaque predicates และ control-flow decoys
+- metadata, cross-reference และ architectural decoys
+- canary หรือ diagnostic structures ที่สอดคล้องกับรูปแบบไฟล์
+- การเพิ่ม resource และ semantic workload รวมถึงปริมาณโทเคนที่ analyzer ต้องใช้
 
-BLA **never** injects destructive commands, shell payloads, network callbacks, or exploitative code into protected binaries or scripts.
+เจตนาของเครื่องมือไม่ใช่การฝังคำสั่งทำลาย network callback หรือ exploit เพื่อโจมตีผู้วิเคราะห์หรือผู้ใช้ ผู้ใช้ยังคงต้องตรวจสอบ output ที่สร้างขึ้นก่อนเผยแพร่
 
-## 3. Always verify before shipping
+## 3. ตรวจสอบก่อนเผยแพร่ทุกครั้ง
 
-Always verify protected artifacts in your staging environment (`bla verify <protected> <original>` or the defend/harden pipeline) before shipping to production. Confirm runtime equivalence for your own workloads.
+ทำงานบนสำเนาใน staging สำรองต้นฉบับ และรัน:
 
-## 4. Defense-in-depth — not absolute secrecy
+```bash
+axobfus verify <protected> <original>
+```
 
-While BLA deterministically trips many static, semantic, and metadata resource caps of automated reverse-engineering agents (such as REA), **no client-side protection scheme can guarantee absolute mathematical secrecy** against a dedicated human analyst with unlimited time and hardware debugging access. Keep high-value secrets (private API keys, master signing keys) on trusted server infrastructure.
+จากนั้นรัน test suite และ workload จริงของผลิตภัณฑ์ รวมถึงตรวจ packaging, signing, compatibility และ performance การรัน `verify` เพียงอย่างเดียวไม่รับประกันว่า artifact พร้อมเผยแพร่
+
+สามารถเก็บผล `audit` และ `defend` ด้วย `--report <path>` เพื่อประกอบการตรวจทาน แต่รายงานไม่ใช่ใบรับรองความปลอดภัย และอาจมีข้อมูลเกี่ยวกับ artifact ที่ไม่ควรเผยแพร่สาธารณะ
+
+## 4. ไม่มีการป้องกันแบบสมบูรณ์
+
+AxObfus เพิ่มต้นทุน ความกำกวม และ token consumption ของการวิเคราะห์อัตโนมัติ แต่ **ไม่สามารถรับประกันความลับหรือป้องกัน reverse engineering ได้อย่างสมบูรณ์** นักวิเคราะห์ที่มีเวลา เครื่องมือ และสิทธิ์เข้าถึง runtime อาจยังคงเข้าใจหรือ reconstruct ซอฟต์แวร์ได้
+
+ค่าประมาณโทเคน ต้นทุน หรือ defense score ไม่ใช่ผลลัพธ์ที่รับประกันกับ analyzer ทุกตัว และไม่ควรนำ benchmark ของโครงการอื่นมาแสดงเป็นผลของ AxObfus เก็บ private key, master signing key และความลับสำคัญไว้บนโครงสร้างพื้นฐานฝั่งเซิร์ฟเวอร์ที่เชื่อถือได้ พร้อมใช้ defense-in-depth
+
+## 5. เครดิตต้นฉบับและ MIT License
+
+AxObfus โดย AlexDev พัฒนาต่อจาก **BLA (Blind LLM Agents)** ต้นฉบับที่ [https://github.com/qybaihe/bla](https://github.com/qybaihe/bla) ซึ่งเผยแพร่ภายใต้ MIT License การระบุที่มาของต้นฉบับและข้อความสัญญาอนุญาต MIT ได้รับการคงไว้ใน [LICENSE](LICENSE) การใช้และเผยแพร่ต่อต้องปฏิบัติตามเงื่อนไขของสัญญาอนุญาตดังกล่าว
+
+ซอฟต์แวร์จัดหาแบบ “ตามสภาพ” ตาม MIT License ผู้ใช้รับผิดชอบการประเมินความเหมาะสม การทดสอบ และผลกระทบจากการใช้งานในระบบของตนเอง

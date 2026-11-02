@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { BLA_IDENTITY } from "./identity.js";
-import { initBlaConfig, loadBlaConfig, resolveProjectSeed } from "./core/config.js";
+import { AXOBFUS_IDENTITY } from "./identity.js";
+import { initAxObfusConfig, loadAxObfusConfig, resolveProjectSeed } from "./core/config.js";
 import { inspectReleaseExposure } from "./core/release-exposure.js";
 import { buildSarifReport } from "./core/sarif.js";
 import type { ProtectionIntensity } from "./core/types.js";
@@ -30,50 +30,56 @@ import {
   formatSetupReport,
   formatVerificationReport,
 } from "./ui/reporter.js";
+import {
+  renderAuditHtmlReport,
+  renderDefenseHtmlReport,
+  writeHtmlReport,
+} from "./ui/html-report.js";
 
 function printHelp(): void {
   console.log(`${formatBanner()}
 
 Usage:
-  npx bla-agents <command> [options]
-  npx bla-shield <command> [options]
-  bla <command> [options]
+  npx axobfus <command> [options]
+  axobfus <command> [options]
 
 Quick start:
-  npx bla-agents setup -y          # register bla_harden with your agent
-  bla harden .                     # one-sentence Counter-REA hardening
+  npx axobfus setup -y               # register axobfus_harden with your agent
+  axobfus harden .                   # one-sentence Counter-REA hardening
   # or tell your agent: "Harden my software against REA"
 
 Commands:
-  setup                       Configure agent MCP integrations & install the BLA skill
-  harden [dir]                DEFAULT: auto-discover build outputs under a project/build dir and bankrupt-harden all of them
-  defend <target>             One-click full Counter-REA pipeline (inspect -> audit -> bankrupt protect -> verify)
-  inspect-release <target>    Read-only local source-map & symbol exposure check
-  audit <target>              Pre-flight REA exposure & vulnerability scan
-  protect <target>            Inject multi-layer Counter-REA adversarial shield
-  verify <target> [original]  Verify Counter-REA defense invariants & token amplification
-  benchmark                   Run the 14-target Counter-REA Showcase Benchmark suite
+  setup                       Configure agent MCP integrations and install the AxObfus skill
+  harden [dir]                Auto-discover and bankrupt-harden build outputs
+  defend <target>             Run inspect, audit, protect, and verify in one pipeline
+  inspect-release <target>    Read-only source-map and symbol exposure check
+  audit <target>              Pre-flight REA exposure and vulnerability scan
+  protect <target>            Inject the multi-layer Counter-REA shield
+  verify <target> [original]  Verify defense invariants and estimated amplification
+  benchmark                   Run the Counter-REA showcase benchmark
   emit-headers                Generate compile-time C/C++, Rust, or Go defense headers
-  doctor                      Check readiness of BLA engines & agent registrations
-  update                      Update global bla-shield installation & print setup refresh instructions
-  uninstall                   Remove BLA MCP configuration & skill files
-  mcp                         Start the BLA Model Context Protocol (MCP) server over stdio
+  doctor                      Check AxObfus engines and agent registrations
+  update                      Print global update and setup refresh commands
+  uninstall                   Remove AxObfus MCP configuration and skill files
+  mcp                         Start the AxObfus MCP server over stdio
 
 Options:
   -o, --output <path>         Output file or directory path (for protect / emit-headers)
+  --report <path>             Write an offline HTML report (for audit / defend)
   --in-place                  Overwrite input target in-place (for protect)
   --intensity <preset>        stealth | balanced | maximum | bankrupt
                             (harden/defend default: bankrupt; protect default: balanced)
-  --seed <seed>               Deterministic PRNG seed (default: per-project random in .blarc)
-  --manifest                  Emit unsigned .bla-manifest.json next to protected artifacts (opt-in)
-  --llm-directives            Opt-in risky LLM directive layers (COPPA/medical bait, dual-use imitation, AI chat markers); OFF by default
+  --seed <seed>               Deterministic PRNG seed (default: per-project random in .axobfusrc)
+  --manifest                  Emit unsigned .axobfus-manifest.json next to protected artifacts (opt-in)
+  --llm-directives            Opt in to risky LLM directive layers; OFF by default
   --lang <c|rust|go>          Target language for emit-headers (default: c)
-  --client <id>               Agent client ID for setup (repeatable: claude_code, cursor, codex, etc.)
+  --client <id>               Agent client ID for setup (repeatable)
   --all-detected              Configure all detected coding agents on this machine
   --dry-run                   Preview planned setup changes without writing files
   -y, --yes                   Approve setup actions without interactive confirmation
   --json                      Emit structured JSON output
-  -v, --version               Print BLA version
+  --sarif                     Emit SARIF output (for audit / defend)
+  -v, --version               Print AxObfus version
   -h, --help                  Print this help guide
 `);
 }
@@ -82,6 +88,7 @@ interface ParsedCliArgs {
   readonly command: string;
   readonly positionals: string[];
   readonly output?: string;
+  readonly reportPath?: string;
   readonly configPath?: string;
   readonly inPlace: boolean;
   readonly intensity: ProtectionIntensity;
@@ -105,6 +112,7 @@ export function parseCliArgs(argv: readonly string[]): ParsedCliArgs {
   let command = "";
   const positionals: string[] = [];
   let output: string | undefined;
+  let reportPath: string | undefined;
   let configPath: string | undefined;
   let inPlace = false;
   let intensity: ProtectionIntensity = "balanced";
@@ -153,6 +161,8 @@ export function parseCliArgs(argv: readonly string[]): ParsedCliArgs {
       command = "update";
     } else if ((arg === "-o" || arg === "--output") && i + 1 < argv.length) {
       output = argv[++i]!;
+    } else if (arg === "--report" && i + 1 < argv.length) {
+      reportPath = argv[++i]!;
     } else if ((arg === "-c" || arg === "--config") && i + 1 < argv.length) {
       configPath = argv[++i]!;
     } else if (arg === "--fail-under" && i + 1 < argv.length) {
@@ -182,6 +192,7 @@ export function parseCliArgs(argv: readonly string[]): ParsedCliArgs {
     command,
     positionals,
     ...(output !== undefined ? { output } : {}),
+    ...(reportPath !== undefined ? { reportPath } : {}),
     ...(configPath !== undefined ? { configPath } : {}),
     inPlace,
     intensity,
@@ -206,7 +217,7 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
   const parsed = parseCliArgs(argv);
 
   if (parsed.version) {
-    console.log(BLA_IDENTITY.version);
+    console.log(AXOBFUS_IDENTITY.version);
     return 0;
   }
 
@@ -243,16 +254,15 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
 
       case "update": {
         const updateInfo = {
-          currentVersion: BLA_IDENTITY.version,
-          package: BLA_IDENTITY.packageName,
-          packageAlias: BLA_IDENTITY.packageAlias,
-          refreshSetupCommand: "npx bla-agents@latest setup",
-          globalUpdateCommand: "npm install --global bla-agents@latest",
+          currentVersion: AXOBFUS_IDENTITY.version,
+          package: AXOBFUS_IDENTITY.packageName,
+          refreshSetupCommand: "npx axobfus@latest setup",
+          globalUpdateCommand: "npm install --global axobfus@latest",
         };
         if (parsed.json) {
           console.log(JSON.stringify(updateInfo, null, 2));
         } else {
-          console.log(`${formatBanner()}\n\nBLA v${BLA_IDENTITY.version} update workflow:\n  • Global CLI update:   npm install --global bla-agents@latest\n  • Agent MCP refresh:   npx bla-agents@latest setup\n`);
+          console.log(`${formatBanner()}\n\nAxObfus v${AXOBFUS_IDENTITY.version} update workflow:\n  Global CLI update: npm install --global axobfus@latest\n  Agent MCP refresh: npx axobfus@latest setup\n`);
         }
         return 0;
       }
@@ -260,13 +270,13 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       case "uninstall": {
         const res = runUninstall();
         if (parsed.json) console.log(JSON.stringify(res, null, 2));
-        else console.log(`Removed BLA configuration from ${res.removedClients.length} client(s).`);
+        else console.log(`Removed AxObfus configuration from ${res.removedClients.length} client(s).`);
         return 0;
       }
 
       case "init": {
         const dir = parsed.positionals[0] ?? process.cwd();
-        const res = initBlaConfig(dir, parsed.inPlace);
+        const res = initAxObfusConfig(dir, parsed.inPlace);
         if (parsed.json) {
           console.log(JSON.stringify(res, null, 2));
         } else {
@@ -282,7 +292,7 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       case "inspect-release": {
         const target = parsed.positionals[0];
         if (!target) {
-          console.error("Error: Missing <target> path for `bla inspect-release <target>`.");
+          console.error("Error: Missing <target> path for `axobfus inspect-release <target>`.");
           return 1;
         }
         const report = inspectReleaseExposure(target);
@@ -291,7 +301,7 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       }
 
       case "harden": {
-        const loaded = loadBlaConfig(process.cwd(), parsed.configPath);
+        const loaded = loadAxObfusConfig(process.cwd(), parsed.configPath);
         const directory = parsed.positionals[0] ?? loaded.config.input ?? process.cwd();
         const explicitIntensity = argv.includes("--intensity")
           ? parsed.intensity
@@ -318,10 +328,10 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       }
 
       case "defend": {
-        const loaded = loadBlaConfig(process.cwd(), parsed.configPath);
+        const loaded = loadAxObfusConfig(process.cwd(), parsed.configPath);
         const target = parsed.positionals[0] ?? loaded.config.input;
         if (!target) {
-          console.error("Error: Missing <target> path for `bla defend <target>`.");
+          console.error("Error: Missing <target> path for `axobfus defend <target>`.");
           return 1;
         }
         const explicitIntensity = argv.includes("--intensity")
@@ -339,6 +349,13 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
           emitManifest: parsed.manifest || loaded.config.emitManifest === true,
           llmDirectives: parsed.llmDirectives || loaded.config.llmDirectives === true,
         });
+        if (parsed.reportPath) {
+          const htmlReportPath = resolve(parsed.reportPath);
+          writeHtmlReport(htmlReportPath, renderDefenseHtmlReport(report));
+          const notice = `HTML report: ${htmlReportPath}`;
+          if (parsed.json || parsed.sarif) console.error(notice);
+          else console.log(notice);
+        }
         if (parsed.sarif) {
           console.log(
             JSON.stringify(buildSarifReport(report.beforeAudit, report.releaseExposure), null, 2),
@@ -356,13 +373,20 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       }
 
       case "audit": {
-        const loaded = loadBlaConfig(process.cwd(), parsed.configPath);
+        const loaded = loadAxObfusConfig(process.cwd(), parsed.configPath);
         const target = parsed.positionals[0] ?? loaded.config.input;
         if (!target) {
-          console.error("Error: Missing <target> path for `bla audit <target>`.");
+          console.error("Error: Missing <target> path for `axobfus audit <target>`.");
           return 1;
         }
         const report = auditTarget(target);
+        if (parsed.reportPath) {
+          const htmlReportPath = resolve(parsed.reportPath);
+          writeHtmlReport(htmlReportPath, renderAuditHtmlReport(report));
+          const notice = `HTML report: ${htmlReportPath}`;
+          if (parsed.json || parsed.sarif) console.error(notice);
+          else console.log(notice);
+        }
         if (parsed.sarif) {
           console.log(JSON.stringify(buildSarifReport(report), null, 2));
         } else if (parsed.json) {
@@ -374,10 +398,10 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       }
 
       case "protect": {
-        const loaded = loadBlaConfig(process.cwd(), parsed.configPath);
+        const loaded = loadAxObfusConfig(process.cwd(), parsed.configPath);
         const target = parsed.positionals[0] ?? loaded.config.input;
         if (!target) {
-          console.error("Error: Missing <target> path for `bla protect <target>`.");
+          console.error("Error: Missing <target> path for `axobfus protect <target>`.");
           return 1;
         }
         const resolved = resolveProjectSeed(process.cwd(), parsed.seed, parsed.configPath);
@@ -402,7 +426,7 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       case "verify": {
         const target = parsed.positionals[0];
         if (!target) {
-          console.error("Error: Missing <target> path for `bla verify <target> [original]`.");
+          console.error("Error: Missing <target> path for `axobfus verify <target> [original]`.");
           return 1;
         }
         const report = verifyTarget(target, parsed.positionals[1]);
@@ -443,7 +467,7 @@ export async function runCli(argv: readonly string[] = process.argv.slice(2)): P
       }
 
       default:
-        console.error(`Unknown command: ${parsed.command}. Run "bla --help" for available commands.`);
+        console.error(`Unknown command: ${parsed.command}. Run "axobfus --help" for available commands.`);
         return 1;
     }
   } catch (err) {
@@ -457,9 +481,7 @@ const isDirectExecution =
   process.argv[1] !== undefined &&
   (process.argv[1].endsWith("cli.js") ||
     process.argv[1].endsWith("cli.ts") ||
-    process.argv[1].endsWith("bla") ||
-    process.argv[1].endsWith("bla-agents") ||
-    process.argv[1].endsWith("bla-shield"));
+    process.argv[1].endsWith("axobfus"));
 
 if (isDirectExecution) {
   runCli().then((code) => {

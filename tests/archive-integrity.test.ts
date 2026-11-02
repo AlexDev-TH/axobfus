@@ -85,29 +85,29 @@ describe("archive admission preserves bytes or fails closed", () => {
     const outDex = entries.find((e) => e.name === "classes.dex")!.data;
     expect(outDex.toString("latin1")).toContain("BLA-DEX-SHIELD");
     expect(outDex.toString("latin1")).toContain("PROTECTED_CANARY_CREDENTIAL=");
-    expect(entries.some((e) => e.name.startsWith("assets/bla-shield/"))).toBe(true);
+    expect(entries.some((e) => e.name.startsWith("assets/axobfus/"))).toBe(true);
     // REA #7456 / #7472 counters: R8 mapping bait + JNI decoy .so with real Java_* dynsym.
     expect(res.androidR8MappingBytes).toBeGreaterThan(200);
     expect(res.androidJniExportsPlanted).toBeGreaterThan(8);
-    expect(entries.some((e) => e.name === "assets/bla-shield/mapping.txt")).toBe(true);
-    expect(entries.some((e) => e.name === "assets/bla-shield/proguard-mapping.txt")).toBe(true);
-    expect(entries.some((e) => e.name === "lib/arm64-v8a/libbla_enclave_jni.so")).toBe(true);
-    const elf = entries.find((e) => e.name === "lib/arm64-v8a/libbla_enclave_jni.so")!.data;
+    expect(entries.some((e) => e.name === "assets/axobfus/mapping.txt")).toBe(true);
+    expect(entries.some((e) => e.name === "assets/axobfus/proguard-mapping.txt")).toBe(true);
+    expect(entries.some((e) => e.name === "lib/arm64-v8a/libaxobfus_enclave_jni.so")).toBe(true);
+    const elf = entries.find((e) => e.name === "lib/arm64-v8a/libaxobfus_enclave_jni.so")!.data;
     expect(elf[0]).toBe(0x7f);
     expect(elf.subarray(1, 4).toString("latin1")).toBe("ELF");
     expect(elf.includes(Buffer.from("Java_com_enclave_sgx_TeeAttestationBridge_verifyShamirEd25519QuorumRing"))).toBe(true);
-    const mapping = entries.find((e) => e.name === "assets/bla-shield/mapping.txt")!.data.toString("utf8");
+    const mapping = entries.find((e) => e.name === "assets/axobfus/mapping.txt")!.data.toString("utf8");
     expect(mapping).toMatch(/# compiler: R8/);
     expect(mapping).toMatch(/-> a\.a\.a:/);
     expect(outDex.toString("latin1")).toContain("Java_com_enclave_sgx_TeeAttestationBridge");
-    // REA #7379 / #7818: decoy AndroidManifest.xml under assets/bla-shield/ (root untouched).
+    // REA #7379 / #7818: decoy AndroidManifest.xml under assets/axobfus/ (root untouched).
     expect(res.androidManifestDecoyBytes).toBeGreaterThan(2_000);
     expect(res.androidManifestNamedComponents).toBeGreaterThan(512);
-    expect(entries.some((e) => e.name === "assets/bla-shield/AndroidManifest.xml")).toBe(true);
-    expect(entries.some((e) => e.name === "assets/bla-shield/AndroidManifest-decoy.xml")).toBe(true);
+    expect(entries.some((e) => e.name === "assets/axobfus/AndroidManifest.xml")).toBe(true);
+    expect(entries.some((e) => e.name === "assets/axobfus/AndroidManifest-decoy.xml")).toBe(true);
     const rootMf = entries.find((e) => e.name === "AndroidManifest.xml")!.data.toString("utf8");
     expect(rootMf).toBe("<manifest/>");
-    const decoyMf = entries.find((e) => e.name === "assets/bla-shield/AndroidManifest.xml")!.data.toString("utf8");
+    const decoyMf = entries.find((e) => e.name === "assets/axobfus/AndroidManifest.xml")!.data.toString("utf8");
     expect(decoyMf).toContain("TeeAttestationBridge$DetailsActivity");
 
     // Signed APK still fails closed.
@@ -122,7 +122,7 @@ describe("archive admission preserves bytes or fails closed", () => {
     const renamed = writeZipArchive([{ name: "AndroidManifest.xml", data: Buffer.from("fixture") }]);
     const res = protectZipOrApkBuffer(renamed, { intensity: "stealth", seed: "manifest-zip" });
     expect(res.canaryTokensEmbedded).toBeGreaterThan(0);
-    expect(readZipEntries(res.buffer).some((e) => e.name.startsWith("assets/bla-shield/"))).toBe(true);
+    expect(readZipEntries(res.buffer).some((e) => e.name.startsWith("assets/axobfus/"))).toBe(true);
     expect(() => protectZipOrApkBuffer(writeZipArchive([{ name: "META-INF/TEST.RSA", data: Buffer.from("not a real signature") }]))).toThrow(/signing-aware/);
     expect(() => readZipEntries(writeZipArchive([{ name: "a", data: Buffer.from("1") }, { name: "a", data: Buffer.from("2") }]))).toThrow(/duplicate/);
   });

@@ -3,14 +3,14 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { ProtectionIntensity } from "./types.js";
 
-export interface BlaProjectConfig {
+export interface AxObfusProjectConfig {
   readonly $schema?: string;
   readonly input?: string;
   readonly output?: string;
   readonly intensity?: ProtectionIntensity;
-  /** Per-project PRNG seed. Prefer a random value persisted in `.blarc` — never a shared fixed fingerprint. */
+  /** Per-project PRNG seed. Prefer a random value persisted in `.axobfusrc` — never a shared fixed fingerprint. */
   readonly seed?: string;
-  /** When true, write `.bla-manifest.json` next to protected artifacts. Default false (opt-in via `--manifest`). */
+  /** When true, write `.axobfus-manifest.json` next to protected artifacts. Default false (opt-in via `--manifest`). */
   readonly emitManifest?: boolean;
   /** Opt-in risky LLM directive layers (COPPA/medical bait, dual-use imitation, AI chat markers). Default false. */
   readonly llmDirectives?: boolean;
@@ -19,12 +19,12 @@ export interface BlaProjectConfig {
 }
 
 /**
- * Starter defaults written by `initBlaConfig`.
+ * Starter defaults written by `initAxObfusConfig`.
  * `seed` is filled at init/resolve time with a per-project random value — never a global constant.
  * `emitManifest` defaults to false so customer artifacts are not accompanied by attestation JSON unless requested.
  */
-export const DEFAULT_BLA_CONFIG: BlaProjectConfig = Object.freeze({
-  $schema: "https://bla.tools/schemas/bla.config.v1.json",
+export const DEFAULT_AXOBFUS_CONFIG: AxObfusProjectConfig = Object.freeze({
+  $schema: "https://raw.githubusercontent.com/AlexDev-TH/axobfus/main/website/schemas/axobfus.config.v1.json",
   input: "./dist",
   intensity: "bankrupt",
   emitManifest: false,
@@ -40,10 +40,10 @@ export const LEGACY_FIXED_SEEDS: ReadonlySet<string> = new Set([
   "bla-js-shield-v1",
 ]);
 
-const CONFIG_FILENAMES = ["bla.config.json", ".blarc.json", ".blarc"] as const;
+const CONFIG_FILENAMES = ["axobfus.config.json", ".axobfusrc.json", ".axobfusrc"] as const;
 
 export function generateProjectSeed(): string {
-  return `bla-${randomBytes(16).toString("hex")}`;
+  return `axobfus-${randomBytes(16).toString("hex")}`;
 }
 
 function isUsableSeed(seed: unknown): seed is string {
@@ -51,23 +51,23 @@ function isUsableSeed(seed: unknown): seed is string {
 }
 
 /**
- * Loads `bla.config.json`, `.blarc.json`, `.blarc`, or the `"bla"` field from `package.json`
+ * Loads `axobfus.config.json`, `.axobfusrc.json`, `.axobfusrc`, or the `"axobfus"` field from `package.json`
  * in `cwd` (or an explicit config file path).
  */
-export function loadBlaConfig(
+export function loadAxObfusConfig(
   cwd: string = process.cwd(),
   explicitConfigPath?: string,
-): { config: BlaProjectConfig; sourcePath: string | null } {
+): { config: AxObfusProjectConfig; sourcePath: string | null } {
   const root = resolve(cwd);
 
   if (explicitConfigPath) {
     const absExplicit = resolve(root, explicitConfigPath);
     if (!existsSync(absExplicit)) {
-      throw new Error(`BLA config file not found: ${absExplicit}`);
+      throw new Error(`AxObfus config file not found: ${absExplicit}`);
     }
-    const parsed = JSON.parse(readFileSync(absExplicit, "utf8")) as BlaProjectConfig;
+    const parsed = JSON.parse(readFileSync(absExplicit, "utf8")) as AxObfusProjectConfig;
     return {
-      config: { ...DEFAULT_BLA_CONFIG, ...parsed },
+      config: { ...DEFAULT_AXOBFUS_CONFIG, ...parsed },
       sourcePath: absExplicit,
     };
   }
@@ -76,9 +76,9 @@ export function loadBlaConfig(
     const candidate = join(root, name);
     if (existsSync(candidate)) {
       try {
-        const parsed = JSON.parse(readFileSync(candidate, "utf8")) as BlaProjectConfig;
+        const parsed = JSON.parse(readFileSync(candidate, "utf8")) as AxObfusProjectConfig;
         return {
-          config: { ...DEFAULT_BLA_CONFIG, ...parsed },
+          config: { ...DEFAULT_AXOBFUS_CONFIG, ...parsed },
           sourcePath: candidate,
         };
       } catch {
@@ -91,11 +91,11 @@ export function loadBlaConfig(
   if (existsSync(pkgPath)) {
     try {
       const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as {
-        bla?: BlaProjectConfig;
+        axobfus?: AxObfusProjectConfig;
       };
-      if (pkg.bla && typeof pkg.bla === "object") {
+      if (pkg.axobfus && typeof pkg.axobfus === "object") {
         return {
-          config: { ...DEFAULT_BLA_CONFIG, ...pkg.bla },
+          config: { ...DEFAULT_AXOBFUS_CONFIG, ...pkg.axobfus },
           sourcePath: pkgPath,
         };
       }
@@ -105,14 +105,14 @@ export function loadBlaConfig(
   }
 
   return {
-    config: { ...DEFAULT_BLA_CONFIG },
+    config: { ...DEFAULT_AXOBFUS_CONFIG },
     sourcePath: null,
   };
 }
 
-function persistSeed(targetPath: string, seed: string, existing: BlaProjectConfig): void {
-  const next: BlaProjectConfig = {
-    ...DEFAULT_BLA_CONFIG,
+function persistSeed(targetPath: string, seed: string, existing: AxObfusProjectConfig): void {
+  const next: AxObfusProjectConfig = {
+    ...DEFAULT_AXOBFUS_CONFIG,
     ...existing,
     seed,
   };
@@ -123,7 +123,7 @@ function persistSeed(targetPath: string, seed: string, existing: BlaProjectConfi
  * Resolves the PRNG seed for a project:
  * 1. Explicit CLI/`--seed` / caller override
  * 2. Non-legacy seed already stored in project config
- * 3. Otherwise mint a random per-project seed and persist it to `.blarc` (or update the existing config file)
+ * 3. Otherwise mint a random per-project seed and persist it to `.axobfusrc` (or update the existing config file)
  *
  * This kills the shared `bla-shield-seed-v1` / `bla-project-seed-v1` fingerprint across unrelated projects.
  */
@@ -141,7 +141,7 @@ export function resolveProjectSeed(
     return { seed, sourcePath: null, persisted: false };
   }
 
-  const loaded = loadBlaConfig(cwd, explicitConfigPath);
+  const loaded = loadAxObfusConfig(cwd, explicitConfigPath);
   if (isUsableSeed(loaded.config.seed)) {
     return { seed: loaded.config.seed, sourcePath: loaded.sourcePath, persisted: false };
   }
@@ -151,26 +151,26 @@ export function resolveProjectSeed(
   let targetPath: string;
   if (loaded.sourcePath && !loaded.sourcePath.endsWith("package.json")) {
     targetPath = loaded.sourcePath;
-    const existing = JSON.parse(readFileSync(targetPath, "utf8")) as BlaProjectConfig;
+    const existing = JSON.parse(readFileSync(targetPath, "utf8")) as AxObfusProjectConfig;
     persistSeed(targetPath, seed, existing);
   } else {
-    targetPath = join(root, ".blarc");
+    targetPath = join(root, ".axobfusrc");
     persistSeed(targetPath, seed, loaded.config);
   }
   return { seed, sourcePath: targetPath, persisted: true };
 }
 
 /**
- * Writes a starter `bla.config.json` in `targetDir` with a fresh per-project random seed.
+ * Writes a starter `axobfus.config.json` in `targetDir` with a fresh per-project random seed.
  */
-export function initBlaConfig(
+export function initAxObfusConfig(
   targetDir: string = process.cwd(),
   overwrite = false,
-): { configPath: string; created: boolean; config: BlaProjectConfig } {
-  const configPath = join(resolve(targetDir), "bla.config.json");
+): { configPath: string; created: boolean; config: AxObfusProjectConfig } {
+  const configPath = join(resolve(targetDir), "axobfus.config.json");
   if (existsSync(configPath) && !overwrite) {
-    const existing = JSON.parse(readFileSync(configPath, "utf8")) as BlaProjectConfig;
-    const merged = { ...DEFAULT_BLA_CONFIG, ...existing };
+    const existing = JSON.parse(readFileSync(configPath, "utf8")) as AxObfusProjectConfig;
+    const merged = { ...DEFAULT_AXOBFUS_CONFIG, ...existing };
     if (!isUsableSeed(merged.seed)) {
       const seed = generateProjectSeed();
       persistSeed(configPath, seed, existing);
@@ -187,8 +187,8 @@ export function initBlaConfig(
     };
   }
 
-  const config: BlaProjectConfig = {
-    ...DEFAULT_BLA_CONFIG,
+  const config: AxObfusProjectConfig = {
+    ...DEFAULT_AXOBFUS_CONFIG,
     seed: generateProjectSeed(),
   };
   writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n", "utf8");

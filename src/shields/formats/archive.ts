@@ -223,13 +223,13 @@ export function validateZipProtectionInput(
     throw new UnsupportedArchiveError("APK or signed archive requires a signing-aware pipeline");
   }
   const reservedPrefixes = options.allowUnsignedApk
-    ? ["assets/bla-shield", "assets/bla-shield/"]
+    ? ["assets/axobfus", "assets/axobfus/"]
     : ["assets", "assets/enclave", "enclave", "assets/enclave/", "enclave/"];
   const reservedExact = options.allowUnsignedApk
-    ? ["lib/arm64-v8a/libbla_enclave_jni.so"]
+    ? ["lib/arm64-v8a/libaxobfus_enclave_jni.so"]
     : [];
   // Normalize every entry name before the reserved-prefix check so a
-  // traversal (`../evil`) or an aliased name (`./assets/bla-shield/x`) cannot
+  // traversal (`../evil`) or an aliased name (`./assets/axobfus/x`) cannot
   // escape the archive root or collide with the reserved output namespace.
   const normalizedNames = existingEntries.map((e) => {
     const normalized = posix.normalize(e.name);
@@ -250,7 +250,7 @@ export function validateZipProtectionInput(
       (name) =>
         reservedPrefixes.includes(name) ||
         reservedExact.includes(name) ||
-        name.startsWith("assets/bla-shield/") ||
+        name.startsWith("assets/axobfus/") ||
         (!options.allowUnsignedApk &&
           (name.startsWith("assets/enclave/") || name.startsWith("enclave/"))),
     )
@@ -263,7 +263,7 @@ export function validateZipProtectionInput(
 /**
  * Rewrites the admitted ZIP subset. Unsigned APKs get member-level DEX/IL2CPP
  * protection (classes.dex, *.dex, global-metadata.dat) plus canary decoys under
- * `assets/bla-shield/`. Signed APKs still throw UnsupportedApkProtectionError.
+ * `assets/axobfus/`. Signed APKs still throw UnsupportedApkProtectionError.
  */
 export function protectZipOrApkBuffer(
   bytes: Buffer,
@@ -322,8 +322,8 @@ export function protectZipOrApkBuffer(
     return { name: e.name, data: e.data };
   });
 
-  const decoyRoot = treatAsApk ? "assets/bla-shield" : "assets/enclave";
-  const shadowRoot = treatAsApk ? "assets/bla-shield" : "enclave";
+  const decoyRoot = treatAsApk ? "assets/axobfus" : "assets/enclave";
+  const shadowRoot = treatAsApk ? "assets/axobfus" : "enclave";
 
   const manifestContent = JSON.stringify(
     {
@@ -369,7 +369,7 @@ export function protectZipOrApkBuffer(
   }
 
   // Counter REA #7456 (caller-selected R8/ProGuard mapping) + #7472 (JNI export linking):
-  // plant a tempting mapping.txt and a decoy libbla_enclave_jni.so with real Java_* dynsym
+  // plant a tempting mapping.txt and a decoy libaxobfus_enclave_jni.so with real Java_* dynsym
   // exports. Only on unsigned APK-shaped archives; never rewrite the developer's own .so.
   let androidR8MappingBytes = 0;
   let androidJniExportsPlanted = 0;
@@ -390,7 +390,7 @@ export function protectZipOrApkBuffer(
       data: Buffer.from(r8.mappingText, "utf8"),
     });
     outputFiles.push({
-      name: "lib/arm64-v8a/libbla_enclave_jni.so",
+      name: "lib/arm64-v8a/libaxobfus_enclave_jni.so",
       data: r8.jniElfBuffer,
     });
     androidR8MappingBytes = mappingBuf.length;
@@ -398,7 +398,7 @@ export function protectZipOrApkBuffer(
     r8ExtraEntries = 3;
 
     // Counter REA #7379 / #7818: plant a well-formed decoy AndroidManifest.xml
-    // under assets/bla-shield/. Never rewrite the developer's root manifest
+    // under assets/axobfus/. Never rewrite the developer's root manifest
     // (red line — real component / export surface stays intact).
     const mf = generateAndroidManifestCounter(prng, intensity);
     const mfBuf = Buffer.from(mf.manifestXml, "utf8");

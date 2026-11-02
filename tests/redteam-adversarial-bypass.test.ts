@@ -162,14 +162,14 @@ describe("Red-Team vs. Blue-Team Adversarial Bypass & Cognitive-Armor Coupling",
         intensity?: import("../core/types.js").ProtectionIntensity;
         nested?: import("../core/types.js").ProtectionResult["format"];
       }
-      export declare function blaVitePlugin(options?: BundlerOptions): { name: string };
+      export declare function axobfusVitePlugin(options?: BundlerOptions): { name: string };
     `;
     const dtsShielded = transformJavaScriptWithBlaShield(dtsInput, {
       intensity: "bankrupt",
       filename: "index.d.ts",
       seed: "dts-import-type-seed",
     });
-    expect(dtsShielded.exportedSymbols).toEqual(["BundlerOptions", "blaVitePlugin"]);
+    expect(dtsShielded.exportedSymbols).toEqual(["BundlerOptions", "axobfusVitePlugin"]);
     expect(dtsShielded.code).toContain('import("../core/types.js").ProtectionIntensity');
   });
 

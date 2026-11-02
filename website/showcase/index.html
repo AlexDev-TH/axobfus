@@ -1,131 +1,71 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Benchmarks — BLA (bla-agents)</title>
-    <link rel="icon" type="image/png" href="../assets/favicon.png" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ประเมินผลด้วยหลักฐาน — AxObfus</title>
+    <meta name="description" content="แนวทางประเมิน AxObfus ด้วย audit/defend reports, verification และ workload ของ artifact ของคุณ โดยไม่ใช้ตัวเลข benchmark จาก upstream" />
+    <meta property="og:title" content="ประเมิน AxObfus ด้วยหลักฐานของคุณ" />
+    <meta property="og:image" content="../assets/social-card.svg" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
     <link rel="stylesheet" href="../assets/styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container nav-bar">
-        <a href="../" class="brand">
-          <img src="../assets/logo.png" alt="BLA Shield Logo" class="brand-logo" width="38" height="38" />
-          <span>BLA</span>
-          <span class="brand-badge" data-i18n="nav.badge">BLUE SHIELD v1.5</span>
-        </a>
-        <nav class="nav-links">
-          <a href="../" class="nav-link" data-i18n="nav.overview">Overview</a>
-          <a href="../get-started/" class="nav-link" data-i18n="nav.getStarted">Get Started</a>
-          <a href="./" class="nav-link active" data-i18n="nav.showcase">Benchmarks</a>
-          <a href="../crackme/" class="nav-link" data-i18n="nav.crackme">CrackMe</a>
-          <a href="../guides/" class="nav-link" data-i18n="nav.guides">Guides</a>
-          <a href="../faq/" class="nav-link" data-i18n="nav.faq">FAQ</a>
-        </nav>
-        <div class="nav-actions">
-          <select id="bla-lang-select" class="lang-select" aria-label="Select Language">
-            <option value="en">🌐 English</option>
-            <option value="zh-CN">🌐 简体中文</option>
-            <option value="zh-TW">🌐 繁體中文</option>
-            <option value="ja">🌐 日本語</option>
-            <option value="ko">🌐 한국어</option>
-            <option value="es">🌐 Español</option>
-            <option value="fr">🌐 Français</option>
-            <option value="de">🌐 Deutsch</option>
-          </select>
-          <a href="https://github.com/qybaihe/bla" class="nav-cta" target="_blank" rel="noopener">
-            <span>★</span>
-            <span data-i18n="nav.star">Star</span>
-            <span class="star-pill" data-gh-stars>★</span>
-          </a>
-        </div>
-      </div>
-    </header>
+    <a class="skip-link" href="#content">ข้ามไปยังเนื้อหา</a>
+    <header class="site-header"><div class="container nav-bar"><a class="brand" href="../" aria-label="AxObfus หน้าหลัก"><img src="../assets/logo.svg" alt="" width="40" height="40" /><span><span class="brand-name">AxObfus</span><span class="brand-by">by AlexDev</span></span></a><nav class="nav-links" aria-label="เมนูหลัก"><a href="../">ภาพรวม</a><a href="../get-started/">เริ่มต้น</a><a href="./" aria-current="page">ประเมินผล</a><a href="../faq/">คำถามพบบ่อย</a></nav><a class="nav-repo" href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></header>
 
-    <main>
-      <section class="section">
+    <main id="content">
+      <section class="page-hero"><div class="container"><p class="eyebrow">Evaluation / ไม่มีตัวเลขสำเร็จรูป</p><h1>หลักฐานของคุณ<br />สำคัญกว่าตัวเลขโฆษณา.</h1><p class="lead">ประเมิน AxObfus กับ artifact, analyzer และ workload ของคุณเอง หน้านี้ไม่นำ benchmark หรือผล red-team ของโครงการต้นทางมาแสดงเป็นผลลัพธ์ของ AxObfus</p></div></section>
+
+      <section class="section alt" aria-labelledby="method-title">
         <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="sc.eyebrow">8-Target Benchmark Suite</div>
-            <h1 class="section-title" data-i18n="sc.title">Unprotected Baseline vs. BLA Protected Output</h1>
-            <p class="section-lead" data-i18n-html="sc.lead">
-              Run the local benchmark suite (and optionally the public CrackMe v6 challenge) with <code>npx bla-agents@latest benchmark</code>.
-            </p>
+          <div class="section-head"><span class="section-index">01 / วิธีวัด</span><div><h2 id="method-title">ทดลองแบบเปรียบเทียบที่ทำซ้ำได้</h2><p class="section-intro">เก็บ input, environment, analyzer version และ workload ให้คงที่ แล้วเปรียบเทียบ artifact ก่อนและหลังป้องกัน</p></div></div>
+          <div class="workflow">
+            <div class="workflow-row"><span class="number">01</span><h3>BASELINE</h3><p>สำรอง build ต้นฉบับ บันทึก hash และรัน <code>audit</code> พร้อม <code>--report</code></p></div>
+            <div class="workflow-row"><span class="number">02</span><h3>DEFEND</h3><p>รันบนสำเนา ใช้ seed และ intensity ที่บันทึกไว้ แล้วเก็บ <code>defend</code> report</p></div>
+            <div class="workflow-row"><span class="number">03</span><h3>VERIFY</h3><p>ตรวจ invariants และ functional workload ไม่ใช่ดูเพียงขนาดไฟล์หรือ token estimate</p></div>
+            <div class="workflow-row"><span class="number">04</span><h3>COMPARE</h3><p>รัน analyzer เดียวกันในสภาพแวดล้อมเดียวกัน แล้วบันทึกข้อจำกัดและผลลัพธ์ที่สังเกตจริง</p></div>
           </div>
+        </div>
+      </section>
 
-          <div class="grid-2">
-            <div class="card">
-              <span class="card-tag">Target 01 · Electron .asar</span>
-              <h3>Notion Desktop Clipboard Bridge</h3>
-              <p>
-                <strong>Baseline:</strong> Analyzed in 38s ($0.20).<br />
-                <strong>Protected:</strong> IPC de-literalized + 22 obligation families + shadow logic → <strong>41.3x token ratio ($14.88)</strong>.
-              </p>
-              <details class="evidence-drawer">
-                <summary>View Verification Output</summary>
-                <div class="drawer-body">• ipcChannelsPairedUniquely: 0
-• triggeredLimits: ["alias-selections", "primitive-candidates", "primitive-bytes", "getter-expansion"]
-• runtimeEquivalence: 100% Exact</div>
-              </details>
-            </div>
-
-            <div class="card">
-              <span class="card-tag">Target 02 · JavaScript Audio/Physics</span>
-              <h3>DX-Ball Stereo Sound-Pan Engine</h3>
-              <p>
-                <strong>Baseline:</strong> Analyzed in 22s ($0.13).<br />
-                <strong>Protected:</strong> 9-chunk opaque ternaries + 40-node SCC mesh → <strong>49.2x token ratio ($11.45)</strong>.
-              </p>
-              <details class="evidence-drawer">
-                <summary>View Verification Output</summary>
-                <div class="drawer-body">• primitiveCandidateBranches: 512 (> 256 limit)
-• sccLabyrinthEdges: 160
-• runtimeEquivalence: calculateSoundPan(160, 640) === -0.5</div>
-              </details>
-            </div>
-
-            <div class="card">
-              <span class="card-tag">Target 03 · Native ELF64 / Mach-O / PE</span>
-              <h3>Enterprise License &amp; Fuse Daemon</h3>
-              <p>
-                <strong>Baseline:</strong> Crates &amp; fuses extracted in 45s.<br />
-                <strong>Protected:</strong> 72 rustc hashes (&gt;64 limit) + 33 fuse sentinels (&gt;32 limit) → <strong>Parser Limit Reached</strong>.
-              </p>
-              <details class="evidence-drawer">
-                <summary>View Verification Output</summary>
-                <div class="drawer-body">• RustBinaryProvider: exceeds MAX_RUSTC_HASHES (64)
-• ElectronFuseReader: exceeds maximumSentinelsPerSlice (32)
-• Native exports preserved: 100%</div>
-              </details>
-            </div>
-
-            <div class="card">
-              <span class="card-tag">Target 04 · SQLite &amp; AI Models</span>
-              <h3>.sqlite, .safetensors &amp; .gguf Vaults</h3>
-              <p>
-                <strong>Baseline:</strong> Schema &amp; tensor headers parsed in 19s.<br />
-                <strong>Protected:</strong> Virtual generated-column guard + 35-level metadata nesting → <strong>38.6x token ratio</strong>.
-              </p>
-              <details class="evidence-drawer">
-                <summary>View Verification Output</summary>
-                <div class="drawer-body">• SQLite: SqliteColumnEvaluationFailure on read-only connection
-• Safetensors/GGUF: ModelFormatFailure("capacity", >32 levels)
-• Existing GGUF KV &amp; tensors preserved: 100%</div>
-              </details>
-            </div>
+      <section class="section" aria-labelledby="scenario-title">
+        <div class="container">
+          <div class="section-head"><span class="section-index">02 / สถานการณ์</span><div><h2 id="scenario-title">สามจุดเริ่มต้นสำหรับการประเมิน</h2><p class="section-intro">ตัวอย่างต่อไปนี้เป็นแผนทดลอง ไม่ใช่ผลการทดสอบที่รันไว้แล้ว</p></div></div>
+          <div class="three-col">
+            <article class="principle"><span class="number">JS / ELECTRON</span><h3>ตรวจ semantic evidence</h3><p>บันทึกจำนวนเส้นทางที่ analyzer สรุปได้, decoy attribution, source-map exposure และผล functional tests</p></article>
+            <article class="principle"><span class="number">NATIVE / WASM</span><h3>ตรวจ resource behavior</h3><p>สังเกต parser limits, interface truncation, exports, format validity และ runtime compatibility</p></article>
+            <article class="principle"><span class="number">DATA / MODELS</span><h3>ตรวจ format integrity</h3><p>ตรวจ schema หรือ tensor data, metadata handling, analyzer errors และการเปิดไฟล์ด้วย runtime ปกติ</p></article>
           </div>
+        </div>
+      </section>
+
+      <section class="section alt" aria-labelledby="commands-title">
+        <div class="container report-layout">
+          <div><p class="eyebrow">Reproduce / Local</p><h2 id="commands-title">เริ่มรายงานชุดแรก</h2><p class="section-intro">ปรับ input และ protected output ให้ตรงกับโครงการของคุณ อย่ารันทับไฟล์ต้นฉบับ และอย่าตีความค่าประมาณเป็นผลวัดจริง</p></div>
+          <pre><code>axobfus audit ./dist \
+  --report ./reports/audit.html
+
+axobfus defend ./dist \
+  --report ./reports/defend.html
+
+axobfus verify ./dist.protected ./dist</code></pre>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="matrix-title">
+        <div class="container">
+          <div class="section-head"><span class="section-index">03 / ตรวจทาน</span><div><h2 id="matrix-title">สิ่งที่ควรอยู่ในบันทึกผล</h2></div></div>
+          <div class="table-wrap"><table><thead><tr><th scope="col">มิติ</th><th scope="col">หลักฐานที่เก็บ</th><th scope="col">ข้อควรระวัง</th></tr></thead><tbody>
+            <tr><td>Exposure</td><td>Audit report, source-map และ symbol findings</td><td>จำนวน finding ไม่ได้เท่ากับความเสี่ยงเสมอไป</td></tr>
+            <tr><td>Analyzer cost</td><td>เวลา, ขั้นตอน, โทเคนที่วัดจากการรันจริง</td><td>แยกค่าประมาณจากค่าที่วัด และระบุโมเดลกับเวอร์ชัน</td></tr>
+            <tr><td>Decoy effect</td><td>ข้อสรุปที่คลาดเคลื่อนและหลักฐานที่ analyzer เลือก</td><td>ไม่อ้างผลกับ analyzer ที่ไม่ได้ทดสอบ</td></tr>
+            <tr><td>Correctness</td><td>Verification, functional tests, format validation</td><td>ต้องครอบคลุม workload ของผลิตภัณฑ์ ไม่ใช่เฉพาะตัวอย่าง</td></tr>
+          </tbody></table></div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <div data-i18n-html="footer.tagline"><strong>BLA (`bla-agents`)</strong> · Blind LLM Agents · Software Protection MCP &amp; CLI</div>
-        <div><a href="https://github.com/qybaihe/bla">GitHub ★</a> · <a href="../" data-i18n="nav.overview">Overview</a></div>
-      </div>
-    </footer>
-    <script src="../assets/i18n.js"></script>
-    <script src="../assets/main.js"></script>
+    <footer class="site-footer"><div class="container"><div class="footer-grid"><div><div class="footer-brand">AxObfus <span class="orange">/</span> AlexDev</div><p class="footer-note">Defensive Counter-REA toolkit สำหรับ artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาต</p></div><div class="footer-links"><a href="../get-started/">เริ่มต้น</a><a href="../faq/">FAQ</a><a href="https://www.npmjs.com/package/axobfus">npm</a><a href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></div><div class="footer-bottom">MIT LICENSE · ORIGINAL ATTRIBUTION: github.com/qybaihe/bla</div></div></footer>
   </body>
 </html>

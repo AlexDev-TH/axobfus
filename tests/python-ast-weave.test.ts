@@ -11,6 +11,7 @@ import {
 } from "../src/shields/formats/python-ast-weave.js";
 import { SeededPrng } from "../src/core/prng.js";
 
+const PYTHON = process.platform === "win32" ? "python" : "python3";
 const temps: string[] = [];
 afterEach(() => {
   for (const d of temps.splice(0)) {
@@ -137,7 +138,7 @@ describe("python structural decoy weave", () => {
     temps.push(dir);
     const file = join(dir, "woven.py");
     writeFileSync(file, out.code, "utf8");
-    execFileSync("python3", ["-m", "py_compile", file], { stdio: "pipe" });
+    execFileSync(PYTHON, ["-m", "py_compile", file], { stdio: "pipe" });
   });
 
   it("PRNG selects decoys without business-name rule tables", () => {

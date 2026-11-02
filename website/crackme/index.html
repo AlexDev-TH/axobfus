@@ -1,100 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CrackMe v7 — BLA (bla-agents)</title>
-    <meta
-      name="description"
-      content="Public BLA CrackMe v7: a multi-format app (Node + HTML + WebAssembly) hardened by the real bla harden pipeline at bankrupt intensity."
-    />
-    <link rel="icon" type="image/png" href="../assets/favicon.png" />
-    <link rel="stylesheet" href="../assets/styles.css" />
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ประเมินด้วยตนเอง — AxObfus</title>
+    <meta name="description" content="สร้างการประเมิน Counter-REA จาก artifact ของคุณเองด้วย AxObfus" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" /><link rel="stylesheet" href="../assets/styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container nav-bar">
-        <a href="../" class="brand">
-          <img src="../assets/logo.png" alt="BLA Shield Logo" class="brand-logo" width="38" height="38" />
-          <span>BLA</span>
-          <span class="brand-badge" data-i18n="nav.badge">BLUE SHIELD v1.5</span>
-        </a>
-        <nav class="nav-links">
-          <a href="../" class="nav-link" data-i18n="nav.overview">Overview</a>
-          <a href="../get-started/" class="nav-link" data-i18n="nav.getStarted">Get Started</a>
-          <a href="../showcase/" class="nav-link" data-i18n="nav.showcase">Benchmarks</a>
-          <a href="./" class="nav-link active" data-i18n="nav.crackme">CrackMe</a>
-          <a href="../guides/" class="nav-link" data-i18n="nav.guides">Guides</a>
-          <a href="../faq/" class="nav-link" data-i18n="nav.faq">FAQ</a>
-        </nav>
-        <div class="nav-actions">
-          <select id="bla-lang-select" class="lang-select" aria-label="Select Language">
-            <option value="en">🌐 English</option>
-            <option value="zh-CN">🌐 简体中文</option>
-            <option value="zh-TW">🌐 繁體中文</option>
-            <option value="ja">🌐 日本語</option>
-            <option value="ko">🌐 한국어</option>
-            <option value="es">🌐 Español</option>
-            <option value="fr">🌐 Français</option>
-            <option value="de">🌐 Deutsch</option>
-          </select>
-          <a href="https://github.com/qybaihe/bla" class="nav-cta" target="_blank" rel="noopener">
-            <span>★</span>
-            <span data-i18n="nav.star">Star</span>
-            <span class="star-pill" data-gh-stars>★</span>
-          </a>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div class="container">
-          <h1 data-i18n="crackme.title">CrackMe v7 — harden-native challenge</h1>
-          <p class="lede" data-i18n="crackme.lede">
-            The public target is literally <code>bla harden</code> output: a small multi-format app (Node vault + HTML panel + WebAssembly core) hardened at bankrupt intensity.
-          </p>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="container prose">
-          <h2 data-i18n="crackme.why.title">Why v6</h2>
-          <p data-i18n="crackme.why.body">
-            v5.x was a hand-written crypto sponge. The harden-native edition runs <code>hardenProject()</code> — the same pipeline as <code>bla harden &lt;dir&gt; --intensity bankrupt</code> — over a real app tree, with risky LLM directive layers OFF. The cleartext template is public; the challenge is recovering the per-build constants and logic from the hardened output.
-          </p>
-
-          <h2 data-i18n="crackme.tiers.title">Stages</h2>
-          <ul>
-            <li data-i18n="crackme.tiers.l1"><strong>Stage A</strong> — 16 key-byte lanes sealed through the hardened <code>core.wasm</code></li>
-            <li data-i18n="crackme.tiers.l2"><strong>Stage B</strong> — the hardened <code>panel.html</code> derives an entitlement token</li>
-            <li data-i18n="crackme.tiers.l3"><strong>Stage C</strong> — the key decrypts the flag; one uniform DENIED</li>
-          </ul>
-
-          <h2 data-i18n="crackme.run.title">Run</h2>
-          <pre><code>npm run crackme:v7 -- '&lt;16-char-key&gt;'</code></pre>
-
-          <h2 data-i18n="crackme.submit.title">Submit a solve</h2>
-          <p data-i18n="crackme.submit.body">
-            Hash the FLAG with SHA-256 and open a GitHub issue using the CrackMe v7 solve template. The hash must match <code>flagSha256</code> in <code>challenge/v7/SEAL.json</code> (plaintext key and FLAG are not in git).
-          </p>
-
-          <p>
-            <a class="nav-cta" href="https://github.com/qybaihe/bla/tree/main/challenge/v6" target="_blank" rel="noopener" data-i18n="crackme.cta">
-              Open challenge/v6 on GitHub
-            </a>
-          </p>
-
-          <h2 data-i18n="crackme.honest.title">Honest scope</h2>
-          <p data-i18n="crackme.honest.body">
-            BLA raises cost for automated AI reverse-engineering agents and plants decoys.
-            It does not claim immunity to patient interactive human reverse engineering.
-          </p>
-        </div>
-      </section>
+    <a class="skip-link" href="#content">ข้ามไปยังเนื้อหา</a>
+    <header class="site-header"><div class="container nav-bar"><a class="brand" href="../" aria-label="AxObfus หน้าหลัก"><img src="../assets/logo.svg" alt="" width="40" height="40" /><span><span class="brand-name">AxObfus</span><span class="brand-by">by AlexDev</span></span></a><nav class="nav-links" aria-label="เมนูหลัก"><a href="../">ภาพรวม</a><a href="../get-started/">เริ่มต้น</a><a href="../showcase/">ประเมินผล</a><a href="../faq/">คำถามพบบ่อย</a></nav><a class="nav-repo" href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></header>
+    <main id="content">
+      <section class="page-hero"><div class="container"><p class="eyebrow">Self-assessment / Authorized artifacts</p><h1>ทดลองกับสิ่งที่คุณ<br />มีสิทธิ์ประเมิน.</h1><p class="lead">สร้าง fixture ของตนเอง บันทึก baseline และประเมินผลอย่างเป็นระบบ หน้านี้ไม่อ้างผล challenge หรือผลทดลองจากโครงการต้นทาง</p></div></section>
+      <section class="section alt"><div class="container"><ol class="step-list"><li><span class="step-number">01</span><div><h2>เตรียม fixture</h2><p>เลือกโปรแกรมตัวอย่างที่ไม่มีความลับจริง เก็บ source, build ต้นฉบับ และ functional tests ไว้ครบ</p></div></li><li><span class="step-number">02</span><div><h2>บันทึก audit และ defend</h2><pre><code>axobfus audit ./fixture/dist --report ./reports/audit.html
+axobfus defend ./fixture/dist --report ./reports/defend.html</code></pre></div></li><li><span class="step-number">03</span><div><h2>ตรวจ correctness</h2><p>รัน <code>verify</code> กับ output จริงและทดสอบ workload ทั้งหมด จากนั้นจึงเปรียบเทียบ analyzer ใน environment ที่ควบคุมได้</p></div></li><li><span class="step-number">04</span><div><h2>เผยแพร่หลักฐานอย่างรับผิดชอบ</h2><p>ระบุ version, configuration, hardware และข้อจำกัด อย่าเผยแพร่ข้อมูลลับ และอย่าสรุปเกินกว่า analyzer ที่ทดสอบ</p></div></li></ol></div></section>
+      <section class="section"><div class="container"><div class="notice"><h2>ขอบเขตที่ชัดเจน</h2><p>การเพิ่ม decoys และ resource/semantic exhaustion ไม่ได้ทำให้ artifact ปลอดภัยจาก reverse engineering อย่างสมบูรณ์ ผลลัพธ์ขึ้นกับ artifact, analyzer และสภาพแวดล้อม</p><p><a href="../showcase/">ดูตารางเก็บหลักฐานการประเมิน</a></p></div></div></section>
     </main>
-
-    <script src="../assets/i18n.js"></script>
-    <script src="../assets/main.js"></script>
+    <footer class="site-footer"><div class="container"><div class="footer-grid"><div><div class="footer-brand">AxObfus <span class="orange">/</span> AlexDev</div><p class="footer-note">Defensive Counter-REA toolkit</p></div><div class="footer-links"><a href="../get-started/">เริ่มต้น</a><a href="../faq/">FAQ</a><a href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></div><div class="footer-bottom">MIT LICENSE · ORIGINAL ATTRIBUTION: github.com/qybaihe/bla</div></div></footer>
   </body>
 </html>

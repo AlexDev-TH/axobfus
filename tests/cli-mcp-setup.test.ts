@@ -9,8 +9,8 @@ import { runShowcaseBenchmark } from "../src/engine/benchmark.js";
 import { isNodeSqliteAvailable } from "../src/core/sqlite-runtime.js";
 
 describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
-  it("registers and uninstalls BLA MCP server + skill across all 6 AI coding agents in an isolated homeDir", () => {
-    const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), "bla-home-test-"));
+  it("registers and uninstalls AxObfus MCP server + skill across all 6 AI coding agents in an isolated homeDir", () => {
+    const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), "axobfus-home-test-"));
     try {
       const setupReport = runSetup({
         homeDir: fakeHome,
@@ -31,9 +31,9 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
       const claudeConfig = JSON.parse(
         fs.readFileSync(path.join(fakeHome, ".claude.json"), "utf8"),
       ) as { mcpServers?: Record<string, unknown> };
-      expect(claudeConfig.mcpServers?.bla).toBeDefined();
+      expect(claudeConfig.mcpServers?.axobfus).toBeDefined();
 
-      const skillPath = path.join(fakeHome, ".claude", "skills", "blind-llm-agents", "SKILL.md");
+      const skillPath = path.join(fakeHome, ".claude", "skills", "axobfus", "SKILL.md");
       expect(fs.existsSync(skillPath)).toBe(true);
 
       // Run doctor and verify the 6 configured clients report healthy MCP + Skill.
@@ -58,7 +58,7 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
   });
 
   it("handles MCP JSON-RPC 2.0 requests (initialize, tools/list, tools/call)", async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "bla-mcp-test-"));
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "axobfus-mcp-test-"));
 
     try {
       const initRes = await handleMcpRequest({
@@ -67,7 +67,7 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
         method: "initialize",
       });
       expect(initRes?.result).toMatchObject({
-        serverInfo: { name: "bla" },
+        serverInfo: { name: "axobfus" },
       });
 
       const listRes = await handleMcpRequest({
@@ -77,22 +77,22 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
       });
       const tools = (listRes?.result as { tools: Array<{ name: string }> }).tools;
       expect(tools.map((t) => t.name)).toEqual([
-        "bla_harden",
-        "bla_defend",
-        "bla_audit",
-        "bla_protect",
-        "bla_verify",
-        "bla_benchmark",
-        "bla_emit_headers",
-        "bla_doctor",
-        "bla_inspect_release",
-        "bla_init",
-        "bla_weave_plan",
+        "axobfus_harden",
+        "axobfus_defend",
+        "axobfus_audit",
+        "axobfus_protect",
+        "axobfus_verify",
+        "axobfus_benchmark",
+        "axobfus_emit_headers",
+        "axobfus_doctor",
+        "axobfus_inspect_release",
+        "axobfus_init",
+        "axobfus_weave_plan",
       ]);
 
-      // Test bla_audit + bla_protect + bla_verify via MCP tool calls
+      // Test axobfus_audit + axobfus_protect + axobfus_verify via MCP tool calls
       const sampleFile = path.join(tmpDir, "sample.js");
-      const protectedFile = path.join(tmpDir, "sample.bla.js");
+      const protectedFile = path.join(tmpDir, "sample.axobfus.js");
       fs.writeFileSync(
         sampleFile,
         `function validateKey(k) { return k === "live-secret-token-2026"; }\nmodule.exports = { validateKey };\n`,
@@ -104,7 +104,7 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
         id: 3,
         method: "tools/call",
         params: {
-          name: "bla_audit",
+          name: "axobfus_audit",
           arguments: { path: sampleFile },
         },
       });
@@ -115,7 +115,7 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
         id: 4,
         method: "tools/call",
         params: {
-          name: "bla_protect",
+          name: "axobfus_protect",
           arguments: {
             input_path: sampleFile,
             output_path: protectedFile,
@@ -131,7 +131,7 @@ describe("CLI Setup, Doctor, Benchmark & MCP Server", () => {
         id: 5,
         method: "tools/call",
         params: {
-          name: "bla_verify",
+          name: "axobfus_verify",
           arguments: {
             target_path: protectedFile,
             original_path: sampleFile,

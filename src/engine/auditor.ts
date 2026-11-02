@@ -87,7 +87,7 @@ function analyzeJsSourceForAudit(
   const triggeredLimits = new Set<string>();
   const uncertainties = new Set<string>();
 
-  // Detect BLA markers & REA resource-limit patterns in source
+  // Detect AxObfus markers & REA resource-limit patterns in source
   if (source.includes("a22?.require") || /const a\d+ = _flag \? a\d+\?\.x : a\d+\?\.y/.test(source)) {
     triggeredLimits.add("alias-selections");
   }
@@ -158,7 +158,7 @@ function analyzeJsSourceForAudit(
             estimatedCostUsd: triggeredLimits.size > 0 ? 1.45 : 0.04,
             reason:
               triggeredLimits.size > 0
-                ? "Protected by BLA Algorithmic Tarpit & Opaque Call-Graph XRefs"
+                ? "Protected by AxObfus Algorithmic Tarpit & Opaque Call-Graph XRefs"
                 : "Plaintext function body and control flow directly readable by REA",
           });
         }
@@ -177,7 +177,7 @@ function analyzeJsSourceForAudit(
             estimatedCostUsd: triggeredLimits.size > 0 ? 1.15 : 0.05,
             reason:
               triggeredLimits.size > 0
-                ? "Shielded by BLA getter-expansion & tarpit cross-references"
+                ? "Shielded by AxObfus getter-expansion & tarpit cross-references"
                 : "Class methods and property shapes directly recoverable",
           });
         }
@@ -469,7 +469,7 @@ export function auditTarget(targetPath: string): AuditReport {
           reaToolUsed: "inspect_web_bundle / static script inventory",
           estimatedTokensToReconstruct: 850,
           estimatedCostUsd: 0.04,
-          reason: "HTML entry bundle without inline BLA semantic shield",
+          reason: "HTML entry bundle without inline AxObfus semantic shield",
         });
       } else {
         const limits = new Set<string>();
@@ -609,7 +609,7 @@ export function auditTarget(targetPath: string): AuditReport {
           estimatedTokensToReconstruct: isProtected ? 22_000 : 750,
           estimatedCostUsd: isProtected ? 1.8 : 0.04,
           reason: isProtected
-            ? "Shielded by BLA WASM custom name & enclave attestation sections"
+            ? "Shielded by AxObfus WASM custom name & enclave attestation sections"
             : "Unshielded WASM export directly decompilable to WAT by REA",
         });
       }
@@ -661,7 +661,7 @@ export function auditTarget(targetPath: string): AuditReport {
               estimatedTokensToReconstruct: isProtected ? 19_500 : 680,
               estimatedCostUsd: isProtected ? 1.55 : 0.03,
               reason: isProtected
-                ? "Protected by BLA Python Algorithmic Tarpit & Opaque Predicates"
+                ? "Protected by AxObfus Python Algorithmic Tarpit & Opaque Predicates"
                 : "Python function logic and docstrings directly exposed",
             });
           }
@@ -687,7 +687,7 @@ export function auditTarget(targetPath: string): AuditReport {
           estimatedTokensToReconstruct: pycInfo.blaProtected ? 24_000 : 920,
           estimatedCostUsd: pycInfo.blaProtected ? 1.95 : 0.05,
           reason: pycInfo.blaProtected
-            ? "Shielded by BLA marshal constant pool chaff"
+            ? "Shielded by AxObfus marshal constant pool chaff"
             : "CPython marshal code tree and constants directly readable by REA",
         });
         sim = {
@@ -743,9 +743,9 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isNativeProtected ? 36_000 : 1_450,
         estimatedCostUsd: isNativeProtected ? 2.9 : 0.08,
         reason: nat.blaProtected
-          ? `Protected by BLA Native Shield (${nat.rustcCommitHashesCount} rustc commits > 64, ${nat.electronFuseSentinelsCount} fuse sentinels > 32, ${nat.dartSnapshotHashesCount} Dart snapshots > 64)`
+          ? `Protected by AxObfus Native Shield (${nat.rustcCommitHashesCount} rustc commits > 64, ${nat.electronFuseSentinelsCount} fuse sentinels > 32, ${nat.dartSnapshotHashesCount} Dart snapshots > 64)`
           : hasBunSidecar
-            ? "Protected by BLA Sidecar Bun Standalone Decoy Graph while preserving byte-exact code-signature / EOF carrier integrity"
+            ? "Protected by AxObfus Sidecar Bun Standalone Decoy Graph while preserving byte-exact code-signature / EOF carrier integrity"
             : "Native binary metadata, sections, and strings directly inspectable by REA",
       });
       sim = {
@@ -777,7 +777,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: sqInfo.blaProtected ? 28_000 : 880,
         estimatedCostUsd: sqInfo.blaProtected ? 2.25 : 0.04,
         reason: sqInfo.blaProtected
-          ? `Protected by BLA SQLite Shield (${sqInfo.honeyTablesCount} honey tables + virtual generated column traps)`
+          ? `Protected by AxObfus SQLite Shield (${sqInfo.honeyTablesCount} honey tables + virtual generated column traps)`
           : "SQLite tables and rows directly readable by REA inspect-sqlite-database",
       });
       sim = {
@@ -813,7 +813,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: modInfo.blaProtected ? 31_000 : 950,
         estimatedCostUsd: modInfo.blaProtected ? 2.45 : 0.05,
         reason: modInfo.blaProtected
-          ? "Protected by BLA Model Shield (enclave metadata + nesting capacity breaker > 32)"
+          ? "Protected by AxObfus Model Shield (enclave metadata + nesting capacity breaker > 32)"
           : "Model tensor shapes, dtypes, and metadata directly readable by REA",
       });
       sim = {
@@ -842,7 +842,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 29_000 : 1_100,
         estimatedCostUsd: isProtected ? 2.35 : 0.06,
         reason: isProtected
-          ? "Protected by BLA DEX / IL2CPP Enclave Class & Metadata Shield"
+          ? "Protected by AxObfus DEX / IL2CPP Enclave Class & Metadata Shield"
           : "Class/type descriptors and string literals exposed to REA",
       });
       sim = {
@@ -868,7 +868,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 26_000 : 1_200,
         estimatedCostUsd: isProtected ? 2.1 : 0.06,
         reason: isProtected
-          ? "Shielded by BLA enclave manifest & shadow archive entries"
+          ? "Shielded by AxObfus enclave manifest & shadow archive entries"
           : "Archive inventory and package members exposed to REA",
       });
       sim = {
@@ -909,7 +909,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 24_000 : 650,
         estimatedCostUsd: isProtected ? 1.85 : 0.03,
         reason: isProtected
-          ? "Protected by BLA Apple PropertyList Decode Budget Guard"
+          ? "Protected by AxObfus Apple PropertyList Decode Budget Guard"
           : "Apple PropertyList keys and entitlements directly readable",
       });
       sim = {
@@ -937,7 +937,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 32_000 : 1_150,
         estimatedCostUsd: isProtected ? 2.6 : 0.05,
         reason: isProtected
-          ? "Protected by BLA .NET Managed CLR Metadata & PInvoke Obligation Guard"
+          ? "Protected by AxObfus .NET Managed CLR Metadata & PInvoke Obligation Guard"
           : "CLR metadata tables and PInvoke signatures directly readable",
       });
       sim = {
@@ -966,7 +966,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 27_500 : 920,
         estimatedCostUsd: isProtected ? 2.15 : 0.04,
         reason: isProtected
-          ? "Protected by BLA JVM Constant-Pool & Enclave Attribute Shield"
+          ? "Protected by AxObfus JVM Constant-Pool & Enclave Attribute Shield"
           : "JVM constant pool and method descriptors directly readable",
       });
       sim = {
@@ -994,7 +994,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 42_000 : 1_100,
         estimatedCostUsd: isProtected ? 3.4 : 0.05,
         reason: isProtected
-          ? "Protected by BLA BEAM chunk/atom exhaustion + canary decoys"
+          ? "Protected by AxObfus BEAM chunk/atom exhaustion + canary decoys"
           : "BEAM IFF chunks and atom table directly enumerable by REA",
       });
       sim = {
@@ -1025,7 +1025,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 38_000 : 800,
         estimatedCostUsd: isProtected ? 2.9 : 0.04,
         reason: isProtected
-          ? "Protected by BLA Solidity metadata CBOR canary + input-budget padding"
+          ? "Protected by AxObfus Solidity metadata CBOR canary + input-budget padding"
           : "EVM bytecode and terminal Solidity metadata directly inspectable",
       });
       sim = {
@@ -1052,7 +1052,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 55_000 : 1_400,
         estimatedCostUsd: isProtected ? 4.1 : 0.06,
         reason: isProtected
-          ? "Protected by BLA PCAP decoy-packet flood targeting TSHARK_JSON_MAX_BYTES"
+          ? "Protected by AxObfus PCAP decoy-packet flood targeting TSHARK_JSON_MAX_BYTES"
           : "PCAP frames fully dissectable by REA tshark provider",
       });
       sim = {
@@ -1080,7 +1080,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 48_000 : 1_200,
         estimatedCostUsd: isProtected ? 3.6 : 0.05,
         reason: isProtected
-          ? "Protected by BLA PTX decoy .entry flood + diagnostic comments"
+          ? "Protected by AxObfus PTX decoy .entry flood + diagnostic comments"
           : "PTX .entry/.param declarations directly harvested by REA",
       });
       sim = {
@@ -1107,7 +1107,7 @@ export function auditTarget(targetPath: string): AuditReport {
         estimatedTokensToReconstruct: isProtected ? 62_000 : 1_600,
         estimatedCostUsd: isProtected ? 4.8 : 0.07,
         reason: isProtected
-          ? "Protected by BLA UF2 not-main-flash + file-container decoy flood (REA #8230)"
+          ? "Protected by AxObfus UF2 not-main-flash + file-container decoy flood (REA #8230)"
           : "UF2 main-flash regions fully inventoriable by REA Uf2ArtifactReader",
       });
       sim = {
@@ -1152,7 +1152,7 @@ export function auditTarget(targetPath: string): AuditReport {
 
   const protectionStatus: AuditReport["protectionStatus"] =
     exposureScore <= 15
-      ? "BLA_PROTECTED"
+      ? "AXOBFUS_PROTECTED"
       : exposureScore <= 50
         ? "PARTIALLY_SHIELDED"
         : "UNPROTECTED";
@@ -1161,9 +1161,9 @@ export function auditTarget(targetPath: string): AuditReport {
   const primaryEstimate = agentEstimates[0]!;
   const primaryModule = exposedItems[0]?.name ?? basename(absPath);
 
-  const recommendedCommand = `npx bla-agents protect ${targetPath}`;
+  const recommendedCommand = `npx axobfus protect ${targetPath}`;
   const headlineWarning =
-    protectionStatus === "BLA_PROTECTED"
+    protectionStatus === "AXOBFUS_PROTECTED"
       ? `SHIELD ACTIVE: ${basename(absPath)} triggers ${sim.triggeredResourceLimits.length} REA resource limits and forces ~${primaryEstimate.estimatedInputTokens.toLocaleString()} tokens ($${primaryEstimate.estimatedCostUsd.toFixed(2)}) of agent tarpit exhaustion.`
       : `DANGER: Module "${primaryModule}" in ${basename(absPath)} is exposed to REA (${exposureScore}/100 exposure). Estimated Claude Code time: ${primaryEstimate.estimatedWallClockSeconds}s, cost: $${primaryEstimate.estimatedCostUsd.toFixed(2)} to reconstruct. Run "${recommendedCommand}" to inject AI Tarpit & Semantic Shield.`;
 

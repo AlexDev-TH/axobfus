@@ -88,7 +88,7 @@ function deriveDefaultOutputPath(inputPath: string, inPlace = false): string {
 }
 
 /**
- * Unified Multi-Format Protection Engine (`bla protect`).
+ * Unified Multi-Format Protection Engine (`axobfus protect`).
  * Protects JS/TS, Electron `.asar`, HTML Web Bundles, SourceMaps, WebAssembly `.wasm`,
  * Python `.py`/`.pyc`, Native Binaries (ELF/Mach-O/PE), ZIP/APK archives, and directories.
  */
@@ -121,7 +121,7 @@ function protectTargetInner(options: ProtectionOptions): ProtectionResult {
 
   const intensity = options.intensity ?? "balanced";
   // Prefer caller/CLI/project seed; mint an ephemeral random seed only as last resort
-  // (CLI resolves + persists per-project seeds via resolveProjectSeed / .blarc).
+  // (CLI resolves + persists per-project seeds via resolveProjectSeed / .axobfusrc).
   const seed = String(options.seed ?? generateProjectSeed());
   const prng = new SeededPrng(seed);
   const chaffPayloads = generateChaffPayloads(prng, intensity);

@@ -1,24 +1,30 @@
-# `bla-site` — Official Website for BLA (`bla.tools`)
+# AxObfus Website
 
-Official website and interactive Counter-REA defense labs for **[BLA: Blind LLM Agents (`bla-agents`)](https://github.com/qybaihe/bla)**.
+เว็บไซต์นำเสนอ **AxObfus โดย AlexDev** สำหรับ repository [AlexDev-TH/axobfus](https://github.com/AlexDev-TH/axobfus) เป็นหน้า static HTML/CSS/JavaScript ภาษาไทย ใช้งานได้โดยไม่มี build step และไม่มี remote runtime dependency
 
-## Pages & Interactive Labs
+## หน้าเว็บ
 
-- `/` ([`index.html`](./index.html)):
-  - **Tactical HUD & Instant Setup Card** (One-click copy prompts for Claude Code, Cursor, Codex, and Antigravity + `npx bla-agents@latest setup`).
-  - **Interactive 3-Step REA Analyzer Tripwire Inspector** (`01 · JS/Electron Semantic & IPC Breaker`, `02 · Rust/Fuse/Dart Binary Trap`, `03 · SQLite Virtual Column & AI Model Bomb`).
-  - **Interactive Lab 01 — Playable 60 FPS Dinosaur Shield Lab**: Direct counterpart to `rea.tools`'s Chrome Dinosaur demo. Toggle **BLA Shield ON / OFF** in real time to see the game run at 60 FPS (`0ms` overhead) while the attacking REA agent terminal drowns in 10.1M tokens of enclave chaff.
-  - **Interactive Lab 02 — Token Bankruptcy Calculator**: Select any of the 8 target formats, BLA intensity (`stealth`, `balanced`, `maximum`, `bankrupt`), and attacker LLM (`Claude Opus 4`, `OpenAI o3`, `Claude Sonnet 4`).
-  - **Instant Bilingual Switcher (`English` / `简体中文`)** & **Dark / Light Theme Switcher**.
-- `/get-started/` ([`get-started/index.html`](./get-started/index.html)): Step-by-step agent registration, stage-by-stage natural-language prompts, CLI reference, and Vite/Webpack/Rollup/esbuild bundler integration.
-- `/showcase/` ([`showcase/index.html`](./showcase/index.html)): 8-target Counter-REA benchmark suite and deep-dive case studies (Notion Electron IPC, DX-Ball Sound-Pan, Native ELF64 / SQLite3 / Safetensors).
-- `/guides/` ([`guides/index.html`](./guides/index.html)): Format-by-format defense workflows across all 19 supported artifact types.
-- `/faq/` ([`faq/index.html`](./faq/index.html)): Frequently asked questions and troubleshooting (`bla doctor`, `bla update`).
+- `/` — ภาพรวม defensive Counter-REA, decoys, resource/semantic exhaustion และ token consumption
+- `/get-started/` — `npx axobfus setup`, `npx axobfus harden .`, `audit`, `defend`, `verify`
+- `/showcase/` — แนวทางประเมินจาก artifact และรายงานของผู้ใช้ ไม่นำ benchmark ของ upstream มาเป็นผล AxObfus
+- `/faq/` — การติดตั้ง รายงาน verification และข้อจำกัด
+- `/guides/` และ `/crackme/` — คำแนะนำเสริมสำหรับ format-aware defense และ self-assessment
 
-## Binding Custom Domain (`bla.tools`)
+## รายงาน
 
-1. In your DNS provider for `bla.tools`, add:
-   - `CNAME` record for `www` $\rightarrow$ `qybaihe.github.io`
-   - `A` records for `@` (`bla.tools`) $\rightarrow$ `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-2. In **GitHub $\rightarrow$ `qybaihe/bla-site` $\rightarrow$ Settings $\rightarrow$ Pages $\rightarrow$ Custom domain**, enter `bla.tools` and check **Enforce HTTPS**.
-   (Or run: `gh api -X PUT repos/qybaihe/bla-site/pages -f cname="bla.tools"`)
+ตัวอย่าง `--report` ใช้กับ `audit` และ `defend`:
+
+```bash
+axobfus audit ./dist --report ./reports/audit.html
+axobfus defend ./dist --report ./reports/defend.html
+```
+
+รายงานเป็น HTML แบบ standalone เปิดออฟไลน์ได้โดยไม่มีสคริปต์หรือทรัพยากรภายนอก เหมาะสำหรับ review หรือจัดเก็บเป็น CI artifact ไม่ใช่ใบรับรองความปลอดภัย ค่าประมาณโทเคนต้องไม่ถูกนำเสนอเป็นผลวัดสากล การรองรับ `--report` ใน `harden` เป็นตัวเลือกเพิ่มเติม ไม่ใช่สัญญาหลักของเอกสารนี้
+
+## การพัฒนา
+
+เปิด `index.html` โดยตรงหรือ serve ไดเรกทอรี `website/` ด้วย static server ที่มีอยู่ ไม่ต้องติดตั้ง dependency เพิ่ม ใช้ `assets/styles.css` ร่วมกันทุกหน้า และ `assets/main.js` เฉพาะปุ่มคัดลอกที่มี fallback
+
+โลโก้และ social card เป็น SVG ท้องถิ่นใน `assets/` และ `../docs/assets/` ไฟล์ PNG และ SVG รุ่นก่อนอาจยังอยู่เพื่อไม่ลบ binary ที่ไม่คุ้นเคย แต่หน้าและ README ปัจจุบันไม่อ้างถึงไฟล์เหล่านั้น
+
+ไม่มีการอ้างว่าชุดทดสอบถูกรันจากการแก้เอกสารหรือเว็บไซต์ เมื่อเปลี่ยน source ให้รัน `npm run build` และ `npm test` แล้วรายงานผลจริง

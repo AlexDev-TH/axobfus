@@ -1,5 +1,5 @@
-import { BLA_IDENTITY } from "../identity.js";
-import { initBlaConfig } from "../core/config.js";
+import { AXOBFUS_IDENTITY } from "../identity.js";
+import { initAxObfusConfig } from "../core/config.js";
 import { inspectReleaseExposure } from "../core/release-exposure.js";
 import type { ProtectionIntensity } from "../core/types.js";
 import { auditTarget } from "../engine/auditor.js";
@@ -17,8 +17,9 @@ import {
   buildWeavePlan,
   getWeaveDirectivesMarkdown,
   WEAVE_DECOY_DOC_PATH,
-  WEAVE_DIRECTIVES_URI,
 } from "../shields/weave/weave-decoy.js";
+
+const WEAVE_DIRECTIVES_URI = "axobfus://directives/weave-decoy";
 
 export interface JsonRpcRequest {
   readonly jsonrpc: "2.0";
@@ -77,7 +78,7 @@ export interface McpEngineHandlers {
   readonly emitCompileTimeNativeHeader: typeof emitCompileTimeNativeHeader;
   readonly runDoctor: typeof runDoctor;
   readonly inspectReleaseExposure: typeof inspectReleaseExposure;
-  readonly initBlaConfig: typeof initBlaConfig;
+  readonly initAxObfusConfig: typeof initAxObfusConfig;
 }
 
 const DEFAULT_ENGINE_HANDLERS: McpEngineHandlers = Object.freeze({
@@ -90,7 +91,7 @@ const DEFAULT_ENGINE_HANDLERS: McpEngineHandlers = Object.freeze({
   emitCompileTimeNativeHeader,
   runDoctor,
   inspectReleaseExposure,
-  initBlaConfig,
+  initAxObfusConfig,
 });
 
 export const SUPPORTED_MCP_PROTOCOL_VERSIONS = Object.freeze([
@@ -98,11 +99,11 @@ export const SUPPORTED_MCP_PROTOCOL_VERSIONS = Object.freeze([
   "2025-03-26",
 ] as const);
 
-export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
+export const AXOBFUS_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
   {
-    name: "bla_harden",
+    name: "axobfus_harden",
     description:
-      "DEFAULT one-sentence Counter-REA hardening. Auto-discovers build outputs (dist/, build/, out/, release/, .asar, native binaries, .wasm, .py/.pyc, .sqlite, .safetensors/.gguf, .dex, .class, etc.), detects each artifact's format, and runs the full audit→defend→verify pipeline with the bankrupt profile. Pass just a project or build directory (default: cwd). Prefer this over bla_defend when the user says 'harden my software' without naming a specific file.",
+      "DEFAULT one-sentence Counter-REA hardening. Auto-discovers build outputs (dist/, build/, out/, release/, .asar, native binaries, .wasm, .py/.pyc, .sqlite, .safetensors/.gguf, .dex, .class, etc.), detects each artifact's format, and runs the full audit→defend→verify pipeline with the bankrupt profile. Pass just a project or build directory (default: cwd). Prefer this over axobfus_defend when the user says 'harden my software' without naming a specific file.",
     inputSchema: {
       type: "object",
       properties: {
@@ -117,7 +118,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
         },
         emit_manifest: {
           type: "boolean",
-          description: "Opt-in: emit an unsigned .bla-manifest.json attestation (not ed25519-signed) per artifact. Default false.",
+          description: "Opt-in: emit an unsigned .axobfus-manifest.json attestation (not ed25519-signed) per artifact. Default false.",
         },
         llm_directives: {
           type: "boolean",
@@ -126,18 +127,18 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
         weave_decoys: {
           type: "boolean",
           description:
-            "Opt-in weave-decoy entanglement: JS AST weave (always) + Python .py customer-def weave + .pyc co_consts TYPE_CODE weave. When false, Python stays warm-init/trailer-only. See bla://directives/weave-decoy. Default false.",
+            "Opt-in weave-decoy entanglement: JS AST weave (always) + Python .py customer-def weave + .pyc co_consts TYPE_CODE weave. When false, Python stays warm-init/trailer-only. See axobfus://directives/weave-decoy. Default false.",
         },
         seed: {
           type: "string",
-          description: "Optional deterministic seed; when omitted, BLA uses/persists a per-project random seed in .blarc",
+          description: "Optional deterministic seed; when omitted, AxObfus uses/persists a per-project random seed in .axobfusrc",
         },
       },
       additionalProperties: false,
     },
   },
   {
-    name: "bla_defend",
+    name: "axobfus_defend",
     description:
       "One-click Counter-REA full defense hardening pipeline. Runs release source-map exposure inspection, 16-vector REA vulnerability audit, Resource-Exhaustion + Model-Misjudgment shield injection (default: bankrupt preset), and mathematical invariant verification in a single call.",
     inputSchema: {
@@ -158,7 +159,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
         },
         emit_manifest: {
           type: "boolean",
-          description: "Opt-in: emit an unsigned .bla-manifest.json attestation (not ed25519-signed) next to the hardened artifact. Default false.",
+          description: "Opt-in: emit an unsigned .axobfus-manifest.json attestation (not ed25519-signed) next to the hardened artifact. Default false.",
         },
         llm_directives: {
           type: "boolean",
@@ -171,7 +172,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
         },
         seed: {
           type: "string",
-          description: "Optional deterministic seed; when omitted, BLA uses/persists a per-project random seed in .blarc",
+          description: "Optional deterministic seed; when omitted, AxObfus uses/persists a per-project random seed in .axobfusrc",
         },
       },
       required: ["input_path"],
@@ -179,7 +180,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_audit",
+    name: "axobfus_audit",
     description:
       "Pre-flight REA exposure and vulnerability audit. Simulates REA static/semantic passes on a target file or directory (JS/TS, Electron .asar, WASM, Python .py/.pyc, Native ELF/Mach-O/PE, ZIP/APK) and estimates attacker Claude/GPT token and dollar cost.",
     inputSchema: {
@@ -195,9 +196,9 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_protect",
+    name: "axobfus_protect",
     description:
-      "Injects BLA's multi-layer adversarial defense shield (Algorithmic Tarpit, REA Semantic Budget Breakers, Electron IPC Ambiguity, Honey Source Maps, and Architectural Chaff) into a target artifact.",
+      "Injects AxObfus's multi-layer adversarial defense shield (Algorithmic Tarpit, REA Semantic Budget Breakers, Electron IPC Ambiguity, Honey Source Maps, and Architectural Chaff) into a target artifact.",
     inputSchema: {
       type: "object",
       properties: {
@@ -221,7 +222,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
         },
         seed: {
           type: "string",
-          description: "Optional deterministic seed; when omitted, BLA mints an ephemeral random seed (prefer project .blarc via CLI)",
+          description: "Optional deterministic seed; when omitted, AxObfus mints an ephemeral random seed (prefer project .axobfusrc via CLI)",
         },
         llm_directives: {
           type: "boolean",
@@ -233,9 +234,9 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_verify",
+    name: "axobfus_verify",
     description:
-      "Verifies a BLA-protected artifact against REA's static/semantic resource limits, call-graph tarpit expansion, and token bankruptcy amplification.",
+      "Verifies an AxObfus-protected artifact against REA's static/semantic resource limits, call-graph tarpit expansion, and token bankruptcy amplification.",
     inputSchema: {
       type: "object",
       properties: {
@@ -253,7 +254,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_benchmark",
+    name: "axobfus_benchmark",
     description:
       "Runs the Counter-REA Showcase Benchmark suite and returns Before vs. After metrics.",
     inputSchema: {
@@ -263,9 +264,9 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_emit_headers",
+    name: "axobfus_emit_headers",
     description:
-      "Emits compile-time native defense headers for C/C++ (bla_shield.h), Rust (bla_shield.rs), or Go (bla_shield.go) to defeat Ghidra/Hopper/IDA and REA native binary analyzers.",
+      "Emits compile-time native defense headers for C/C++ (axobfus_shield.h), Rust (axobfus_shield.rs), or Go (axobfus_shield.go) to increase analysis cost for Ghidra/Hopper/IDA and REA native binary analyzers.",
     inputSchema: {
       type: "object",
       properties: {
@@ -284,9 +285,9 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_doctor",
+    name: "axobfus_doctor",
     description:
-      "Checks readiness of all BLA protection engines and agent MCP registrations.",
+      "Checks readiness of all AxObfus protection engines and agent MCP registrations.",
     inputSchema: {
       type: "object",
       properties: {
@@ -299,7 +300,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_inspect_release",
+    name: "axobfus_inspect_release",
     description:
       "Read-only local source-map and symbol exposure scan for build directories and release artifacts.",
     inputSchema: {
@@ -323,9 +324,9 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_init",
+    name: "axobfus_init",
     description:
-      "Creates a starter bla.config.json in a project directory for zero-argument `bla defend` workflows.",
+      "Creates a starter axobfus.config.json in a project directory for zero-argument `axobfus defend` workflows.",
     inputSchema: {
       type: "object",
       properties: {
@@ -335,7 +336,7 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
         },
         overwrite: {
           type: "boolean",
-          description: "Overwrite an existing bla.config.json if present",
+          description: "Overwrite an existing axobfus.config.json if present",
         },
       },
       required: ["directory"],
@@ -343,9 +344,9 @@ export const BLA_MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     },
   },
   {
-    name: "bla_weave_plan",
+    name: "axobfus_weave_plan",
     description:
-      "Read-only weave-decoy planner: analyze a project or artifact, return bla-weave-plan/v1 JSON (principles, forbidden patterns, checklist, per-file maturity). Defensive only — no crack/RE steps. Prefer before bla_harden with weave_decoys:true.",
+      "Read-only weave-decoy planner: analyze a project or artifact, return axobfus-weave-plan/v1 JSON (principles, forbidden patterns, checklist, per-file maturity). Defensive only — no crack/RE steps. Prefer before axobfus_harden with weave_decoys:true.",
     inputSchema: {
       type: "object",
       properties: {
@@ -372,7 +373,7 @@ export interface McpResourceDefinition {
   readonly mimeType: string;
 }
 
-export const BLA_MCP_RESOURCES: readonly McpResourceDefinition[] = Object.freeze([
+export const AXOBFUS_MCP_RESOURCES: readonly McpResourceDefinition[] = Object.freeze([
   {
     uri: WEAVE_DIRECTIVES_URI,
     name: "weave-decoy-directives",
@@ -381,18 +382,18 @@ export const BLA_MCP_RESOURCES: readonly McpResourceDefinition[] = Object.freeze
     mimeType: "text/markdown",
   },
   {
-    uri: "bla://docs/weave-decoy-mcp",
+    uri: "axobfus://docs/weave-decoy-mcp",
     name: "weave-decoy-doc",
     description: `Pointer to repository theory pack ${WEAVE_DECOY_DOC_PATH}`,
     mimeType: "text/markdown",
   },
 ]);
 
-export const BLA_MCP_PROMPTS: readonly McpPromptDefinition[] = Object.freeze([
+export const AXOBFUS_MCP_PROMPTS: readonly McpPromptDefinition[] = Object.freeze([
   {
-    name: "bla-harden-project",
+    name: "axobfus-harden-project",
     description:
-      "One-sentence Counter-REA hardening: discover every protectable build artifact under a project directory and run bla_harden (audit→defend→verify, bankrupt profile).",
+      "One-sentence Counter-REA hardening: discover every protectable build artifact under a project directory and run axobfus_harden (audit→defend→verify, bankrupt profile).",
     arguments: [
       {
         name: "directory",
@@ -404,7 +405,7 @@ export const BLA_MCP_PROMPTS: readonly McpPromptDefinition[] = Object.freeze([
   {
     name: "shield-against-rea",
     description:
-      "Audit a build artifact for REA exposure, apply BLA's adversarial shield, and verify the token bankruptcy factor.",
+      "Audit a build artifact for REA exposure, apply AxObfus's adversarial shield, and verify the token bankruptcy factor.",
     arguments: [
       {
         name: "target_path",
@@ -414,9 +415,9 @@ export const BLA_MCP_PROMPTS: readonly McpPromptDefinition[] = Object.freeze([
     ],
   },
   {
-    name: "bla-hardening-workflow",
+    name: "axobfus-hardening-workflow",
     description:
-      "Step-by-step release hardening checklist using bla_inspect_release, bla_audit, bla_protect, and bla_verify.",
+      "Step-by-step release hardening checklist using axobfus_inspect_release, axobfus_audit, axobfus_protect, and axobfus_verify.",
     arguments: [
       {
         name: "target_path",
@@ -426,7 +427,7 @@ export const BLA_MCP_PROMPTS: readonly McpPromptDefinition[] = Object.freeze([
     ],
   },
   {
-    name: "bla-counter-rea",
+    name: "axobfus-counter-rea",
     description:
       "Evaluate REA reverse-engineering exposure and plan defensive hardening for a software artifact.",
     arguments: [
@@ -438,9 +439,9 @@ export const BLA_MCP_PROMPTS: readonly McpPromptDefinition[] = Object.freeze([
     ],
   },
   {
-    name: "bla-weave-decoy",
+    name: "axobfus-weave-decoy",
     description:
-      "Plan weave-decoy hardening: read bla://directives/weave-decoy, call bla_weave_plan, then bla_harden with weave_decoys:true. Defensive only.",
+      "Plan weave-decoy hardening: read axobfus://directives/weave-decoy, call axobfus_weave_plan, then axobfus_harden with weave_decoys:true. Defensive only.",
     arguments: [
       {
         name: "target_path",
@@ -484,12 +485,12 @@ export function validateMcpToolCall(
     };
   }
 
-  const tool = BLA_MCP_TOOLS.find((t) => t.name === params.name);
+  const tool = AXOBFUS_MCP_TOOLS.find((t) => t.name === params.name);
   if (!tool) {
     return {
       ok: false,
       code: -32602,
-      message: `Invalid params: unknown BLA MCP tool '${params.name}'`,
+      message: `Invalid params: unknown AxObfus MCP tool '${params.name}'`,
     };
   }
 
@@ -649,8 +650,8 @@ export async function handleMcpRequest(
               resources: {},
             },
             serverInfo: {
-              name: BLA_IDENTITY.mcpServerName,
-              version: BLA_IDENTITY.version,
+              name: AXOBFUS_IDENTITY.mcpServerName,
+              version: AXOBFUS_IDENTITY.version,
             },
           },
         };
@@ -668,7 +669,7 @@ export async function handleMcpRequest(
           jsonrpc: "2.0",
           id: req.id,
           result: {
-            tools: BLA_MCP_TOOLS,
+            tools: AXOBFUS_MCP_TOOLS,
           },
         };
 
@@ -677,7 +678,7 @@ export async function handleMcpRequest(
           jsonrpc: "2.0",
           id: req.id,
           result: {
-            resources: BLA_MCP_RESOURCES,
+            resources: AXOBFUS_MCP_RESOURCES,
           },
         };
 
@@ -693,7 +694,7 @@ export async function handleMcpRequest(
           };
         }
         const uri = req.params.uri;
-        const known = BLA_MCP_RESOURCES.find((r) => r.uri === uri);
+        const known = AXOBFUS_MCP_RESOURCES.find((r) => r.uri === uri);
         if (!known) {
           return {
             jsonrpc: "2.0",
@@ -704,7 +705,9 @@ export async function handleMcpRequest(
             },
           };
         }
-        const markdown = getWeaveDirectivesMarkdown();
+        const markdown = getWeaveDirectivesMarkdown()
+          .replaceAll("bla://", "axobfus://")
+          .replaceAll("bla_", "axobfus_");
         return {
           jsonrpc: "2.0",
           id: req.id,
@@ -725,7 +728,7 @@ export async function handleMcpRequest(
           jsonrpc: "2.0",
           id: req.id,
           result: {
-            prompts: BLA_MCP_PROMPTS,
+            prompts: AXOBFUS_MCP_PROMPTS,
           },
         };
 
@@ -740,7 +743,7 @@ export async function handleMcpRequest(
             },
           };
         }
-        const promptDef = BLA_MCP_PROMPTS.find((p) => p.name === req.params!.name);
+        const promptDef = AXOBFUS_MCP_PROMPTS.find((p) => p.name === req.params!.name);
         if (!promptDef) {
           return {
             jsonrpc: "2.0",
@@ -778,26 +781,26 @@ export async function handleMcpRequest(
           }
         }
         let promptText: string;
-        if (promptDef.name === "bla-harden-project") {
+        if (promptDef.name === "axobfus-harden-project") {
           const directory =
             typeof promptArgs.directory === "string" && promptArgs.directory.trim().length > 0
               ? String(promptArgs.directory)
               : ".";
           promptText =
-            `Harden my software against REA in one step: call bla_harden with { "directory": "${directory}" }. ` +
+            `Harden my software against REA in one step: call axobfus_harden with { "directory": "${directory}" }. ` +
             `It auto-discovers build outputs, runs audit→defend→verify with the bankrupt profile on every artifact, and returns a per-artifact summary. ` +
             `Do not ask which files to protect — discover them.`;
-        } else if (promptDef.name === "bla-weave-decoy") {
+        } else if (promptDef.name === "axobfus-weave-decoy") {
           const targetPath =
             typeof promptArgs.target_path === "string" && promptArgs.target_path.trim().length > 0
               ? String(promptArgs.target_path)
               : ".";
           promptText =
-            `Defensive weave-decoy only (no crack/RE): read resource ${WEAVE_DIRECTIVES_URI}, call bla_weave_plan with { "path": "${targetPath}" }, then bla_harden with { "directory": "${targetPath}", "weave_decoys": true }. Do not add dismissible honeypot noise layers.`;
+            `Defensive weave-decoy only (no crack/RE): read resource ${WEAVE_DIRECTIVES_URI}, call axobfus_weave_plan with { "path": "${targetPath}" }, then axobfus_harden with { "directory": "${targetPath}", "weave_decoys": true }. Do not add dismissible honeypot noise layers.`;
         } else {
           const targetPath = String(promptArgs.target_path ?? ".");
           promptText =
-            `Inspect and audit '${targetPath}' using bla_inspect_release and bla_audit, then review findings before applying bla_protect or bla_defend and verifying with bla_verify.`;
+            `Inspect and audit '${targetPath}' using axobfus_inspect_release and axobfus_audit, then review findings before applying axobfus_protect or axobfus_defend and verifying with axobfus_verify.`;
         }
         return {
           jsonrpc: "2.0",
@@ -834,7 +837,7 @@ export async function handleMcpRequest(
         const name = tool.name;
         let payload: unknown;
 
-        if (name === "bla_harden") {
+        if (name === "axobfus_harden") {
           payload = handlers.hardenProject({
             directory:
               typeof args.directory === "string" && args.directory.trim().length > 0
@@ -849,7 +852,7 @@ export async function handleMcpRequest(
             weaveDecoys: Boolean(args.weave_decoys),
             ...(typeof args.seed === "string" ? { seed: args.seed } : {}),
           });
-        } else if (name === "bla_defend") {
+        } else if (name === "axobfus_defend") {
           payload = handlers.defendTarget({
             inputPath: args.input_path as string,
             ...(typeof args.output_path === "string"
@@ -864,9 +867,9 @@ export async function handleMcpRequest(
             weaveDecoys: Boolean(args.weave_decoys),
             ...(typeof args.seed === "string" ? { seed: args.seed } : {}),
           });
-        } else if (name === "bla_audit") {
+        } else if (name === "axobfus_audit") {
           payload = handlers.auditTarget(args.path as string);
-        } else if (name === "bla_protect") {
+        } else if (name === "axobfus_protect") {
           payload = handlers.protectTarget({
             inputPath: args.input_path as string,
             ...(typeof args.output_path === "string" ? { outputPath: args.output_path } : {}),
@@ -877,14 +880,14 @@ export async function handleMcpRequest(
             llmDirectives: Boolean(args.llm_directives),
             weaveDecoys: Boolean(args.weave_decoys),
           });
-        } else if (name === "bla_verify") {
+        } else if (name === "axobfus_verify") {
           payload = handlers.verifyTarget(
             args.target_path as string,
             typeof args.original_path === "string" ? args.original_path : undefined,
           );
-        } else if (name === "bla_benchmark") {
+        } else if (name === "axobfus_benchmark") {
           payload = await handlers.runShowcaseBenchmark();
-        } else if (name === "bla_emit_headers") {
+        } else if (name === "axobfus_emit_headers") {
           payload = handlers.emitCompileTimeNativeHeader(
             args.language as NativeHeaderLanguage,
             {
@@ -893,18 +896,18 @@ export async function handleMcpRequest(
                 : {}),
             },
           );
-        } else if (name === "bla_doctor") {
+        } else if (name === "axobfus_doctor") {
           payload = handlers.runDoctor(
             typeof args.home_dir === "string" ? args.home_dir : undefined,
           );
-        } else if (name === "bla_inspect_release") {
+        } else if (name === "axobfus_inspect_release") {
           payload = handlers.inspectReleaseExposure(args.path as string);
-        } else if (name === "bla_init") {
-          payload = handlers.initBlaConfig(
+        } else if (name === "axobfus_init") {
+          payload = handlers.initAxObfusConfig(
             args.directory as string,
             Boolean(args.overwrite),
           );
-        } else if (name === "bla_weave_plan") {
+        } else if (name === "axobfus_weave_plan") {
           payload = buildWeavePlan(args.path as string, {
             ...(typeof args.max_targets === "number"
               ? { maxTargets: args.max_targets }
@@ -974,7 +977,7 @@ export interface StdioLineProcessor {
 /**
  * Newline-delimited stdio line splitter with a hard per-line size cap so a
  * client that streams an unterminated giant line cannot grow the buffer without
- * bound. Blank lines and `Content-Length:` framing lines are skipped, matching
+ * bound. AxObfusnk lines and `Content-Length:` framing lines are skipped, matching
  * the previous server behavior.
  */
 export function createStdioLineProcessor(hooks: StdioLineProcessorHooks): StdioLineProcessor {
@@ -1012,7 +1015,7 @@ export function createStdioLineProcessor(hooks: StdioLineProcessorHooks): StdioL
 }
 
 /**
- * Starts the BLA MCP server over stdio (supporting newline-delimited JSON-RPC 2.0).
+ * Starts the AxObfus MCP server over stdio (supporting newline-delimited JSON-RPC 2.0).
  */
 export function startMcpStdioServer(): void {
   let processingQueue = Promise.resolve();

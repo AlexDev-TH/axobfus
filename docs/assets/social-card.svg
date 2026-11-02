@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">AxObfus by AlexDev</title>
+  <desc id="desc">Defensive Counter-REA toolkit — decoys, resource and semantic exhaustion, and increased analyzer token consumption.</desc>
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect width="18" height="630" fill="#ef582f"/>
+  <path d="M72 72h1056M72 516h1056" stroke="#d8d5cf" stroke-width="2"/>
+  <rect x="72" y="104" width="70" height="70" fill="#20201e"/>
+  <path d="M87 154l14-36h8l14 36h-9l-3-8H96l-3 8Zm13-16h7l-3.5-10Z" fill="#ffffff"/>
+  <text x="164" y="149" fill="#20201e" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">AxObfus</text>
+  <text x="1127" y="143" text-anchor="end" fill="#66645f" font-family="Consolas, monospace" font-size="20">BY ALEXDEV / 2026</text>
+  <text x="72" y="280" fill="#20201e" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="700" letter-spacing="-3">Defensive Counter-REA.</text>
+  <text x="72" y="350" fill="#20201e" font-family="Arial, Helvetica, sans-serif" font-size="36">Decoys. Resource &amp; semantic exhaustion.</text>
+  <text x="72" y="402" fill="#66645f" font-family="Arial, Helvetica, sans-serif" font-size="29">More evidence. More analyzer tokens. No absolute claims.</text>
+  <rect x="72" y="452" width="430" height="38" fill="#ef582f"/>
+  <text x="72" y="566" fill="#20201e" font-family="Consolas, monospace" font-size="28">npx axobfus harden .</text>
+  <text x="1128" y="566" text-anchor="end" fill="#66645f" font-family="Consolas, monospace" font-size="22">github.com/AlexDev-TH/axobfus</text>
+</svg>

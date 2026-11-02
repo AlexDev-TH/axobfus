@@ -31,7 +31,7 @@ function metricsBlock(metrics) {
 }
 
 /**
- * Compare empirical outcomes to BLA's internal estimates / planted flags.
+ * Compare empirical outcomes to AxObfus's internal estimates / planted flags.
  */
 function compareToEstimates(pair) {
   const notes = [];
@@ -41,8 +41,8 @@ function compareToEstimates(pair) {
     const hit = after.budgetHit === true;
     notes.push(
       hit === expect
-        ? `AGREE with BLA goBuildInfoExceedsLimit=${expect}`
-        : `DIVERGE: BLA estimated trips=${expect}, empirical budgetHit=${hit}`,
+        ? `AGREE with AxObfus goBuildInfoExceedsLimit=${expect}`
+        : `DIVERGE: AxObfus estimated trips=${expect}, empirical budgetHit=${hit}`,
     );
   }
   if (format === "flutter_pool") {
@@ -63,8 +63,8 @@ function compareToEstimates(pair) {
     const hit = after.budgetHit === true;
     notes.push(
       hit === expect
-        ? `AGREE with BLA exceedsDefaultChunkBudget=${expect}`
-        : `DIVERGE: BLA estimated=${expect}, empirical budgetHit=${hit} (${after.budgetName})`,
+        ? `AGREE with AxObfus exceedsDefaultChunkBudget=${expect}`
+        : `DIVERGE: AxObfus estimated=${expect}, empirical budgetHit=${hit} (${after.budgetName})`,
     );
   }
   if (format === "evm_bytecode") {
@@ -72,8 +72,8 @@ function compareToEstimates(pair) {
     const hit = after.budgetHit === true;
     notes.push(
       hit === expect || (expect && after.metrics?.approachesLimit)
-        ? `AGREE with BLA approachesInputBudget=${expect} (after=${fmtBytes(after.inputBytes)}, limit=${fmtBytes(blaLimits.EVM_INPUT_BYTES)})`
-        : `DIVERGE: BLA approaches=${expect}, empirical budgetHit=${hit}`,
+        ? `AGREE with AxObfus approachesInputBudget=${expect} (after=${fmtBytes(after.inputBytes)}, limit=${fmtBytes(blaLimits.EVM_INPUT_BYTES)})`
+        : `DIVERGE: AxObfus approaches=${expect}, empirical budgetHit=${hit}`,
     );
   }
   if (format === "pcap_capture") {
@@ -82,15 +82,15 @@ function compareToEstimates(pair) {
     const est = sampleMeta?.estimatedTsharkJsonBytes;
     const real = after.metrics?.tsharkJsonBytes;
     notes.push(
-      `BLA estimate=${fmtBytes(est)}; empirical tshark JSON=${fmtBytes(real)}`,
+      `AxObfus estimate=${fmtBytes(est)}; empirical tshark JSON=${fmtBytes(real)}`,
     );
     if (after.status === "skipped") {
       notes.push("SKIPPED: tshark unavailable — estimate not empirically confirmed");
     } else if (hit === expect) {
-      notes.push(`AGREE with BLA exceedsTsharkJsonBudget=${expect}`);
+      notes.push(`AGREE with AxObfus exceedsTsharkJsonBudget=${expect}`);
     } else {
       notes.push(
-        `DIVERGE: BLA estimated exceed=${expect}, empirical budgetHit=${hit}`,
+        `DIVERGE: AxObfus estimated exceed=${expect}, empirical budgetHit=${hit}`,
       );
     }
   }
@@ -112,8 +112,8 @@ function compareToEstimates(pair) {
     const hit = after.budgetHit === true;
     notes.push(
       hit === expect
-        ? `AGREE with BLA triggeredMetadataNestingBreaker=${expect}`
-        : `DIVERGE: BLA nesting=${expect}, empirical budgetHit=${hit} (${after.budgetName ?? after.errorName})`,
+        ? `AGREE with AxObfus triggeredMetadataNestingBreaker=${expect}`
+        : `DIVERGE: AxObfus nesting=${expect}, empirical budgetHit=${hit} (${after.budgetName ?? after.errorName})`,
     );
   }
   if (format === "gpu_ptx") {
@@ -126,8 +126,8 @@ function compareToEstimates(pair) {
     const hit = after.budgetHit === true;
     notes.push(
       hit === expect
-        ? `AGREE with BLA exceedsDefaultAdmission=${expect} (header after metrics=${after.metrics?.headerBytes ?? after.errorMessage})`
-        : `DIVERGE: BLA exceedsDefaultAdmission=${expect}, empirical budgetHit=${hit} (${after.budgetName ?? after.errorName})`,
+        ? `AGREE with AxObfus exceedsDefaultAdmission=${expect} (header after metrics=${after.metrics?.headerBytes ?? after.errorMessage})`
+        : `DIVERGE: AxObfus exceedsDefaultAdmission=${expect}, empirical budgetHit=${hit} (${after.budgetName ?? after.errorName})`,
     );
   }
   if (format === "wasm_module") {
@@ -135,8 +135,8 @@ function compareToEstimates(pair) {
     const hit = after.budgetHit === true;
     notes.push(
       hit === expect
-        ? `AGREE with BLA exceedsRepresentationBudget=${expect} (projected=${sampleMeta?.projectedInterfaceChargeBytes})`
-        : `DIVERGE: BLA exceeds=${expect}, empirical budgetHit=${hit}`,
+        ? `AGREE with AxObfus exceedsRepresentationBudget=${expect} (projected=${sampleMeta?.projectedInterfaceChargeBytes})`
+        : `DIVERGE: AxObfus exceeds=${expect}, empirical budgetHit=${hit}`,
     );
     notes.push(
       after.metrics?.wabtAvailable
@@ -147,14 +147,14 @@ function compareToEstimates(pair) {
   if (format === "sqlite_db") {
     notes.push(
       after.status === "capability_gated"
-        ? "NOTED: REA SQLite inspection capability-gated on Node <24.15; BLA honey/canary evidence recorded"
+        ? "NOTED: REA SQLite inspection capability-gated on Node <24.15; AxObfus honey/canary evidence recorded"
         : after.budgetHit
           ? `empirical budgetHit=${after.budgetName}`
           : `empirical status=${after.status}; honeyTables=${after.metrics?.blaHoneyTables}`,
     );
     if ((sampleMeta?.honeyTablesInjected ?? 0) > 0) {
       notes.push(
-        `AGREE: BLA honeyTablesInjected=${sampleMeta.honeyTablesInjected}, canaryTokens=${sampleMeta.canaryTokensEmbedded}`,
+        `AGREE: AxObfus honeyTablesInjected=${sampleMeta.honeyTablesInjected}, canaryTokens=${sampleMeta.canaryTokensEmbedded}`,
       );
     }
   }
@@ -181,7 +181,9 @@ export function buildReportDocument(run) {
   lines.push("# Empirical REA red-team validation");
   lines.push("");
   lines.push(`Generated: ${run.generatedAt} (Asia/Shanghai)`);
-  lines.push(`BLA root: \`${run.blaRoot}\``);
+  lines.push(`AxObfus root: \`${run.blaRoot}\``);
+  lines.push(`AxObfus version: \`${run.axobfusVersion}\``);
+  lines.push("This is a fresh local AxObfus run; historical BLA reports are not presented as new empirical evidence.");
   lines.push(`REA root: \`${run.reaRoot}\``);
   lines.push(`Intensity: \`${run.intensity}\` · seed: \`${run.seed}\``);
   lines.push(`Node: \`${run.nodeVersion}\``);
@@ -190,7 +192,7 @@ export function buildReportDocument(run) {
   lines.push("## Summary");
   lines.push("");
   lines.push(
-    "| Format | Before status | After status | Budget hit (after) | vs BLA estimate |",
+    "| Format | Before status | After status | Budget hit (after) | vs AxObfus estimate |",
   );
   lines.push("|---|---|---|---|---|");
   for (const pair of run.pairs) {
@@ -241,7 +243,7 @@ export function buildReportDocument(run) {
   lines.push("## Method");
   lines.push("");
   lines.push(
-    "Harness lives under `scripts/redteam/`. For each in-process REA analyzer, it builds a representative sample, runs the real REA parser on the unhardened bytes, hardens via BLA (`protect*` APIs / mapped plants), re-runs REA, and records budget/redaction/error outcomes. Flutter pool projection uses a faithful replica of REA's private `projectStringPool` (same caps, slack, identifier rules). PCAP uses a real user-local tshark when present.",
+    "Harness lives under `scripts/redteam/`. For each in-process REA analyzer, it builds a representative sample, runs the real REA parser on the unhardened bytes, hardens via AxObfus (`protect*` APIs / mapped plants), re-runs REA, and records budget/redaction/error outcomes. Flutter pool projection uses a faithful replica of REA's private `projectStringPool` (same caps, slack, identifier rules). PCAP uses a real user-local tshark when present.",
   );
   lines.push("");
   return lines.join("\n");

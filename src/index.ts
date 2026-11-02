@@ -1,4 +1,4 @@
-export { BLA_IDENTITY, REA_INTERNAL_LIMITS } from "./identity.js";
+export { AXOBFUS_IDENTITY, REA_INTERNAL_LIMITS } from "./identity.js";
 export * from "./core/types.js";
 export { SeededPrng } from "./core/prng.js";
 export { detectArtifactFormat } from "./core/detector.js";
@@ -135,11 +135,11 @@ export {
   protectZipOrApkBuffer,
 } from "./shields/formats/archive.js";
 export {
-  blaRollupPlugin,
-  blaVitePlugin,
-  BlaWebpackPlugin,
-  blaEsbuildPlugin,
-  type BlaBundlerPluginOptions,
+  axobfusRollupPlugin,
+  axobfusVitePlugin,
+  AxObfusWebpackPlugin,
+  axobfusEsbuildPlugin,
+  type AxObfusBundlerPluginOptions,
 } from "./bundler/index.js";
 export { auditTarget } from "./engine/auditor.js";
 export { protectTarget } from "./engine/protector.js";
@@ -155,7 +155,7 @@ export {
   discoverHardenableArtifacts,
   hardenProject,
   formatHardenProjectReport,
-  BLA_BUILD_OUTPUT_DIR_NAMES,
+  AXOBFUS_BUILD_OUTPUT_DIR_NAMES,
   type HardenProjectReport,
   type HardenArtifactSummary,
   type DiscoveredArtifact,
@@ -182,7 +182,7 @@ export {
 } from "./setup/clients.js";
 export { runSetup, runUninstall } from "./setup/setup.js";
 export { runDoctor } from "./setup/doctor.js";
-export { handleMcpRequest, startMcpStdioServer, BLA_MCP_TOOLS, BLA_MCP_RESOURCES, BLA_MCP_PROMPTS } from "./mcp/server.js";
+export { handleMcpRequest, startMcpStdioServer, AXOBFUS_MCP_TOOLS, AXOBFUS_MCP_RESOURCES, AXOBFUS_MCP_PROMPTS } from "./mcp/server.js";
 export {
   inspectReleaseExposure,
   type ReleaseExposureReport,

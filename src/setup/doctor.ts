@@ -5,7 +5,7 @@ import { homedir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getDatabaseSyncClass } from "../core/sqlite-runtime.js";
-import { BLA_IDENTITY, REA_INTERNAL_LIMITS } from "../identity.js";
+import { AXOBFUS_IDENTITY, REA_INTERNAL_LIMITS } from "../identity.js";
 import { protectZipOrApkBuffer } from "../shields/formats/archive.js";
 import { packAsarBuffer } from "../shields/formats/asar.js";
 import { protectNativeBinary } from "../shields/formats/native.js";
@@ -69,7 +69,7 @@ export interface DoctorDiagnosticReport {
   readonly healthy: boolean;
   readonly exitCode: 0 | 1;
   readonly status: "pass" | "warn" | "fail";
-  readonly blaVersion: string;
+  readonly axobfusVersion: string;
   readonly nodeVersion: string;
   readonly platform: string;
   readonly arch: string;
@@ -167,7 +167,7 @@ function probeLocalMcpHandshake(
     let execArgs = [...args];
 
     // Never execute arbitrary unknown commands or network `npx` downloads during doctor probes.
-    // Only allow trusted local Node/BLA invocations.
+    // Only allow trusted local Node/AxObfus invocations.
     const baseCmd = command.split(/[/\\]/).pop() ?? "";
     if (baseCmd === "npx" || baseCmd === "npx.cmd") {
       if (!existsSync(distCli)) {
@@ -179,9 +179,7 @@ function probeLocalMcpHandshake(
       baseCmd !== "node" &&
       baseCmd !== "node.exe" &&
       command !== process.execPath &&
-      baseCmd !== "bla" &&
-      baseCmd !== "bla-agents" &&
-      baseCmd !== "bla-shield"
+      baseCmd !== "axobfus"
     ) {
       return false;
     }
@@ -194,7 +192,7 @@ function probeLocalMcpHandshake(
         params: {
           protocolVersion: "2024-11-05",
           capabilities: {},
-          clientInfo: { name: "bla-doctor-probe", version: BLA_IDENTITY.version },
+          clientInfo: { name: "axobfus-doctor-probe", version: AXOBFUS_IDENTITY.version },
         },
       }) + "\n";
 
@@ -216,7 +214,7 @@ function probeLocalMcpHandshake(
         id?: number;
         result?: { serverInfo?: { name?: string } };
       };
-      if (parsed.jsonrpc === "2.0" && parsed.id === 1 && parsed.result?.serverInfo?.name === "bla") {
+      if (parsed.jsonrpc === "2.0" && parsed.id === 1 && parsed.result?.serverInfo?.name === "axobfus") {
         return true;
       }
     }
@@ -229,7 +227,7 @@ function probeLocalMcpHandshake(
 function checkEngines(sqliteOverride?: boolean): DoctorDiagnosticReport["engines"] {
   let javascriptAstShield: EngineHealthStatus = "ready";
   try {
-    const out = transformJavaScriptWithBlaShield("const __blaProbe = 1;\n", {
+    const out = transformJavaScriptWithBlaShield("const __axobfusProbe = 1;\n", {
       intensity: "stealth",
       seed: "doctor-probe",
     });
@@ -328,7 +326,7 @@ export function runDoctor(homeDirOrOptions?: string | DoctorOptions): DoctorDiag
   const agentStatuses: DoctorClientDiagnostic[] = clients.map((c) => {
     const clientIssues: string[] = [];
     const skillPath = join(c.skillDirectory, "SKILL.md");
-    const readRes = readClientMcpConfig(c.configPath, c.format, BLA_IDENTITY.mcpServerName);
+    const readRes = readClientMcpConfig(c.configPath, c.format, AXOBFUS_IDENTITY.mcpServerName);
 
     const configStatus: DoctorConfigStatus = readRes.status;
     const configured = configStatus === "valid" && readRes.entry !== null;
@@ -341,7 +339,7 @@ export function runDoctor(homeDirOrOptions?: string | DoctorOptions): DoctorDiag
       );
     } else if (configStatus === "invalid_entry") {
       clientIssues.push(
-        readRes.error ?? `Invalid '${BLA_IDENTITY.mcpServerName}' MCP entry for ${c.displayName}`,
+        readRes.error ?? `Invalid '${AXOBFUS_IDENTITY.mcpServerName}' MCP entry for ${c.displayName}`,
       );
     }
 
@@ -454,7 +452,7 @@ export function runDoctor(homeDirOrOptions?: string | DoctorOptions): DoctorDiag
     healthy,
     exitCode: healthy ? 0 : 1,
     status: overallStatus,
-    blaVersion: BLA_IDENTITY.version,
+    axobfusVersion: AXOBFUS_IDENTITY.version,
     nodeVersion: process.version,
     platform: `${platform}-${process.arch}`,
     arch: process.arch,

@@ -6,7 +6,7 @@ import {
 } from "./identifiers.js";
 
 /**
- * Deterministic seeded PRNG (SplitMix32 / Mulberry32) so BLA builds can be
+ * Deterministic seeded PRNG (SplitMix32 / Mulberry32) so AxObfus builds can be
  * 100% reproducible given a seed while producing high-entropy decoy identifiers,
  * bogus constants, and opaque predicate coefficients.
  */
@@ -14,7 +14,7 @@ export class SeededPrng {
   #state: number;
   readonly seedString: string;
 
-  constructor(seed: string | number = "bla-default-seed-v1") {
+  constructor(seed: string | number = "axobfus-default-seed-v1") {
     this.seedString = String(seed);
     const digest = createHash("sha256").update(this.seedString).digest();
     this.#state = digest.readUInt32LE(0) ^ digest.readUInt32LE(4) ^ 0x9e3779b9;

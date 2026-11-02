@@ -13,6 +13,8 @@ import {
 } from "../src/shields/formats/python-pyc-weave.js";
 import { buildWeavePlan } from "../src/shields/weave/weave-decoy.js";
 
+const PYTHON = process.platform === "win32" ? "python" : "python3";
+
 function compileSamplePyc(): Buffer {
   const dir = mkdtempSync(join(tmpdir(), "bla-pyc-weave-"));
   try {
@@ -34,7 +36,7 @@ function compileSamplePyc(): Buffer {
       "utf8",
     );
     execFileSync(
-      "python3",
+      PYTHON,
       ["-c", `import py_compile; py_compile.compile(${JSON.stringify(srcPath)}, cfile=${JSON.stringify(pycPath)}, doraise=True)`],
       { stdio: "pipe" },
     );
@@ -58,7 +60,7 @@ print(mod.calculate(2, 3))
 print(mod.convert(7))
 print(mod.stats([1, 2, 3, 4]))
 `;
-    const out = execFileSync("python3", ["-c", script], {
+    const out = execFileSync(PYTHON, ["-c", script], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -93,7 +95,7 @@ while stack:
 print(n)
 `;
     return Number(
-      execFileSync("python3", ["-c", script], { encoding: "utf8" }).trim(),
+      execFileSync(PYTHON, ["-c", script], { encoding: "utf8" }).trim(),
     );
   } finally {
     rmSync(dir, { recursive: true, force: true });

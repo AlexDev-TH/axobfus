@@ -199,17 +199,17 @@ describe("Multi-Format Shields (WASM, Python, Native ELF/Mach-O/PE, C/Rust/Go He
       seed: "header-seed",
     });
 
-    expect(cHeader.filename).toBe("bla_shield.h");
-    expect(cHeader.content).toContain("BLA_SHIELD_ANCHOR");
+    expect(cHeader.filename).toBe("axobfus_shield.h");
+    expect(cHeader.content).toContain("AXOBFUS_SHIELD_ANCHOR");
     expect(cHeader.content).toContain("#if defined(_MSC_VER) && !defined(__clang__)");
-    expect(cHeader.content).toContain("#define BLA_NOINLINE __declspec(noinline)");
+    expect(cHeader.content).toContain("#define AXOBFUS_NOINLINE __declspec(noinline)");
     expect(cHeader.content).toContain("#pragma warning(disable: 4100 4127 4189 4505)");
     expect(cHeader.content).toContain('extern "C"');
     expect(cHeader.content).toContain("enclave_keep_data_table");
     expect(cHeader.content).toContain("enclave_keep_fn_table");
-    expect(rustHeader.filename).toBe("bla_shield.rs");
-    expect(rustHeader.content).toContain("BLA_RUSTC_OVERFLOW_TABLE");
-    expect(goHeader.filename).toBe("bla_shield.go");
+    expect(rustHeader.filename).toBe("axobfus_shield.rs");
+    expect(rustHeader.content).toContain("AXOBFUS_RUSTC_OVERFLOW_TABLE");
+    expect(goHeader.filename).toBe("axobfus_shield.go");
     expect(goHeader.content).toContain("func EnclaveTarpit0");
   });
 

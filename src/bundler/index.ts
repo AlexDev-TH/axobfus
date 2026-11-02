@@ -10,7 +10,7 @@ import {
   type JsLoaderType,
 } from "../shields/javascript/ast-shield.js";
 
-export interface BlaBundlerPluginOptions {
+export interface AxObfusBundlerPluginOptions {
   /** Protection intensity preset (default: `"balanced"`). */
   readonly intensity?: ProtectionIntensity;
   /** Deterministic PRNG seed for reproducible builds. */
@@ -36,7 +36,7 @@ export function inferEsbuildLoader(filePath: string): JsLoaderType {
 
 /**
  * Maps a Rollup/Vite output format (`"es"`, `"cjs"`, `"iife"`, `"umd"`, `"amd"`, `"system"`)
- * or chunk filename to a BLA JavaScript carrier contract.
+ * or chunk filename to a AxObfus JavaScript carrier contract.
  */
 export function inferCarrierFromRollupFormat(
   format?: string,
@@ -84,34 +84,34 @@ function shieldOrPassThrough(
     if (ctx.failBuildOnError) throw err;
     const message = err instanceof Error ? err.message : String(err);
     console.warn(
-      `[bla-shield] skipped protection for ${ctx.fileName}: ${message}`,
+      `[axobfus-shield] skipped protection for ${ctx.fileName}: ${message}`,
     );
     return null;
   }
 }
 
 /**
- * Vite & Rollup plugin (`blaVitePlugin` / `blaRollupPlugin`) that automatically
- * injects BLA's three-stage adversarial shield into generated JS chunks during `renderChunk`.
+ * Vite & Rollup plugin (`axobfusVitePlugin` / `axobfusRollupPlugin`) that automatically
+ * injects AxObfus's three-stage adversarial shield into generated JS chunks during `renderChunk`.
  *
  * Usage in `vite.config.ts`:
  * ```ts
  * import { defineConfig } from "vite";
- * import { blaVitePlugin } from "bla-shield";
+ * import { axobfusVitePlugin } from "axobfus";
  *
  * export default defineConfig({
- *   plugins: [blaVitePlugin({ intensity: "bankrupt" })],
+ *   plugins: [axobfusVitePlugin({ intensity: "bankrupt" })],
  * });
  * ```
  */
-export function blaRollupPlugin(options: BlaBundlerPluginOptions = {}) {
+export function axobfusRollupPlugin(options: AxObfusBundlerPluginOptions = {}) {
   const intensity = options.intensity ?? "balanced";
   const include = options.include ?? /\.(?:m?js|cjs)$/i;
   const emitMap = options.honeySourceMap ?? true;
   const failBuildOnError = options.failBuildOnError ?? false;
 
   return {
-    name: "bla-shield-rollup-plugin",
+    name: "axobfus-shield-rollup-plugin",
     renderChunk(
       code: string,
       chunk: { fileName: string; isEntry?: boolean },
@@ -120,7 +120,7 @@ export function blaRollupPlugin(options: BlaBundlerPluginOptions = {}) {
       if (!include.test(chunk.fileName)) {
         return null;
       }
-      const seed = `${options.seed ?? "bla-rollup"}:${chunk.fileName}`;
+      const seed = `${options.seed ?? "axobfus-rollup"}:${chunk.fileName}`;
       const sourceType = inferCarrierFromRollupFormat(
         outputOptions?.format,
         chunk.fileName,
@@ -165,23 +165,23 @@ export function blaRollupPlugin(options: BlaBundlerPluginOptions = {}) {
 }
 
 /**
- * Alias of `blaRollupPlugin` with `enforce: "post"` for Vite 4/5/6.
+ * Alias of `axobfusRollupPlugin` with `enforce: "post"` for Vite 4/5/6.
  */
-export function blaVitePlugin(options: BlaBundlerPluginOptions = {}) {
+export function axobfusVitePlugin(options: AxObfusBundlerPluginOptions = {}) {
   return {
-    ...blaRollupPlugin(options),
-    name: "vite-plugin-bla-shield",
+    ...axobfusRollupPlugin(options),
+    name: "vite-plugin-axobfus-shield",
     enforce: "post" as const,
   };
 }
 
 /**
- * Webpack 5 / Rspack plugin class (`BlaWebpackPlugin`) that shields emitted JS assets.
+ * Webpack 5 / Rspack plugin class (`AxObfusWebpackPlugin`) that shields emitted JS assets.
  */
-export class BlaWebpackPlugin {
-  readonly options: BlaBundlerPluginOptions;
+export class AxObfusWebpackPlugin {
+  readonly options: AxObfusBundlerPluginOptions;
 
-  constructor(options: BlaBundlerPluginOptions = {}) {
+  constructor(options: AxObfusBundlerPluginOptions = {}) {
     this.options = options;
   }
 
@@ -217,10 +217,10 @@ export class BlaWebpackPlugin {
     const include = this.options.include ?? /\.(?:m?js|cjs)$/i;
     const failBuildOnError = this.options.failBuildOnError ?? false;
 
-    compiler.hooks.compilation.tap("BlaWebpackPlugin", (compilation) => {
+    compiler.hooks.compilation.tap("AxObfusWebpackPlugin", (compilation) => {
       compilation.hooks.processAssets.tap(
         {
-          name: "BlaWebpackPlugin",
+          name: "AxObfusWebpackPlugin",
           stage: 400, // PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE
         },
         (assets) => {
@@ -235,7 +235,7 @@ export class BlaWebpackPlugin {
               () =>
                 transformJavaScriptWithBlaShield(rawSource, {
                   intensity,
-                  seed: `${this.options.seed ?? "bla-webpack"}:${assetName}`,
+                  seed: `${this.options.seed ?? "axobfus-webpack"}:${assetName}`,
                   filename: assetName,
                   sourceType,
                   loader,
@@ -257,16 +257,16 @@ export class BlaWebpackPlugin {
 }
 
 /**
- * esbuild plugin (`blaEsbuildPlugin`) that shields JS/TS/JSX/TSX entrypoints or modules
+ * esbuild plugin (`axobfusEsbuildPlugin`) that shields JS/TS/JSX/TSX entrypoints or modules
  * while preserving the exact esbuild loader (`js`, `jsx`, `ts`, `tsx`) and module carrier.
  */
-export function blaEsbuildPlugin(options: BlaBundlerPluginOptions = {}) {
+export function axobfusEsbuildPlugin(options: AxObfusBundlerPluginOptions = {}) {
   const intensity = options.intensity ?? "balanced";
   const include = options.include ?? /\.(?:[cm]?[jt]sx?)$/i;
   const failBuildOnError = options.failBuildOnError ?? false;
 
   return {
-    name: "bla-shield-esbuild-plugin",
+    name: "axobfus-shield-esbuild-plugin",
     setup(build: {
       onLoad: (
         opts: { filter: RegExp },
@@ -285,7 +285,7 @@ export function blaEsbuildPlugin(options: BlaBundlerPluginOptions = {}) {
           () =>
             transformJavaScriptWithBlaShield(source, {
               intensity,
-              seed: `${options.seed ?? "bla-esbuild"}:${args.path}`,
+              seed: `${options.seed ?? "axobfus-esbuild"}:${args.path}`,
               filename: args.path,
               loader,
               sourceType,

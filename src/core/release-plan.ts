@@ -3,12 +3,9 @@ import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
-  mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 
 const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
@@ -76,7 +73,7 @@ export function verifyReleaseConsistency(
     if (idVer !== pkgVer) {
       throw new ReleaseConsistencyError(
         "IDENTITY_VERSION_MISMATCH",
-        `BLA_IDENTITY.version '${idVer}' does not match package.json version '${pkgVer}'`,
+        `AXOBFUS_IDENTITY.version '${idVer}' does not match package.json version '${pkgVer}'`,
       );
     }
   }
@@ -114,8 +111,8 @@ export function verifyReleaseConsistency(
     if (rawDispatch.length > 0 && rawDispatch !== "none") {
       const normalizedDispatch = rawDispatch.startsWith("v")
         ? rawDispatch.slice(1)
-        : rawDispatch.startsWith("bla-agents-")
-          ? rawDispatch.slice("bla-agents-".length)
+        : rawDispatch.startsWith("axobfus-")
+          ? rawDispatch.slice("axobfus-".length)
           : rawDispatch;
       if (normalizedDispatch !== pkgVer) {
         throw new ReleaseConsistencyError(
@@ -131,13 +128,13 @@ export function verifyReleaseConsistency(
     const ref = input.triggerRef.trim();
     if (
       ref.startsWith("refs/tags/") ||
-      ref.startsWith("bla-agents-") ||
+      ref.startsWith("axobfus-") ||
       /^v\d+\./.test(ref)
     ) {
       const tagName = ref.startsWith("refs/tags/") ? ref.slice("refs/tags/".length) : ref;
       let extractedVersion: string | null = null;
-      if (tagName.startsWith("bla-agents-")) {
-        extractedVersion = tagName.slice("bla-agents-".length);
+      if (tagName.startsWith("axobfus-")) {
+        extractedVersion = tagName.slice("axobfus-".length);
       } else if (tagName.startsWith("v")) {
         extractedVersion = tagName.slice(1);
       }
@@ -150,7 +147,7 @@ export function verifyReleaseConsistency(
     }
   }
 
-  const canonicalTag = `bla-agents-${pkgVer}`;
+  const canonicalTag = `axobfus-${pkgVer}`;
 
   // 3. Verify existing tag commit matches checkout commit
   let tagAction: ReleaseConsistencyPlan["tagAction"] = "create";
@@ -237,8 +234,8 @@ export interface NpmPublishRetryPlan {
 }
 
 /**
- * Computes an idempotent dual-package (`bla-agents` primary + `bla-shield` alias)
- * npm publish plan so that a retry after `primary` succeeds and `alias` fails
+ * Computes an idempotent npm publish plan with an optional compatibility alias
+ * so that a retry after `primary` succeeds and `alias` fails
  * safely completes `alias` without failing on `primary` or clobbering different bytes.
  */
 export function planNpmPublishRetry(state: PackagePublishInputState): NpmPublishRetryPlan {
@@ -289,10 +286,9 @@ export interface PackedPackageArtifact {
   readonly sha256: string;
 }
 
-export interface DualPackResult {
+export interface PackResult {
   readonly version: string;
   readonly primary: PackedPackageArtifact;
-  readonly alias: PackedPackageArtifact;
   readonly sha256SumsPath: string;
 }
 
@@ -300,23 +296,11 @@ function sha256File(filePath: string): string {
   return createHash("sha256").update(readFileSync(filePath)).digest("hex");
 }
 
-function resolveTarCommand(): string {
-  if (process.platform === "win32") {
-    const winSystemTar = join(
-      process.env.SystemRoot || "C:\\Windows",
-      "System32",
-      "tar.exe",
-    );
-    if (existsSync(winSystemTar)) return winSystemTar;
-  }
-  return "tar";
-}
-
 /**
- * Packs both `bla-agents` (primary) and `bla-shield` (alias) tarballs into `outDir`
- * without mutating the repository working tree, and writes `SHA256SUMS.txt`.
+ * Packs the `axobfus` tarball into `outDir` without mutating the repository
+ * working tree, and writes `SHA256SUMS.txt`.
  */
-export function packDualReleaseTarballs(repoDir: string, outDir: string): DualPackResult {
+export function packReleaseTarball(repoDir: string, outDir: string): PackResult {
   const absRepo = resolve(repoDir);
   const absOut = resolve(outDir);
   mkdirSync(absOut, { recursive: true });
@@ -331,7 +315,6 @@ export function packDualReleaseTarballs(repoDir: string, outDir: string): DualPa
   };
   const version = pkgJson.version;
 
-  // 1. Pack primary (`bla-agents-<version>.tgz`) directly into `absOut`
   execFileSync(npmCmd, ["pack", "--pack-destination", absOut], {
     cwd: absRepo,
     stdio: "pipe",
@@ -339,68 +322,24 @@ export function packDualReleaseTarballs(repoDir: string, outDir: string): DualPa
     shell: process.platform === "win32",
   });
 
-  const primaryFilename = `bla-agents-${version}.tgz`;
+  const primaryFilename = `axobfus-${version}.tgz`;
   const primaryPath = join(absOut, primaryFilename);
   if (!existsSync(primaryPath)) {
     throw new Error(`Expected packed tarball at '${primaryPath}'`);
   }
   const primarySha256 = sha256File(primaryPath);
 
-  // 2. Build alias (`bla-shield-<version>.tgz`) in an isolated temp staging directory
-  const stageDir = mkdtempSync(join(tmpdir(), "bla-alias-pack-"));
-  const tarCmd = resolveTarCommand();
-  try {
-    execFileSync(tarCmd, ["-xzf", primaryPath, "-C", stageDir], {
-      stdio: "pipe",
-    });
-    const unpackedPkgDir = join(stageDir, "package");
-    const unpackedPkgJsonPath = join(unpackedPkgDir, "package.json");
-    const unpackedPkg = JSON.parse(readFileSync(unpackedPkgJsonPath, "utf8")) as Record<
-      string,
-      unknown
-    >;
-    unpackedPkg.name = "bla-shield";
-    writeFileSync(unpackedPkgJsonPath, JSON.stringify(unpackedPkg, null, 2) + "\n", "utf8");
-
-    execFileSync(npmCmd, ["pack", "--pack-destination", absOut, "--ignore-scripts"], {
-      cwd: unpackedPkgDir,
-      stdio: "pipe",
-      shell: process.platform === "win32",
-    });
-  } finally {
-    rmSync(stageDir, { recursive: true, force: true });
-  }
-
-  const aliasFilename = `bla-shield-${version}.tgz`;
-  const aliasPath = join(absOut, aliasFilename);
-  if (!existsSync(aliasPath)) {
-    throw new Error(`Expected packed alias tarball at '${aliasPath}'`);
-  }
-  const aliasSha256 = sha256File(aliasPath);
-
   const sha256SumsPath = join(absOut, "SHA256SUMS.txt");
-  const sumsContent = [
-    `${primarySha256}  ${basename(primaryPath)}`,
-    `${aliasSha256}  ${basename(aliasPath)}`,
-    "",
-  ].join("\n");
-  writeFileSync(sha256SumsPath, sumsContent, "utf8");
+  writeFileSync(sha256SumsPath, `${primarySha256}  ${basename(primaryPath)}\n`, "utf8");
 
   return {
     version,
     primary: {
-      packageName: "bla-agents",
+      packageName: "axobfus",
       version,
       tarballPath: primaryPath,
       tarballFilename: primaryFilename,
       sha256: primarySha256,
-    },
-    alias: {
-      packageName: "bla-shield",
-      version,
-      tarballPath: aliasPath,
-      tarballFilename: aliasFilename,
-      sha256: aliasSha256,
     },
     sha256SumsPath,
   };

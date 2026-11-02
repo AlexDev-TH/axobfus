@@ -1,4 +1,4 @@
-import { BLA_IDENTITY } from "../identity.js";
+import { AXOBFUS_IDENTITY } from "../identity.js";
 import type {
   AuditReport,
   BenchmarkReport,
@@ -9,7 +9,7 @@ import type { DoctorDiagnosticReport } from "../setup/doctor.js";
 import type { SetupRunResult } from "../setup/setup.js";
 import type { OneClickDefenseReport } from "../engine/defender.js";
 
-const ANSI = {
+const ANSI_CODES = {
   reset: "\x1b[0m",
   bold: "\x1b[1m",
   dim: "\x1b[2m",
@@ -20,79 +20,78 @@ const ANSI = {
   magenta: "\x1b[35m",
   cyan: "\x1b[36m",
   white: "\x1b[37m",
+} as const;
+
+type AnsiPalette = { readonly [K in keyof typeof ANSI_CODES]: string };
+
+const PLAIN_ANSI: AnsiPalette = {
+  reset: "",
+  bold: "",
+  dim: "",
+  red: "",
+  green: "",
+  yellow: "",
+  blue: "",
+  magenta: "",
+  cyan: "",
+  white: "",
 };
 
+const ESTIMATE_NOTICE = "ค่าประมาณจากแบบจำลองภายใน ไม่ใช่ผลการทดสอบ REA จริง";
+
+function ansi(): AnsiPalette {
+  return process.env.NO_COLOR === undefined && process.stdout.isTTY === true
+    ? ANSI_CODES
+    : PLAIN_ANSI;
+}
+
 export function formatBanner(): string {
+  const c = ansi();
   return [
-    `${ANSI.bold}${ANSI.cyan}╔══════════════════════════════════════════════════════════════════════════════╗${ANSI.reset}`,
-    `${ANSI.bold}${ANSI.cyan}║  🛡️  BLA: Blind LLM Agents (${BLA_IDENTITY.packageName} v${BLA_IDENTITY.version})                             ║${ANSI.reset}`,
-    `${ANSI.bold}${ANSI.cyan}║  ${ANSI.yellow}Poison -> Exhaust -> Hallucinate. Make Reverse Engineering Bankrupt Again.${ANSI.cyan}  ║${ANSI.reset}`,
-    `${ANSI.bold}${ANSI.cyan}╚══════════════════════════════════════════════════════════════════════════════╝${ANSI.reset}`,
+    `${c.bold}${c.cyan}AxObfus${c.reset} by AlexDev`,
+    `${c.dim}${AXOBFUS_IDENTITY.packageName} v${AXOBFUS_IDENTITY.version} · Counter-REA defensive toolkit${c.reset}`,
   ].join("\n");
 }
 
 export function formatAuditReport(report: AuditReport): string {
+  const c = ansi();
   const statusColor =
-    report.protectionStatus === "BLA_PROTECTED"
-      ? ANSI.green
+    report.protectionStatus === "AXOBFUS_PROTECTED"
+      ? c.green
       : report.protectionStatus === "PARTIALLY_SHIELDED"
-        ? ANSI.yellow
-        : ANSI.red;
-
-  const est = report.agentEstimates[0]!;
+        ? c.yellow
+        : c.red;
   const lines: string[] = [
     formatBanner(),
     "",
-    `${ANSI.bold}Target Artifact:${ANSI.reset}    ${report.targetPath}`,
-    `${ANSI.bold}Detected Format:${ANSI.reset}    ${ANSI.cyan}${report.detectedFormat}${ANSI.reset} (${report.byteSize.toLocaleString()} bytes, sha256: ${report.sha256.slice(0, 16)}...)`,
-    `${ANSI.bold}Protection Status:${ANSI.reset}  ${statusColor}${ANSI.bold}${report.protectionStatus}${ANSI.reset} (REA Exposure Score: ${statusColor}${report.exposureScore}/100${ANSI.reset})`,
-    `${ANSI.bold}REA Examination:${ANSI.reset}    ${report.reaSimulation.examinationStatus === "limited" ? `${ANSI.green}LIMITED (Semantic Budgets Exhausted)${ANSI.reset}` : `${ANSI.red}COMPLETE (100% Exposed to Static Pass)${ANSI.reset}`}`,
+    `${c.bold}เป้าหมาย${c.reset}: ${report.targetPath}`,
+    `${c.bold}รูปแบบ${c.reset}: ${report.detectedFormat} (${report.byteSize.toLocaleString()} bytes)`,
+    `${c.bold}SHA-256${c.reset}: ${report.sha256}`,
+    `${c.bold}สถานะ${c.reset}: ${statusColor}${report.protectionStatus}${c.reset} · exposure ${report.exposureScore}/100`,
+    `${c.bold}การตรวจสอบ${c.reset}: ${report.reaSimulation.examinationStatus}`,
+    `${c.bold}Obligation graph${c.reset}: ${report.reaSimulation.obligationLedgerNodes} nodes · ${report.reaSimulation.decoyFunctionsDetectedAsReal} decoys · ${report.reaSimulation.architecturalChaffPayloads} chaff`,
   ];
 
   if (report.reaSimulation.triggeredResourceLimits.length > 0) {
-    lines.push(
-      `${ANSI.bold}Triggered Limits:${ANSI.reset}   ${ANSI.green}${report.reaSimulation.triggeredResourceLimits.join(", ")}${ANSI.reset}`,
-    );
+    lines.push(`${c.bold}ข้อจำกัดที่ถูกกระตุ้น${c.reset}: ${report.reaSimulation.triggeredResourceLimits.join(", ")}`);
   }
 
-  lines.push(
-    `${ANSI.bold}Obligation Graph:${ANSI.reset}   ${report.reaSimulation.obligationLedgerNodes} nodes (${report.reaSimulation.decoyFunctionsDetectedAsReal} decoy tarpit nodes, ${report.reaSimulation.architecturalChaffPayloads} chaff manifests)`,
-    "",
-    `${ANSI.bold}${ANSI.magenta}── Estimated REA + Coding Agent Reconstruction Cost ───────────────────────────${ANSI.reset}`,
-  );
-
+  lines.push("", `${c.bold}ค่าประมาณการ reconstruct${c.reset}`, `${c.dim}${ESTIMATE_NOTICE}${c.reset}`);
   for (const agent of report.agentEstimates) {
-    const verdictColor =
-      agent.outcomeVerdict === "AGENT_HALLUCINATION_AND_BANKRUPTCY"
-        ? ANSI.green
-        : agent.outcomeVerdict === "TRIVIAL_CLONE"
-          ? ANSI.red
-          : ANSI.yellow;
     lines.push(
-      `  • ${ANSI.bold}${agent.modelName.padEnd(42)}${ANSI.reset} | Tokens: ${agent.estimatedInputTokens.toLocaleString().padStart(9)} | Calls: ${String(agent.estimatedMcpToolCalls).padStart(3)} | Time: ${String(agent.estimatedWallClockSeconds + "s").padStart(5)} | Cost: ${ANSI.bold}$${agent.estimatedCostUsd.toFixed(2).padStart(6)}${ANSI.reset} | ${verdictColor}${agent.outcomeVerdict}${ANSI.reset}`,
+      `- ${agent.modelName}: ${agent.estimatedInputTokens.toLocaleString()} tokens · ${agent.estimatedMcpToolCalls} calls · ${agent.estimatedWallClockSeconds}s · $${agent.estimatedCostUsd.toFixed(2)} · ${agent.outcomeVerdict}`,
     );
   }
 
-  lines.push("");
-  if (report.protectionStatus !== "BLA_PROTECTED") {
-    lines.push(
-      `${ANSI.bold}${ANSI.red}⚠️  ${report.headlineWarning}${ANSI.reset}`,
-    );
-    lines.push(
-      `   ${ANSI.bold}Fix now:${ANSI.reset} ${ANSI.cyan}${report.recommendedCommand}${ANSI.reset}`,
-    );
-  } else {
-    lines.push(`${ANSI.bold}${ANSI.green}✅ ${report.headlineWarning}${ANSI.reset}`);
+  lines.push("", report.headlineWarning);
+  if (report.protectionStatus !== "AXOBFUS_PROTECTED") {
+    lines.push(`${c.bold}คำสั่งที่แนะนำ${c.reset}: ${report.recommendedCommand}`);
   }
 
-  if (est && report.exposedItems.length > 0) {
-    lines.push(
-      "",
-      `${ANSI.bold}Top Audited Surface Items (${Math.min(6, report.exposedItems.length)} of ${report.exposedItems.length}):${ANSI.reset}`,
-    );
+  if (report.exposedItems.length > 0) {
+    lines.push("", `${c.bold}พื้นผิวที่ควรตรวจทาน (${Math.min(6, report.exposedItems.length)}/${report.exposedItems.length})${c.reset}`);
     for (const item of report.exposedItems.slice(0, 6)) {
-      const badge = item.riskLevel === "critical" ? `${ANSI.red}[CRITICAL]${ANSI.reset}` : `${ANSI.green}[SHIELDED]${ANSI.reset}`;
-      lines.push(`  ${badge} ${ANSI.bold}${item.name}${ANSI.reset} (${item.kind}) — ${item.reason}`);
+      lines.push(`- [${item.riskLevel}] ${item.name} (${item.kind}) — ${item.reason}`);
     }
   }
 
@@ -100,6 +99,7 @@ export function formatAuditReport(report: AuditReport): string {
 }
 
 export function formatProtectionResult(res: ProtectionResult): string {
+  const c = ansi();
   const bEst = res.beforeAudit.agentEstimates[0]!;
   const aEst = res.afterAudit.agentEstimates[0]!;
   const tokenMult = (aEst.estimatedInputTokens / Math.max(1, bEst.estimatedInputTokens)).toFixed(1);
@@ -108,166 +108,158 @@ export function formatProtectionResult(res: ProtectionResult): string {
   return [
     formatBanner(),
     "",
-    `${ANSI.bold}${ANSI.green}🛡️  BLA Adversarial Shield Successfully Injected!${ANSI.reset} (${res.elapsedMs} ms)`,
+    `${c.bold}เพิ่มการป้องกันแล้ว${c.reset} (${res.elapsedMs} ms)`,
+    `อินพุต: ${res.inputPath}`,
+    `เอาต์พุต: ${res.outputPath}`,
+    `รูปแบบ / ระดับ: ${res.detectedFormat} / ${res.intensity} · seed: ${res.seed}`,
     "",
-    `  ${ANSI.bold}Input Target:${ANSI.reset}      ${res.inputPath}`,
-    `  ${ANSI.bold}Protected Output:${ANSI.reset}  ${ANSI.cyan}${res.outputPath}${ANSI.reset}`,
-    `  ${ANSI.bold}Format / Preset:${ANSI.reset}   ${res.detectedFormat} / ${ANSI.magenta}${res.intensity}${ANSI.reset} (seed: ${res.seed})`,
+    `${c.bold}ตัวชี้วัดการป้องกัน${c.reset}`,
+    `- Decoy functions: ${res.metrics.decoyFunctionsInjected} · fake xrefs: ${res.metrics.fakeCrossReferencesCreated}`,
+    `- Primitive candidates: ${res.metrics.primitiveCandidateBranchesCreated} · alias states: ${res.metrics.aliasSelectionStatesCreated.toLocaleString()}`,
+    `- IPC ambiguity: ${res.metrics.ipcAmbiguitySitesInjected} · decoy routes: ${res.metrics.decoyRoutesInjected}`,
+    `- Chaff manifests: ${res.metrics.chaffPayloadsEmbedded} · honey source maps: ${res.metrics.honeySourceMapsGenerated}`,
+    `- Binary sections patched: ${res.metrics.binarySectionsPatched}`,
     "",
-    `${ANSI.bold}${ANSI.yellow}── Counter-REA Defense Metrics ─────────────────────────────────────────────────${ANSI.reset}`,
-    `  • Decoy Tarpit Functions Injected:    ${ANSI.bold}${res.metrics.decoyFunctionsInjected}${ANSI.reset} (${res.metrics.fakeCrossReferencesCreated} fake cross-references)`,
-    `  • Primitive Candidate Branches:       ${ANSI.bold}${res.metrics.primitiveCandidateBranchesCreated}${ANSI.reset} (> REA's 256 candidate limit)`,
-    `  • Alias Selection States:             ${ANSI.bold}${res.metrics.aliasSelectionStatesCreated.toLocaleString()}${ANSI.reset} (> REA's 512 state limit)`,
-    `  • IPC Ambiguity Sites / Decoy Routes: ${ANSI.bold}${res.metrics.ipcAmbiguitySitesInjected}${ANSI.reset} IPC sites / ${ANSI.bold}${res.metrics.decoyRoutesInjected}${ANSI.reset} decoy routes`,
-    `  • Enclave Chaff Manifests Embedded:   ${ANSI.bold}${res.metrics.chaffPayloadsEmbedded}${ANSI.reset}`,
-    "",
-    `${ANSI.bold}${ANSI.cyan}── Before vs. After BLA Impact (Claude Opus 4 / REA Loop) ──────────────────────${ANSI.reset}`,
-    `  • REA Exposure Score:       ${ANSI.red}${res.beforeAudit.exposureScore}/100 (${res.beforeAudit.protectionStatus})${ANSI.reset}  -->  ${ANSI.green}${ANSI.bold}${res.afterAudit.exposureScore}/100 (${res.afterAudit.protectionStatus})${ANSI.reset}`,
-    `  • REA Examination Status:   ${ANSI.red}${res.beforeAudit.reaSimulation.examinationStatus.toUpperCase()}${ANSI.reset}                   -->  ${ANSI.green}${ANSI.bold}${res.afterAudit.reaSimulation.examinationStatus.toUpperCase()} (${res.afterAudit.reaSimulation.triggeredResourceLimits.join(", ")})${ANSI.reset}`,
-    `  • Obligation Graph Nodes:   ${res.beforeAudit.reaSimulation.obligationLedgerNodes} nodes                    -->  ${ANSI.bold}${res.afterAudit.reaSimulation.obligationLedgerNodes} nodes${ANSI.reset}`,
-    `  • Attacker Token Burn:      ${bEst.estimatedInputTokens.toLocaleString()} tokens                -->  ${ANSI.yellow}${ANSI.bold}${aEst.estimatedInputTokens.toLocaleString()} tokens (${tokenMult}x amplification)${ANSI.reset}`,
-    `  • Attacker API Bill:        $${bEst.estimatedCostUsd.toFixed(2)}                      -->  ${ANSI.yellow}${ANSI.bold}$${aEst.estimatedCostUsd.toFixed(2)} (${costMult}x bankruptcy multiplier)${ANSI.reset}`,
-    `  • Agent Verdict:            ${ANSI.red}${bEst.outcomeVerdict}${ANSI.reset}              -->  ${ANSI.green}${ANSI.bold}${aEst.outcomeVerdict}${ANSI.reset}`,
+    `${c.bold}ก่อน / หลัง${c.reset} ${c.dim}(${ESTIMATE_NOTICE})${c.reset}`,
+    `- Exposure: ${res.beforeAudit.exposureScore}/100 -> ${res.afterAudit.exposureScore}/100`,
+    `- Examination: ${res.beforeAudit.reaSimulation.examinationStatus} -> ${res.afterAudit.reaSimulation.examinationStatus}`,
+    `- Obligation nodes: ${res.beforeAudit.reaSimulation.obligationLedgerNodes} -> ${res.afterAudit.reaSimulation.obligationLedgerNodes}`,
+    `- Estimated tokens: ${bEst.estimatedInputTokens.toLocaleString()} -> ${aEst.estimatedInputTokens.toLocaleString()} (${tokenMult}x)`,
+    `- Estimated cost: $${bEst.estimatedCostUsd.toFixed(2)} -> $${aEst.estimatedCostUsd.toFixed(2)} (${costMult}x)`,
+    `- Estimated verdict: ${bEst.outcomeVerdict} -> ${aEst.outcomeVerdict}`,
   ].join("\n");
 }
 
 export function formatVerificationReport(report: VerificationReport): string {
+  const c = ansi();
   const lines: string[] = [
     formatBanner(),
     "",
-    `${ANSI.bold}Verification Target:${ANSI.reset} ${report.targetPath}`,
-    `${ANSI.bold}Defense Score:${ANSI.reset}       ${report.overallPassed ? ANSI.green : ANSI.yellow}${ANSI.bold}${report.defenseScore}/100${ANSI.reset} (${report.overallPassed ? "ALL COUNTER-REA GATES PASSED" : "PARTIAL PASS"})`,
-    `${ANSI.bold}Amplification:${ANSI.reset}       ${ANSI.cyan}${report.tokenAmplificationFactor}x tokens${ANSI.reset} | ${ANSI.cyan}${report.costAmplificationFactor}x API cost${ANSI.reset} | ${ANSI.cyan}${report.obligationGraphExpansionFactor}x call-graph expansion${ANSI.reset}`,
-    `${ANSI.dim}Score scope: Counter-REA gates + exposure drop — not a preimage-hardness claim (see issue #40).${ANSI.reset}`,
+    `${c.bold}เป้าหมาย${c.reset}: ${report.targetPath}`,
+    `${c.bold}Defense score${c.reset}: ${report.defenseScore}/100 (${report.overallPassed ? "ผ่านเกณฑ์ภายใน" : "ต้องตรวจทาน"})`,
+    `${c.bold}ตัวคูณโดยประมาณ${c.reset}: ${report.tokenAmplificationFactor}x tokens · ${report.costAmplificationFactor}x cost · ${report.obligationGraphExpansionFactor}x graph`,
+    `${c.dim}${ESTIMATE_NOTICE}; คะแนนนี้ไม่ใช่การรับรองความปลอดภัยหรือ preimage hardness${c.reset}`,
     "",
-    `${ANSI.bold}Counter-REA Invariant Checks:${ANSI.reset}`,
+    `${c.bold}การตรวจสอบ invariant${c.reset}`,
   ];
 
   for (const check of report.checks) {
-    const icon = check.passed ? `${ANSI.green}✓ PASS${ANSI.reset}` : `${ANSI.red}✗ FAIL${ANSI.reset}`;
-    lines.push(`  [${icon}] ${ANSI.bold}${check.name}${ANSI.reset} (${ANSI.dim}${check.targetReaComponent}${ANSI.reset})`);
-    lines.push(`         ${check.details}`);
+    lines.push(`- [${check.passed ? "PASS" : "FAIL"}] ${check.name} (${check.targetReaComponent})`);
+    lines.push(`  ${check.details}`);
   }
 
   return lines.join("\n");
 }
 
 export function formatBenchmarkReport(bench: BenchmarkReport): string {
+  const c = ansi();
   const lines: string[] = [
     formatBanner(),
     "",
-    `${ANSI.bold}${ANSI.magenta}⚡ BLA vs. REA — ${bench.cases.length}-Target Counter-Showcase Benchmark Suite${ANSI.reset}`,
+    `${c.bold}Benchmark ${bench.cases.length} เป้าหมาย${c.reset}`,
+    `${c.dim}${ESTIMATE_NOTICE}; runtime check เป็นผลภายในเท่านั้น${c.reset}`,
     "",
-    `${ANSI.bold}Showcase Target                          | Before BLA (REA Alone)        | After BLA Shield (Poison + Tarpit)       | Token Mult | Runtime Check${ANSI.reset}`,
-    `─────────────────────────────────────────┼───────────────────────────────┼──────────────────────────────────────────┼────────────┼──────────────`,
   ];
 
-  for (const c of bench.cases) {
-    const beforeCol = `${String(c.before.exposureScore).padStart(2)}/100 | ${c.before.estimatedTokens.toLocaleString().padStart(6)} tok | $${c.before.estimatedCostUsd.toFixed(2).padStart(5)}`;
-    const afterCol = `${ANSI.green}${String(c.after.exposureScore).padStart(2)}/100 | ${c.after.estimatedTokens.toLocaleString().padStart(7)} tok | $${c.after.estimatedCostUsd.toFixed(2).padStart(6)} | LIMITED${ANSI.reset}`;
-    const multCol = `${ANSI.yellow}${ANSI.bold}${String(c.tokenMultiplier + "x").padStart(8)}${ANSI.reset}`;
-    const fnCol = c.functionalCheckPassed ? `${ANSI.green}✓ 100% EXACT${ANSI.reset}` : `${ANSI.red}✗ FAILED${ANSI.reset}`;
+  for (const item of bench.cases) {
     lines.push(
-      `${c.title.padEnd(40)} | ${beforeCol.padEnd(29)} | ${afterCol} | ${multCol}   | ${fnCol}`,
+      `- ${item.title}: exposure ${item.before.exposureScore}/100 -> ${item.after.exposureScore}/100 · tokens ${item.before.estimatedTokens.toLocaleString()} -> ${item.after.estimatedTokens.toLocaleString()} · ${item.tokenMultiplier}x · runtime [${item.functionalCheckPassed ? "PASS" : "FAIL"}]`,
     );
   }
 
   lines.push(
-    `─────────────────────────────────────────┴───────────────────────────────┴──────────────────────────────────────────┴────────────┴──────────────`,
-    `${ANSI.bold}Aggregate Token Amplification:${ANSI.reset} ${ANSI.yellow}${ANSI.bold}${bench.aggregateTokenMultiplier}x${ANSI.reset}   |   ${ANSI.bold}Aggregate Cost Multiplier:${ANSI.reset} ${ANSI.yellow}${ANSI.bold}${bench.aggregateCostMultiplier}x${ANSI.reset}   |   ${ANSI.green}${ANSI.bold}All ${bench.cases.length} Targets: 100% Runtime-Equivalent & REA-Resistant${ANSI.reset}`,
+    "",
+    `${c.bold}รวม${c.reset}: ${bench.aggregateTokenMultiplier}x tokens · ${bench.aggregateCostMultiplier}x estimated cost`,
   );
-
   return lines.join("\n");
 }
 
 export function formatDoctorReport(doc: DoctorDiagnosticReport): string {
+  const c = ansi();
   const lines: string[] = [
     formatBanner(),
     "",
-    `${ANSI.bold}BLA Doctor Readiness:${ANSI.reset} ${ANSI.green}HEALTHY${ANSI.reset} (v${doc.blaVersion} on Node ${doc.nodeVersion}, ${doc.platform})`,
+    `${c.bold}สถานะความพร้อม${c.reset}: ${doc.healthy ? "PASS" : "FAIL"} · v${doc.axobfusVersion} · Node ${doc.nodeVersion} · ${doc.platform}`,
     "",
-    `${ANSI.bold}Protection Subsystems:${ANSI.reset}`,
-    `  • JavaScript/TypeScript AST & Semantic Budget Breaker: ${ANSI.green}${doc.engines.javascriptAstShield}${ANSI.reset}`,
-    `  • Electron .asar Unpacker & Integrity Repacker:        ${ANSI.green}${doc.engines.electronAsarPacker}${ANSI.reset}`,
-    `  • WebAssembly (.wasm) Custom & Name Section Shield:    ${ANSI.green}${doc.engines.wasmBinaryShield}${ANSI.reset}`,
-    `  • Python (.py / CPython .pyc) Marshal Tarpit Shield:   ${ANSI.green}${doc.engines.pythonPycMarshalShield}${ANSI.reset}`,
-    `  • Native Binary (ELF / Mach-O / PE) Section Shield:    ${ANSI.green}${doc.engines.nativeElfMachoPeShield}${ANSI.reset}`,
-    `  • Archive (ZIP / Android APK) Enclave Shield:          ${ANSI.green}${doc.engines.zipApkArchiveShield}${ANSI.reset}`,
+    `${c.bold}Subsystem${c.reset}`,
+    `- JavaScript/TypeScript AST: ${doc.engines.javascriptAstShield}`,
+    `- Electron ASAR: ${doc.engines.electronAsarPacker}`,
+    `- WebAssembly: ${doc.engines.wasmBinaryShield}`,
+    `- Python marshal: ${doc.engines.pythonPycMarshalShield}`,
+    `- Native binary: ${doc.engines.nativeElfMachoPeShield}`,
+    `- ZIP/APK archive: ${doc.engines.zipApkArchiveShield}`,
+    `- SQLite runtime: ${doc.engines.sqliteRuntime}`,
     "",
-    `${ANSI.bold}Detected Coding Agent Integrations:${ANSI.reset}`,
+    `${c.bold}Agent integration${c.reset}`,
   ];
 
-  for (const c of doc.agentClients) {
-    const det = c.detected ? `${ANSI.green}detected${ANSI.reset}` : `${ANSI.dim}not found${ANSI.reset}`;
-    const mcp = c.mcpRegistered ? `${ANSI.green}MCP registered${ANSI.reset}` : `${ANSI.yellow}MCP not registered${ANSI.reset}`;
-    const skill = c.skillInstalled ? `${ANSI.green}Skill installed${ANSI.reset}` : `${ANSI.dim}Skill not installed${ANSI.reset}`;
-    lines.push(`  • ${c.displayName.padEnd(22)} (${c.id.padEnd(15)}) : ${det} | ${mcp} | ${skill}`);
+  for (const client of doc.agentClients) {
+    lines.push(
+      `- ${client.displayName} (${client.id}): ${client.detected ? "detected" : "not found"} · ${client.mcpRegistered ? "MCP registered" : "MCP not registered"} · ${client.skillInstalled ? "skill installed" : "skill missing"}`,
+    );
   }
 
+  if (doc.issues.length > 0) {
+    lines.push("", `${c.bold}ประเด็นที่ต้องตรวจทาน${c.reset}`, ...doc.issues.map((issue) => `- ${issue}`));
+  }
   return lines.join("\n");
 }
 
 export function formatSetupReport(res: SetupRunResult): string {
+  const c = ansi();
   const lines: string[] = [
     formatBanner(),
     "",
-    `${ANSI.bold}Setup Status:${ANSI.reset} ${res.status === "applied" ? `${ANSI.green}APPLIED${ANSI.reset}` : `${ANSI.yellow}PLANNED (Preview)${ANSI.reset}`}`,
-    `  ${res.message}`,
+    `${c.bold}สถานะการติดตั้ง${c.reset}: ${res.status}`,
+    res.message,
     "",
-    `${ANSI.bold}Agent Registrations (${res.actions.length}):${ANSI.reset}`,
+    `${c.bold}Agent registration (${res.actions.length})${c.reset}`,
   ];
 
-  for (const a of res.actions) {
-    lines.push(`  • ${ANSI.bold}${a.displayName}${ANSI.reset} (${a.clientId})`);
-    lines.push(`      Config: ${a.configPath}`);
-    lines.push(`      Skill:  ${a.skillPath}`);
-    lines.push(`      MCP:    ${a.mcpCommand} ${a.mcpArgs.join(" ")}`);
+  for (const action of res.actions) {
+    lines.push(`- ${action.displayName} (${action.clientId}) [${action.status}]`);
+    lines.push(`  Config: ${action.configPath}`);
+    lines.push(`  Skill: ${action.skillPath}`);
+    lines.push(`  MCP: ${action.mcpCommand} ${action.mcpArgs.join(" ")}`);
   }
 
   return lines.join("\n");
 }
 
 export function formatOneClickDefenseReport(rep: OneClickDefenseReport): string {
+  const c = ansi();
   const lines: string[] = [
     formatBanner(),
     "",
-    `${ANSI.bold}${ANSI.blue}⚡ BLA One-Click Counter-REA Defense Hardening Complete!${ANSI.reset}`,
+    `${c.bold}สรุป One-Click Defense${c.reset}`,
+    `อินพุต: ${rep.inputPath}`,
+    `เอาต์พุต: ${rep.outputPath}`,
+    `ระดับ: ${rep.intensity} · defense score: ${rep.verification.defenseScore}/100`,
+    `${c.dim}${ESTIMATE_NOTICE}; คะแนนไม่ใช่การรับรองความปลอดภัย${c.reset}`,
     "",
-    `  ${ANSI.bold}Input Target:${ANSI.reset}      ${rep.inputPath}`,
-    `  ${ANSI.bold}Hardened Output:${ANSI.reset}   ${ANSI.cyan}${rep.outputPath}${ANSI.reset}`,
-    `  ${ANSI.bold}Intensity Preset:${ANSI.reset}  ${ANSI.magenta}${rep.intensity.toUpperCase()}${ANSI.reset} (Defense Score: ${ANSI.green}${ANSI.bold}${rep.verification.defenseScore}/100${ANSI.reset})`,
-    `  ${ANSI.dim}Score scope: Counter-REA gates + exposure drop — not a preimage-hardness claim (see issue #40).${ANSI.reset}`,
-    "",
-    `${ANSI.bold}${ANSI.blue}── 5-Stage Automated Counter-REA Pipeline ──────────────────────────────────────${ANSI.reset}`,
+    `${c.bold}ขั้นตอนการทำงาน${c.reset}`,
   ];
 
-  for (const st of rep.stages) {
-    const badge =
-      st.status === "passed"
-        ? `${ANSI.green}✓ PASS${ANSI.reset}`
-        : `${ANSI.yellow}! WARN${ANSI.reset}`;
-    lines.push(`  [${badge}] ${ANSI.bold}${st.stage}${ANSI.reset}: ${st.headline}`);
+  for (const stage of rep.stages) {
+    lines.push(`- [${stage.status === "passed" ? "PASS" : "WARN"}] ${stage.stage}: ${stage.headline}`);
   }
 
   lines.push(
     "",
-    `${ANSI.bold}${ANSI.yellow}── Resource Exhaustion (耗尽对方算力与预算) ────────────────────────────────────${ANSI.reset}`,
-    `  • REA Budgets Tripped:        ${ANSI.green}${rep.exhaustionSummary.reaBudgetsTripped.join(", ") || "binary-container-limits"}${ANSI.reset}`,
-    `  • Obligation Ledger Expansion:${rep.exhaustionSummary.obligationLedgerNodesBefore} nodes  -->  ${ANSI.bold}${rep.exhaustionSummary.obligationLedgerNodesAfter} nodes (${rep.verification.obligationGraphExpansionFactor}x)${ANSI.reset}`,
-    `  • Token Bankruptcy Factor:    ${ANSI.yellow}${ANSI.bold}${rep.exhaustionSummary.tokenAmplificationFactor}x${ANSI.reset} (Attacker API Bill: ${ANSI.yellow}${ANSI.bold}~$${rep.exhaustionSummary.attackerEstimatedBillUsd.toFixed(2)}${ANSI.reset})`,
+    `${c.bold}Resource exhaustion${c.reset}`,
+    `- REA budgets: ${rep.exhaustionSummary.reaBudgetsTripped.join(", ") || "binary-container-limits"}`,
+    `- Obligation nodes: ${rep.exhaustionSummary.obligationLedgerNodesBefore} -> ${rep.exhaustionSummary.obligationLedgerNodesAfter} (${rep.verification.obligationGraphExpansionFactor}x)`,
+    `- Estimated token factor: ${rep.exhaustionSummary.tokenAmplificationFactor}x · estimated cost: ~$${rep.exhaustionSummary.attackerEstimatedBillUsd.toFixed(2)}`,
     "",
-    `${ANSI.bold}${ANSI.cyan}── Model Misjudgment Induction (诱导大模型误判) ────────────────────────────────${ANSI.reset}`,
-    `  • Shadow Logic & Honeypots:   ${ANSI.bold}${rep.deceptionSummary.decoyFunctionsInjected}${ANSI.reset} high-salience bait & shadow procedures`,
-    `  • Tarjan SCC Labyrinth XRefs: ${ANSI.bold}${rep.deceptionSummary.fakeCrossReferencesCreated}${ANSI.reset} mutually-recursive call-graph edges`,
-    `  • Evidence Contract Lures:    ${ANSI.bold}${rep.deceptionSummary.chaffAndEvidenceLuresEmbedded}${ANSI.reset} competing-explanation & enclave manifests`,
-    `  • Decoy IPC & gRPC Routes:    ${ANSI.bold}${rep.deceptionSummary.ipcAmbiguityAndObligationSites}${ANSI.reset} obligation/IPC sites + ${ANSI.bold}${rep.deceptionSummary.decoyRoutesAndGrpcMethods}${ANSI.reset} mirage routes`,
+    `${c.bold}Model misjudgment induction${c.reset}`,
+    `- Shadow logic / honeypots: ${rep.deceptionSummary.decoyFunctionsInjected}`,
+    `- Tarjan SCC xrefs: ${rep.deceptionSummary.fakeCrossReferencesCreated}`,
+    `- Evidence contract lures: ${rep.deceptionSummary.chaffAndEvidenceLuresEmbedded}`,
+    `- Decoy IPC / gRPC: ${rep.deceptionSummary.ipcAmbiguityAndObligationSites} / ${rep.deceptionSummary.decoyRoutesAndGrpcMethods}`,
   );
 
   if (rep.manifestPath) {
-    lines.push(
-      "",
-      `  ${ANSI.bold}Signed Manifest:${ANSI.reset}   ${ANSI.green}${rep.manifestPath}${ANSI.reset}`,
-    );
+    lines.push("", `${c.bold}Unsigned manifest${c.reset}: ${rep.manifestPath}`);
   }
 
   return lines.join("\n");

@@ -12,7 +12,7 @@ import {
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BLA_IDENTITY } from "../identity.js";
+import { AXOBFUS_IDENTITY } from "../identity.js";
 import {
   getClientConfigAdapter,
   normalizeClientId,
@@ -93,7 +93,7 @@ export interface InstalledClientRecord {
   readonly installedAt: string;
 }
 
-export interface BlaInstallManifest {
+export interface AxObfusInstallManifest {
   readonly version: 1;
   readonly updatedAt: string;
   readonly clients: Record<string, InstalledClientRecord>;
@@ -138,25 +138,14 @@ function hashMcpEntry(entry: McpServerRegistration): string {
   );
 }
 
-function isBlaOwnedMcpEntry(entry: McpServerRegistration): boolean {
+function isAxObfusOwnedMcpEntry(entry: McpServerRegistration): boolean {
   const cmd = entry.command.trim();
   const joinedArgs = entry.args.join(" ");
-  if (
-    cmd === "bla" ||
-    cmd === "bla-agents" ||
-    cmd === "bla-shield" ||
-    cmd.endsWith("/bla") ||
-    cmd.endsWith("\\bla") ||
-    cmd.endsWith("/bla-agents") ||
-    cmd.endsWith("\\bla-agents") ||
-    cmd.endsWith("/bla-shield") ||
-    cmd.endsWith("\\bla-shield")
-  ) {
+  if (cmd === "axobfus" || cmd.endsWith("/axobfus") || cmd.endsWith("\\axobfus")) {
     return true;
   }
   if (
-    joinedArgs.includes(BLA_IDENTITY.packageName) ||
-    joinedArgs.includes(BLA_IDENTITY.packageAlias) ||
+    joinedArgs.includes(AXOBFUS_IDENTITY.packageName) ||
     joinedArgs.includes("dist/cli.js") ||
     joinedArgs.includes("src/cli.ts")
   ) {
@@ -168,7 +157,7 @@ function isBlaOwnedMcpEntry(entry: McpServerRegistration): boolean {
 function writeFileAtomicSync(targetPath: string, content: string | Buffer): void {
   const dir = dirname(targetPath);
   mkdirSync(dir, { recursive: true });
-  const tmpPath = `${targetPath}.bla-tmp-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+  const tmpPath = `${targetPath}.axobfus-tmp-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
   try {
     writeFileSync(tmpPath, content);
     renameSync(tmpPath, targetPath);
@@ -185,10 +174,10 @@ function writeFileAtomicSync(targetPath: string, content: string | Buffer): void
 }
 
 export function getInstallManifestPath(home: string = homedir()): string {
-  return join(home, ".bla", "install-manifest.json");
+  return join(home, ".axobfus", "install-manifest.json");
 }
 
-export function readInstallManifest(home: string = homedir()): BlaInstallManifest {
+export function readInstallManifest(home: string = homedir()): AxObfusInstallManifest {
   const manifestPath = getInstallManifestPath(home);
   if (!existsSync(manifestPath)) {
     return {
@@ -198,7 +187,7 @@ export function readInstallManifest(home: string = homedir()): BlaInstallManifes
     };
   }
   try {
-    const parsed = JSON.parse(readFileSync(manifestPath, "utf8")) as Partial<BlaInstallManifest>;
+    const parsed = JSON.parse(readFileSync(manifestPath, "utf8")) as Partial<AxObfusInstallManifest>;
     if (
       parsed &&
       parsed.version === 1 &&
@@ -222,9 +211,9 @@ export function readInstallManifest(home: string = homedir()): BlaInstallManifes
   };
 }
 
-function writeInstallManifest(home: string, manifest: BlaInstallManifest): string {
+function writeInstallManifest(home: string, manifest: AxObfusInstallManifest): string {
   const manifestPath = getInstallManifestPath(home);
-  const updated: BlaInstallManifest = {
+  const updated: AxObfusInstallManifest = {
     version: 1,
     updatedAt: new Date().toISOString(),
     clients: manifest.clients,
@@ -236,7 +225,7 @@ function writeInstallManifest(home: string, manifest: BlaInstallManifest): strin
 export function resolveBundledSkillContent(): string {
   try {
     const thisDir = dirname(fileURLToPath(import.meta.url));
-    const candidate = resolve(thisDir, "../../.agents/skills/blind-llm-agents/SKILL.md");
+    const candidate = resolve(thisDir, "../../.agents/skills/axobfus/SKILL.md");
     if (existsSync(candidate)) {
       return readFileSync(candidate, "utf8");
     }
@@ -245,20 +234,20 @@ export function resolveBundledSkillContent(): string {
   }
   return [
     "---",
-    "name: blind-llm-agents",
-    "description: Audit, protect, and verify software artifacts (JavaScript/TypeScript, Electron ASAR, WebAssembly, Python, and Native Binaries) against AI reverse-engineering agents like REA using BLA.",
+    "name: axobfus",
+    "description: Audit, protect, and verify software artifacts (JavaScript/TypeScript, Electron ASAR, WebAssembly, Python, and Native Binaries) against AI reverse-engineering agents like REA using AxObfus.",
     "---",
     "",
-    "# BLA: Blind LLM Agents (Counter-REA Defense Shield)",
+    "# AxObfus (Counter-REA Defense Shield)",
     "",
-    "Use BLA (`bla_audit`, `bla_protect`, `bla_verify`, `bla_benchmark`, `bla_emit_headers`) whenever the user wants to:",
+    "Use AxObfus (`axobfus_audit`, `axobfus_protect`, `axobfus_verify`, `axobfus_benchmark`, `axobfus_emit_headers`) whenever the user wants to:",
     "1. Audit how exposed an application, bundle, ASAR, WASM, Python `.pyc`, or native binary is to AI reverse-engineering tools (`rea`).",
     "2. Protect build artifacts before release by injecting Algorithmic Tarpits, REA Semantic Budget Breakers, Electron IPC Ambiguity, Honey Source Maps, and Architectural Chaff.",
     "3. Verify defense effectiveness and calculate attacker Token & Cost Amplification.",
   ].join("\n");
 }
 
-export const generateBlaSkillMarkdown = resolveBundledSkillContent;
+export const generateAxObfusSkillMarkdown = resolveBundledSkillContent;
 
 export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
   const home = options.homeDir ?? homedir();
@@ -296,7 +285,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
   }
 
   const mcpCommand = options.mcpCommand ?? "npx";
-  const mcpArgs = options.mcpArgs ? [...options.mcpArgs] : ["-y", `${BLA_IDENTITY.packageName}@latest`, "mcp"];
+  const mcpArgs = options.mcpArgs ? [...options.mcpArgs] : ["-y", `${AXOBFUS_IDENTITY.packageName}@latest`, "mcp"];
 
   const isDryRunOrPlanOnly = options.dryRun === true || options.yes === false;
   if (isDryRunOrPlanOnly) {
@@ -305,7 +294,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
       displayName: c.displayName,
       format: c.format,
       configPath: c.configPath,
-      backupPath: existsSync(c.configPath) ? `${c.configPath}.bla-backup` : null,
+      backupPath: existsSync(c.configPath) ? `${c.configPath}.axobfus-backup` : null,
       skillPath: join(c.skillDirectory, "SKILL.md"),
       mcpCommand,
       mcpArgs,
@@ -341,7 +330,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
   for (const client of selected) {
     const adapter = getClientConfigAdapter(client.format);
     const skillPath = join(client.skillDirectory, "SKILL.md");
-    const backupPathCandidate = `${client.configPath}.bla-backup`;
+    const backupPathCandidate = `${client.configPath}.axobfus-backup`;
     const configExistedBefore = existsSync(client.configPath);
     const skillDirectoryExistedBefore = existsSync(client.skillDirectory);
     const skillExistedBefore = existsSync(skillPath);
@@ -370,7 +359,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
         continue;
       }
 
-      const readRes = adapter.readServer(existingRawContent, BLA_IDENTITY.mcpServerName);
+      const readRes = adapter.readServer(existingRawContent, AXOBFUS_IDENTITY.mcpServerName);
       if (readRes.status === "malformed") {
         anyError = true;
         completedActions.push({
@@ -410,7 +399,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
             applied: false,
             error:
               readRes.error ??
-              `Invalid existing '${BLA_IDENTITY.mcpServerName}' MCP entry in '${client.configPath}'`,
+              `Invalid existing '${AXOBFUS_IDENTITY.mcpServerName}' MCP entry in '${client.configPath}'`,
           });
           continue;
         }
@@ -420,7 +409,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
         const prevManifestRecord = updatedManifestClients[client.id];
         const entryHash = hashMcpEntry(readRes.entry);
         const ownedByManifest = prevManifestRecord?.writtenEntryHash === entryHash;
-        const ownedBySignature = isBlaOwnedMcpEntry(readRes.entry);
+        const ownedBySignature = isAxObfusOwnedMcpEntry(readRes.entry);
         const matchesRequested =
           readRes.entry.command === mcpCommand &&
           JSON.stringify(readRes.entry.args) === JSON.stringify(mcpArgs);
@@ -439,7 +428,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
             selectionSource,
             status: "conflict",
             applied: false,
-            error: `Existing non-BLA MCP server '${BLA_IDENTITY.mcpServerName}' in '${client.configPath}'; refusing to overwrite without force`,
+            error: `Existing non-AxObfus MCP server '${AXOBFUS_IDENTITY.mcpServerName}' in '${client.configPath}'; refusing to overwrite without force`,
           });
           continue;
         }
@@ -506,7 +495,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
     try {
       nextConfigContent = adapter.upsertServer(
         existingRawContent,
-        BLA_IDENTITY.mcpServerName,
+        AXOBFUS_IDENTITY.mcpServerName,
         registration,
       );
     } catch (err) {
@@ -529,7 +518,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
       continue;
     }
 
-    // Non-clobbering backup: ONLY create `${configPath}.bla-backup` if it does not already exist!
+    // Non-clobbering backup: ONLY create `${configPath}.axobfus-backup` if it does not already exist!
     let recordedBackupPath: string | null = null;
     let recordedBackupSha256: string | null = null;
     try {
@@ -634,7 +623,7 @@ export function runSetup(options: SetupRunOptions = {}): SetupRunResult {
     manifestPath,
     message:
       overallStatus === "applied"
-        ? `Configured BLA MCP server and skill for ${appliedCount} agent client(s). Restart your agent to load BLA tools, then run bla_harden . (or: Harden my software against REA).`
+        ? `Configured AxObfus MCP server and skill for ${appliedCount} agent client(s). Restart your agent to load AxObfus tools, then run axobfus_harden . (or: Harden my software against REA).`
         : `Completed setup with status '${overallStatus}' (${appliedCount}/${completedActions.length} applied).`,
   };
 }
@@ -672,7 +661,7 @@ export function runUninstall(options: UninstallRunOptions = {}): UninstallRunRes
     let conflictReason: string | undefined;
     let errorMsg: string | undefined;
 
-    // 1. Check and remove MCP registration if owned by BLA
+    // 1. Check and remove MCP registration if owned by AxObfus
     if (existsSync(client.configPath)) {
       let rawConfig: string | null = null;
       try {
@@ -682,14 +671,14 @@ export function runUninstall(options: UninstallRunOptions = {}): UninstallRunRes
       }
 
       if (rawConfig !== null) {
-        const readRes = adapter.readServer(rawConfig, BLA_IDENTITY.mcpServerName);
+        const readRes = adapter.readServer(rawConfig, AXOBFUS_IDENTITY.mcpServerName);
         if (readRes.status === "malformed") {
           conflictReason =
             readRes.error ?? `Malformed configuration at '${client.configPath}'; refusing to modify`;
         } else if (readRes.status === "invalid_entry") {
           if (manifestRecord || options.force) {
             try {
-              const rem = adapter.removeServer(rawConfig, BLA_IDENTITY.mcpServerName);
+              const rem = adapter.removeServer(rawConfig, AXOBFUS_IDENTITY.mcpServerName);
               if (rem.removed) {
                 writeFileAtomicSync(client.configPath, rem.content);
                 mcpRemoved = true;
@@ -700,17 +689,17 @@ export function runUninstall(options: UninstallRunOptions = {}): UninstallRunRes
           } else {
             conflictReason =
               readRes.error ??
-              `Invalid non-BLA entry '${BLA_IDENTITY.mcpServerName}' in '${client.configPath}'; refusing to remove`;
+              `Invalid non-AxObfus entry '${AXOBFUS_IDENTITY.mcpServerName}' in '${client.configPath}'; refusing to remove`;
           }
         } else if (readRes.status === "valid" && readRes.entry) {
           const entryHash = hashMcpEntry(readRes.entry);
           const ownedByManifest = manifestRecord?.writtenEntryHash === entryHash;
-          const ownedBySignature = isBlaOwnedMcpEntry(readRes.entry);
+          const ownedBySignature = isAxObfusOwnedMcpEntry(readRes.entry);
           if (!ownedByManifest && !ownedBySignature && !options.force) {
-            conflictReason = `MCP entry '${BLA_IDENTITY.mcpServerName}' in '${client.configPath}' was not installed by BLA; preserving custom entry`;
+            conflictReason = `MCP entry '${AXOBFUS_IDENTITY.mcpServerName}' in '${client.configPath}' was not installed by AxObfus; preserving custom entry`;
           } else {
             try {
-              const rem = adapter.removeServer(rawConfig, BLA_IDENTITY.mcpServerName);
+              const rem = adapter.removeServer(rawConfig, AXOBFUS_IDENTITY.mcpServerName);
               if (rem.removed) {
                 writeFileAtomicSync(client.configPath, rem.content);
                 mcpRemoved = true;
@@ -723,7 +712,7 @@ export function runUninstall(options: UninstallRunOptions = {}): UninstallRunRes
       }
     }
 
-    // If MCP removal succeeded (or config had no conflicting BLA entry), check skill removal
+    // If MCP removal succeeded (or config had no conflicting AxObfus entry), check skill removal
     const canRemoveManifestRecord = !conflictReason && !errorMsg;
     if (canRemoveManifestRecord && manifestRecord) {
       delete remainingManifestClients[client.id];
@@ -763,7 +752,7 @@ export function runUninstall(options: UninstallRunOptions = {}): UninstallRunRes
         } else {
           conflictReason =
             conflictReason ??
-            `Skill file '${skillPath}' is not owned by BLA; preserving custom skill`;
+            `Skill file '${skillPath}' is not owned by AxObfus; preserving custom skill`;
         }
       } catch (err) {
         errorMsg =

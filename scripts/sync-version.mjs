@@ -17,7 +17,7 @@ const updated = identityText.replace(
 
 if (updated !== identityText) {
   writeFileSync(identityPath, updated, "utf8");
-  console.log(`Synced BLA_IDENTITY.version -> ${version}`);
+  console.log(`Synced AXOBFUS_IDENTITY.version -> ${version}`);
 } else {
-  console.log(`BLA_IDENTITY.version already at ${version}`);
+  console.log(`AXOBFUS_IDENTITY.version already at ${version}`);
 }

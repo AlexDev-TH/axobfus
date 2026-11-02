@@ -1,109 +1,122 @@
-# Installation & Setup Guide
+# การติดตั้งและตั้งค่า AxObfus
 
-**BLA (`bla-agents` — Blind LLM Agents)** is distributed as a zero-config Node.js CLI and MCP server that runs anywhere Node.js `^22.13.0 || >=24.0.0` is installed.
+**AxObfus โดย AlexDev** เผยแพร่เป็นแพ็กเกจ `axobfus` สำหรับใช้งานผ่าน CLI และ MCP server โดยต้องใช้ Node.js `^22.23.4 || >=24.0.0` และทำงานกับ artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาตเท่านั้น
 
----
-
-## 1. Quick Start (`npx`)
-
-Run BLA directly without installing anything globally:
+## ใช้งานจากซอร์ส
 
 ```bash
-# 1. Register BLA MCP Server + Skill into Claude Code, Cursor, Codex, Windsurf, Gemini CLI, etc.
-npx bla-agents setup
-
-# 2. Check your environment and configured AI clients
-npx bla-agents doctor
-
-# 3. Audit an artifact for REA exposure before release
-npx bla-agents audit ./dist/app.js
-
-# 4. Protect the artifact with BLA's three-stage shield
-npx bla-agents protect ./dist/app.js --mode bankrupt
-
-# 5. Verify functional preservation and REA analyzer degradation
-npx bla-agents verify ./dist/app.js ./dist/app.bla.js
+git clone https://github.com/AlexDev-TH/axobfus.git
+cd axobfus
+npm ci
+npm run build
+node dist/cli.js doctor
+node dist/cli.js harden .
 ```
 
----
+## เริ่มต้นด้วย `npx` หลังเผยแพร่บน npm
 
-## 2. Global or Project-Local Installation
-
-### Install as a Dev Dependency (Recommended for CI/CD Release Pipelines)
+เมื่อแพ็กเกจ `axobfus` เผยแพร่บน npm แล้ว ไม่จำเป็นต้องติดตั้ง global:
 
 ```bash
-npm install --save-dev bla-agents
-# or
-pnpm add -D bla-agents
-# or
-bun add -d bla-agents
+# ลงทะเบียน MCP server และทักษะกับ coding agent ที่รองรับ
+npx axobfus setup
+
+# ตรวจสภาพแวดล้อมและการลงทะเบียน
+npx axobfus doctor
+
+# สแกนโครงการและป้องกัน build output
+npx axobfus harden .
 ```
 
-Then add a post-build protection script to your `package.json`:
+ก่อนใช้งานจริง ควรสำรอง artifact ต้นฉบับและทำใน staging เสมอ
+
+## ติดตั้งในโครงการหรือใช้แบบ global
+
+สำหรับ CI/CD สามารถเพิ่มเป็น dev dependency ในโครงการของคุณ:
+
+```bash
+npm install --save-dev axobfus
+# หรือ pnpm add -D axobfus
+# หรือ bun add -d axobfus
+```
+
+หรือติดตั้ง global เพื่อเรียก CLI โดยตรง:
+
+```bash
+npm install --global axobfus
+axobfus --help
+axobfus doctor
+```
+
+## การตั้งค่า coding agent
+
+```bash
+npx axobfus setup
+```
+
+คำสั่งนี้ค้นหา client ที่รองรับและลงทะเบียน MCP server `axobfus` พร้อมทักษะ Counter-REA รองรับ workflow ของ Claude Code, Cursor, Codex, Windsurf, Gemini CLI และ client อื่นที่เครื่องมือตรวจพบ
+
+เลือก client เฉพาะรายการได้:
+
+```bash
+npx axobfus setup --client claude-code,cursor
+```
+
+หลังตั้งค่า สามารถขอให้ agent ช่วยในเชิงป้องกัน เช่น:
+
+```text
+Audit โฟลเดอร์ ./dist ของฉัน บันทึกรายงาน แล้วเสนอแผนป้องกัน REA โดยไม่แก้ไขต้นฉบับ
+```
+
+ถอนการลงทะเบียนด้วย:
+
+```bash
+npx axobfus uninstall
+```
+
+## ใช้ CLI แยกขั้นตอน
+
+```bash
+# 1. ตรวจ exposure และบันทึกรายงาน HTML
+axobfus audit ./dist --report ./reports/audit.html
+
+# 2. ป้องกัน target ที่ระบุ และเก็บผล pipeline
+axobfus defend ./dist --report ./reports/defend.html
+
+# 3. ตรวจสอบเทียบกับต้นฉบับที่สำรองไว้
+axobfus verify ./dist.protected ./dist
+```
+
+`--report` รองรับ `audit` และ `defend` สำหรับสร้าง HTML แบบ standalone ที่เปิดออฟไลน์ได้โดยไม่มีสคริปต์หรือทรัพยากรภายนอก เหมาะสำหรับ review และจัดเก็บใน CI ควรจัดการสิทธิ์ไฟล์และตรวจข้อมูลในรายงานก่อนเผยแพร่ รายงานไม่ใช่หลักฐานว่าป้องกัน analyzer ได้ทุกตัว
+
+## ใช้ใน release pipeline
+
+ตัวอย่าง script ใน `package.json` ของโครงการที่ใช้ AxObfus:
 
 ```json
 {
   "scripts": {
     "build": "vite build",
-    "postbuild": "bla protect ./dist/assets/index.js --in-place --mode bankrupt --emit-sourcemap"
+    "protect": "axobfus harden ."
   }
 }
 ```
 
-### Install Globally
+หลัง build และ protect ให้รัน `verify` รวมถึง test suite ของผลิตภัณฑ์ตาม workload จริง ห้ามถือว่าคำสั่งป้องกันแทนการทดสอบซอฟต์แวร์ได้
+
+## Native header integration
+
+สำหรับ C/C++, Rust หรือ Go สามารถสร้าง header สำหรับฝังกลไกป้องกันตอน compile ได้:
 
 ```bash
-npm install -g bla-agents
-
-# Both `bla` and `bla-agents` binaries are registered:
-bla --version
-bla-agents doctor
+npx axobfus emit-headers ./include/shield --seed my-release-v1
 ```
 
----
+ตรวจไฟล์ที่สร้างและวิธีเชื่อมเข้ากับ build ของคุณก่อนใช้งานจริง รายละเอียดคำสั่งทั้งหมดอยู่ใน [CLI & MCP](cli-and-mcp.md)
 
-## 3. Registering BLA in Coding Agents (`bla setup`)
+## ข้อควรจำ
 
-Just like `npx reverse-engineer-anything setup`, `npx bla-agents setup` auto-discovers installed AI coding agents on your machine and registers:
-
-1. **The `bla` MCP stdio server** (`bla_audit`, `bla_protect`, `bla_verify`, `bla_benchmark`, `bla_emit_headers`, `bla_doctor`)
-2. **The `blind-llm-agents` skill** (`SKILL.md` + Counter-REA Matrix)
-
-### Supported Clients
-
-| Client ID | Name | Config Location | Skill Location |
-| :--- | :--- | :--- | :--- |
-| `claude-code` | Claude Code | `~/.claude.json` | `~/.claude/skills/blind-llm-agents` |
-| `cursor` | Cursor | `~/.cursor/mcp.json` | `~/.cursor/skills/blind-llm-agents` |
-| `codex` | OpenAI Codex | `~/.codex/config.toml` | `~/.codex/skills/blind-llm-agents` |
-| `windsurf` | Windsurf | `~/.codeium/windsurf/mcp_config.json` | `~/.codeium/windsurf/skills/blind-llm-agents` |
-| `gemini` | Gemini CLI | `~/.gemini/settings.json` | `~/.gemini/skills/blind-llm-agents` |
-| `opencode` | OpenCode | `~/.config/opencode/opencode.json` | `~/.config/opencode/skills/blind-llm-agents` |
-
-### Target Specific Clients
-
-```bash
-npx bla-agents setup --client claude-code,cursor
-```
-
-### Uninstall
-
-To cleanly remove BLA from all agent configuration files and delete installed skill folders:
-
-```bash
-npx bla-agents uninstall
-```
-
----
-
-## 4. Compile-Time Header Integration (C / C++ / Rust / Go)
-
-If you are shipping a native binary compiled with `clang`, `gcc`, `rustc`, or `go build`, you can embed BLA's compile-time counters directly into `.rodata` before linking:
-
-```bash
-npx bla-agents emit-headers ./include/shield --seed my-release-v1
-```
-
-- **C / C++**: `#include "bla_shield.h"` and call `BLA_ANCHOR_SHIELD();` inside `main()`.
-- **Rust**: `mod bla_shield;` and call `bla_shield::anchor_shield();` inside `fn main()`.
-- **Go**: Include `bla_shield.go` in your package and call `AnchorBlaShield()` inside `func main()`.
+- AxObfus เพิ่ม decoys, ภาระด้าน resource/semantic และการใช้โทเคนของ analyzer ไม่ได้รับประกันความลับสมบูรณ์
+- เก็บ private key, master secret และข้อมูลสำคัญไว้ฝั่งเซิร์ฟเวอร์
+- ตัวเลขประมาณการในรายงานไม่ใช่ผล benchmark ที่ใช้ได้กับทุกสภาพแวดล้อม
+- อ่าน [DISCLAIMER](../DISCLAIMER.md) ก่อนใช้งาน

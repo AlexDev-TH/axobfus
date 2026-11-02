@@ -1,102 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FAQ — BLA (bla-agents)</title>
-    <link rel="icon" type="image/png" href="../assets/favicon.png" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>คำถามพบบ่อย — AxObfus</title>
+    <meta name="description" content="คำตอบเกี่ยวกับการติดตั้ง รายงาน verification ขอบเขตการป้องกัน และการใช้งาน AxObfus อย่างรับผิดชอบ" />
+    <meta property="og:title" content="คำถามพบบ่อย — AxObfus" />
+    <meta property="og:image" content="../assets/social-card.svg" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
     <link rel="stylesheet" href="../assets/styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container nav-bar">
-        <a href="../" class="brand">
-          <img src="../assets/logo.png" alt="BLA Shield Logo" class="brand-logo" width="38" height="38" />
-          <span>BLA</span>
-          <span class="brand-badge" data-i18n="nav.badge">BLUE SHIELD v1.5</span>
-        </a>
-        <nav class="nav-links">
-          <a href="../" class="nav-link" data-i18n="nav.overview">Overview</a>
-          <a href="../get-started/" class="nav-link" data-i18n="nav.getStarted">Get Started</a>
-          <a href="../showcase/" class="nav-link" data-i18n="nav.showcase">Benchmarks</a>
-          <a href="../crackme/" class="nav-link" data-i18n="nav.crackme">CrackMe</a>
-          <a href="../guides/" class="nav-link" data-i18n="nav.guides">Guides</a>
-          <a href="./" class="nav-link active" data-i18n="nav.faq">FAQ</a>
-        </nav>
-        <div class="nav-actions">
-          <select id="bla-lang-select" class="lang-select" aria-label="Select Language">
-            <option value="en">🌐 English</option>
-            <option value="zh-CN">🌐 简体中文</option>
-            <option value="zh-TW">🌐 繁體中文</option>
-            <option value="ja">🌐 日本語</option>
-            <option value="ko">🌐 한국어</option>
-            <option value="es">🌐 Español</option>
-            <option value="fr">🌐 Français</option>
-            <option value="de">🌐 Deutsch</option>
-          </select>
-          <a href="https://github.com/qybaihe/bla" class="nav-cta" target="_blank" rel="noopener">
-            <span>★</span>
-            <span data-i18n="nav.star">Star</span>
-            <span class="star-pill" data-gh-stars>★</span>
-          </a>
-        </div>
-      </div>
-    </header>
+    <a class="skip-link" href="#content">ข้ามไปยังเนื้อหา</a>
+    <header class="site-header"><div class="container nav-bar"><a class="brand" href="../" aria-label="AxObfus หน้าหลัก"><img src="../assets/logo.svg" alt="" width="40" height="40" /><span><span class="brand-name">AxObfus</span><span class="brand-by">by AlexDev</span></span></a><nav class="nav-links" aria-label="เมนูหลัก"><a href="../">ภาพรวม</a><a href="../get-started/">เริ่มต้น</a><a href="../showcase/">ประเมินผล</a><a href="./" aria-current="page">คำถามพบบ่อย</a></nav><a class="nav-repo" href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></header>
 
-    <main>
-      <section class="section">
-        <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="faq.eyebrow">Frequently Asked Questions</div>
-            <h1 class="section-title" data-i18n="faq.title">Common Questions About BLA (`bla-agents`)</h1>
-          </div>
-
-          <div style="max-width: 780px">
-            <details class="evidence-drawer" open>
-              <summary data-i18n="faq.q1">Why does BLA use a Blue theme?</summary>
-              <div class="drawer-body" style="white-space: normal" data-i18n-html="faq.a1">
-                In security engineering, offensive and reverse-engineering tools are traditionally associated with Red Team workflows, while defensive protection tools represent Blue Team workflows. <strong>BLA</strong> (<code>bla-agents</code>) focuses on the defensive side: auditing exposure and protecting release artifacts.
-              </div>
-            </details>
-
-            <details class="evidence-drawer">
-              <summary data-i18n="faq.q2">Does BLA affect runtime performance or change program output?</summary>
-              <div class="drawer-body" style="white-space: normal" data-i18n-html="faq.a2">
-                No. Static budget guards and call-graph state machines are placed behind O(1) bitwise invariants (such as <code>(Math.imul(x, x + 1) &amp; 1) === 0</code>) inside unreachable branches, so hot-path execution remains unchanged.
-              </div>
-            </details>
-
-            <details class="evidence-drawer">
-              <summary data-i18n="faq.q3">How do I run the full protection workflow in one step?</summary>
-              <div class="drawer-body" style="white-space: normal" data-i18n-html="faq.a3">
-                Run <code>npx bla-agents@latest harden .</code> from your terminal, or ask your connected coding agent to call the <code>bla_harden</code> MCP tool. It executes release exposure checks, auditing, protection, and verification in sequence.
-              </div>
-            </details>
-
-            <details class="evidence-drawer">
-              <summary data-i18n="faq.q4">Does BLA preserve existing GGUF model tensors and binary checksums?</summary>
-              <div class="drawer-body" style="white-space: normal" data-i18n-html="faq.a4">
-                Yes. <code>protectGgufBuffer</code> preserves all original GGUF v2/v3 KV entries and trailing tensor slices while appending metadata entries, and Android DEX protection recomputes both the 20-byte SHA-1 signature and Adler32 checksum.
-              </div>
-            </details>
-            <details class="drawer">
-              <summary data-i18n="faq.q5">What are BLA's honest limits?</summary>
-              <div class="drawer-body" style="white-space: normal" data-i18n-html="faq.a5">
-                BLA raises analyzer cost and plants decoys; it is not a magic anti-RE seal. Traditional interactive reverse engineering is out of scope of the commodity REA red-team numbers. Try the public CrackMe v6 challenge on GitHub.
-              </div>
-            </details>
-          </div>
-        </div>
-      </section>
+    <main id="content">
+      <section class="page-hero"><div class="container"><p class="eyebrow">FAQ / ข้อเท็จจริงก่อนใช้งาน</p><h1>คำถามที่ควรถาม<br />ก่อนป้องกัน build.</h1><p class="lead">คำตอบสั้นสำหรับการติดตั้ง การอ่านรายงาน และขอบเขตที่ AxObfus ไม่อ้างเกินจริง</p></div></section>
+      <section class="section alt"><div class="container"><div class="faq-list">
+        <details open><summary>AxObfus คืออะไรและเหมาะกับใคร</summary><div class="details-body"><p>AxObfus โดย AlexDev เป็น CLI และ MCP server สำหรับเจ้าของซอฟต์แวร์และนักวิจัยที่ต้องการลด exposure ของ artifact ต่อ Reverse-Engineering Agents โดยใช้ decoys, resource/semantic exhaustion และการเพิ่ม analyzer token consumption</p></div></details>
+        <details><summary>ต้องติดตั้งอย่างไร</summary><div class="details-body"><p>ใช้ Node.js <code>^22.23.4 || &gt;=24.0.0</code> แล้วเรียกผ่าน <code>npx</code> ได้โดยไม่ติดตั้ง global</p><pre><code>npx axobfus setup
+npx axobfus harden .</code></pre><p>หรือติดตั้งแพ็กเกจ <code>axobfus</code> ในโครงการแล้วเรียก <code>axobfus --help</code></p></div></details>
+        <details><summary><code>harden</code>, <code>defend</code> และ <code>protect</code> ต่างกันอย่างไร</summary><div class="details-body"><p><code>harden</code> ค้นหา build output ในโครงการและทำ workflow อัตโนมัติ <code>defend</code> รัน pipeline กับ target ที่ระบุ ส่วน <code>protect</code> ใช้เมื่อต้องการควบคุมเฉพาะขั้นตอน shield และ output ดูตัวเลือกจริงด้วย <code>axobfus &lt;command&gt; --help</code></p></div></details>
+        <details><summary>บันทึกรายงานอย่างไร</summary><div class="details-body"><p>ใช้ <code>--report</code> กับ <code>audit</code> และ <code>defend</code></p><pre><code>axobfus audit ./dist --report ./reports/audit.html
+axobfus defend ./dist --report ./reports/defend.html</code></pre><p>ไฟล์ HTML แบบ standalone เปิดออฟไลน์ได้โดยไม่มีสคริปต์หรือทรัพยากรภายนอก ใช้ review หรือเก็บเป็น CI artifact ได้ แต่ต้องตรวจข้อมูลที่อาจ sensitive ก่อนแชร์</p></div></details>
+        <details><summary>ตัวเลขโทเคนในรายงานเป็นผลทดลองจริงหรือไม่</summary><div class="details-body"><p>ต้องอ่านชนิดของค่าในรายงาน ค่าประมาณ token/cost เป็นแบบจำลอง ไม่ใช่ผลวัดกับ analyzer ทุกตัว หากต้องการอ้างผลเชิงประจักษ์ ให้รัน analyzer ใน environment ที่ควบคุมได้และบันทึกเวอร์ชัน การตั้งค่า และผลดิบแยกต่างหาก</p></div></details>
+        <details><summary>AxObfus รับประกันว่า runtime จะเหมือนเดิมหรือไม่</summary><div class="details-body"><p>ไม่ควรถือเป็นคำรับประกันโดยไม่ทดสอบ ใช้ <code>axobfus verify &lt;protected&gt; &lt;original&gt;</code> แล้วรัน test suite, format validation, packaging และ workload จริงของผลิตภัณฑ์เสมอ</p></div></details>
+        <details><summary>ป้องกัน reverse engineering ได้สมบูรณ์หรือไม่</summary><div class="details-body"><p>ไม่ได้ AxObfus เพิ่มต้นทุนและความกำกวมให้การวิเคราะห์อัตโนมัติ แต่นักวิเคราะห์ที่มีเวลา เครื่องมือ และ runtime access อาจยัง reconstruct ได้ เก็บ private keys และ master secrets ไว้ฝั่งเซิร์ฟเวอร์ พร้อมใช้ defense-in-depth</p></div></details>
+        <details><summary>ใช้กับซอฟต์แวร์ของผู้อื่นได้หรือไม่</summary><div class="details-body"><p>ใช้เฉพาะ artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาตชัดแจ้งให้แก้ไขและเผยแพร่ อ่าน <a href="https://github.com/AlexDev-TH/axobfus/blob/main/DISCLAIMER.md">Disclaimer</a> ก่อนใช้งาน</p></div></details>
+        <details><summary>เครดิตของโครงการต้นฉบับอยู่ที่ใด</summary><div class="details-body"><p>AxObfus พัฒนาต่อจาก BLA (Blind LLM Agents) ที่ <a href="https://github.com/qybaihe/bla">github.com/qybaihe/bla</a> ภายใต้ MIT License และคง original attribution ไว้ใน README, Disclaimer และ footer ของเว็บไซต์</p></div></details>
+      </div></div></section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <div data-i18n-html="footer.tagline"><strong>BLA (`bla-agents`)</strong> · Blind LLM Agents · Software Protection MCP &amp; CLI</div>
-        <div><a href="https://github.com/qybaihe/bla">GitHub ★</a> · <a href="../" data-i18n="nav.overview">Overview</a></div>
-      </div>
-    </footer>
-    <script src="../assets/i18n.js"></script>
-    <script src="../assets/main.js"></script>
+    <footer class="site-footer"><div class="container"><div class="footer-grid"><div><div class="footer-brand">AxObfus <span class="orange">/</span> AlexDev</div><p class="footer-note">Defensive Counter-REA toolkit สำหรับ artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาต</p></div><div class="footer-links"><a href="../">ภาพรวม</a><a href="../get-started/">เริ่มต้น</a><a href="https://www.npmjs.com/package/axobfus">npm</a><a href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></div><div class="footer-bottom">MIT LICENSE · ORIGINAL ATTRIBUTION: github.com/qybaihe/bla</div></div></footer>
   </body>
 </html>

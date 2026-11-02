@@ -1,118 +1,67 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Get Started — BLA (bla-agents)</title>
-    <link rel="icon" type="image/png" href="../assets/favicon.png" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>เริ่มต้นใช้งาน — AxObfus</title>
+    <meta name="description" content="ติดตั้ง axobfus ตั้งค่า MCP และใช้ audit, defend, verify พร้อมรายงาน HTML สำหรับ artifact ของคุณ" />
+    <meta property="og:title" content="เริ่มต้นใช้งาน AxObfus" />
+    <meta property="og:image" content="../assets/social-card.svg" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
     <link rel="stylesheet" href="../assets/styles.css" />
+    <script src="../assets/main.js" defer></script>
   </head>
   <body>
+    <a class="skip-link" href="#content">ข้ามไปยังเนื้อหา</a>
     <header class="site-header">
       <div class="container nav-bar">
-        <a href="../" class="brand">
-          <img src="../assets/logo.png" alt="BLA Shield Logo" class="brand-logo" width="38" height="38" />
-          <span>BLA</span>
-          <span class="brand-badge" data-i18n="nav.badge">BLUE SHIELD v1.5</span>
-        </a>
-        <nav class="nav-links">
-          <a href="../" class="nav-link" data-i18n="nav.overview">Overview</a>
-          <a href="./" class="nav-link active" data-i18n="nav.getStarted">Get Started</a>
-          <a href="../showcase/" class="nav-link" data-i18n="nav.showcase">Benchmarks</a>
-          <a href="../crackme/" class="nav-link" data-i18n="nav.crackme">CrackMe</a>
-          <a href="../guides/" class="nav-link" data-i18n="nav.guides">Guides</a>
-          <a href="../faq/" class="nav-link" data-i18n="nav.faq">FAQ</a>
-        </nav>
-        <div class="nav-actions">
-          <select id="bla-lang-select" class="lang-select" aria-label="Select Language">
-            <option value="en">🌐 English</option>
-            <option value="zh-CN">🌐 简体中文</option>
-            <option value="zh-TW">🌐 繁體中文</option>
-            <option value="ja">🌐 日本語</option>
-            <option value="ko">🌐 한국어</option>
-            <option value="es">🌐 Español</option>
-            <option value="fr">🌐 Français</option>
-            <option value="de">🌐 Deutsch</option>
-          </select>
-          <a href="https://github.com/qybaihe/bla" class="nav-cta" target="_blank" rel="noopener">
-            <span>★</span>
-            <span data-i18n="nav.star">Star</span>
-            <span class="star-pill" data-gh-stars>★</span>
-          </a>
-        </div>
+        <a class="brand" href="../" aria-label="AxObfus หน้าหลัก"><img src="../assets/logo.svg" alt="" width="40" height="40" /><span><span class="brand-name">AxObfus</span><span class="brand-by">by AlexDev</span></span></a>
+        <nav class="nav-links" aria-label="เมนูหลัก"><a href="../">ภาพรวม</a><a href="./" aria-current="page">เริ่มต้น</a><a href="../showcase/">ประเมินผล</a><a href="../faq/">คำถามพบบ่อย</a></nav>
+        <a class="nav-repo" href="https://github.com/AlexDev-TH/axobfus">GitHub</a>
       </div>
     </header>
 
-    <main>
-      <section class="section">
+    <main id="content">
+      <section class="page-hero">
+        <div class="container"><p class="eyebrow">Get started / ใช้งานจริงใน staging</p><h1>ตั้งค่า. ป้องกัน.<br />เก็บหลักฐาน.</h1><p class="lead">เริ่มจาก artifact สำเนาที่คุณเป็นเจ้าของ ใช้ Node.js <code>^22.23.4 || &gt;=24.0.0</code> และแยกไฟล์ต้นฉบับไว้สำหรับ verification</p><p class="section-intro">ใช้จากซอร์สด้วย <code>npm ci && npm run build</code> แล้วเรียก <code>node dist/cli.js</code> ส่วนคำสั่ง <code>npx axobfus</code> ใช้ได้เมื่อแพ็กเกจเผยแพร่บน npm แล้ว</p></div>
+      </section>
+
+      <section class="section alt" aria-label="ขั้นตอนเริ่มต้น">
         <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="gs.eyebrow">Quick Start</div>
-            <h1 class="section-title" data-i18n="gs.title">Configure Your Agent or Run from the Terminal</h1>
-            <p class="section-lead" data-i18n="gs.lead">
-              Requires Node.js 22.13+ or 24+. No external compilers or third-party packers required.
-            </p>
-          </div>
+          <ol class="step-list">
+            <li><span class="step-number">01</span><div><h2>ลงทะเบียนกับ coding agent</h2><p>ตั้งค่า MCP server <code>axobfus</code> และทักษะ Counter-REA ให้ client ที่รองรับ หรือข้ามขั้นตอนนี้หากใช้ CLI อย่างเดียว</p><pre><code>npx axobfus setup
+npx axobfus doctor</code></pre></div></li>
+            <li><span class="step-number">02</span><div><h2>ตรวจ exposure ก่อนแก้ไข</h2><p>รัน audit บน build output และเขียนรายงาน HTML เพื่อ review จุดที่ analyzer อาจใช้เป็นหลักฐาน</p><pre><code>axobfus audit ./dist --report ./reports/audit.html</code></pre></div></li>
+            <li><span class="step-number">03</span><div><h2>ป้องกันโครงการหรือ target ที่ระบุ</h2><p>ใช้ <code>harden</code> เพื่อค้นหา build output อัตโนมัติ หรือใช้ <code>defend</code> เมื่อต้องการระบุ target และเก็บรายงาน pipeline</p><pre><code>npx axobfus harden .
 
-          <div class="grid-2">
-            <div class="card">
-              <span class="card-tag" data-i18n="gs.s1.tag">Step 1 · Agent MCP Setup</span>
-              <h3 data-i18n="gs.s1.title">Register BLA with Your Coding Agent</h3>
-              <p data-i18n-html="gs.s1.desc">
-                Configures Claude Code, Cursor, Codex, Windsurf, Gemini CLI, and Antigravity with the <code>bla</code> MCP server and <code>blind-llm-agents</code> skill.
-              </p>
-              <pre class="code-block">npx bla-agents@latest setup --all-detected --yes</pre>
-            </div>
-
-            <div class="card">
-              <span class="card-tag" data-i18n="gs.s2.tag">Step 2 · 5-Stage Protection Pipeline</span>
-              <h3 data-i18n="gs.s2.title">Audit, Protect, and Verify in One Command</h3>
-              <p data-i18n="gs.s2.desc">
-                Runs source-map exposure checks, static audit, format-specific protection, and runtime equivalence verification. Pass --manifest only if you want an unsigned attestation JSON next to artifacts.
-              </p>
-              <pre class="code-block">npx bla-agents@latest harden .</pre>
-            </div>
-          </div>
+axobfus defend ./dist --report ./reports/defend.html</code></pre></div></li>
+            <li><span class="step-number">04</span><div><h2>ตรวจสอบเทียบต้นฉบับ</h2><p>ระบุ path ของ artifact ที่ป้องกันแล้วและต้นฉบับตาม output จริง จากนั้นรันชุดทดสอบของผลิตภัณฑ์</p><pre><code>axobfus verify ./dist.protected ./dist</code></pre></div></li>
+          </ol>
         </div>
       </section>
 
-      <section class="section">
-        <div class="container">
-          <div class="section-header">
-            <div class="eyebrow" data-i18n="gs.s3.eyebrow">Agent &amp; Bundler Integration</div>
-            <h2 class="section-title" data-i18n="gs.s3.title">Use Natural Language or Build Plugins</h2>
-          </div>
+      <section class="section" aria-labelledby="report-title">
+        <div class="container report-layout">
+          <div><p class="eyebrow">Report / HTML</p><h2 id="report-title">อ่านผลร่วมกับบริบท</h2><p class="section-intro"><code>--report</code> ใช้กับ <code>audit</code> และ <code>defend</code> เพื่อเก็บข้อมูล exposure, กลไกที่ใช้ และค่าประมาณ token consumption รายงานช่วยการตรวจทาน แต่ไม่ใช่ใบรับรองความปลอดภัยหรือผล benchmark สากล</p><ul class="check-list"><li>กำหนดสิทธิ์ไฟล์รายงานให้เหมาะสม</li><li>ตรวจข้อมูล sensitive ก่อนเผยแพร่</li><li>เปรียบเทียบผลจาก target และ environment เดียวกัน</li></ul></div>
+          <pre aria-label="ตัวอย่างคำสั่งบันทึกรายงาน"><code>axobfus audit ./dist/app.js \
+  --report ./reports/app-audit.html
 
-          <div class="grid-2">
-            <div class="card">
-              <span class="card-tag" data-i18n="gs.s3.c1.tag">Agent Prompt</span>
-              <h3 data-i18n="gs.s3.c1.title">Prompt for Claude Code / Cursor</h3>
-              <p data-i18n-html="gs.s3.c1.desc">Once <code>setup</code> is complete, ask your coding agent:</p>
-              <pre class="code-block">"Harden my software against REA (bla_harden on the project directory)."</pre>
-            </div>
-
-            <div class="card">
-              <span class="card-tag" data-i18n="gs.s3.c2.tag">Build Bundler Plugin</span>
-              <h3 data-i18n="gs.s3.c2.title">Build-Time Protection</h3>
-              <p data-i18n="gs.s3.c2.desc">Integrates with Vite, Rollup, Webpack, and esbuild:</p>
-              <pre class="code-block">import { blaVitePlugin } from "bla-agents/bundler";
-
-export default {
-  plugins: [blaVitePlugin({ intensity: "bankrupt" })],
-};</pre>
-            </div>
-          </div>
+axobfus defend ./dist/app.js \
+  --report ./reports/app-defend.html</code></pre>
         </div>
       </section>
+
+      <section class="section alt" aria-labelledby="release-title">
+        <div class="container two-col">
+          <article class="info-block"><h2 id="release-title">ก่อน merge หรือ release</h2><p>การป้องกันไม่แทนการทดสอบซอฟต์แวร์ ตรวจ functional behavior, packaging, signing, compatibility และ performance ตาม workload จริง</p><ul class="check-list"><li>สำรองต้นฉบับและทำใน staging</li><li>รัน <code>verify</code> และ test suite ของโครงการ</li><li>เก็บรายงานเป็นหลักฐาน ไม่ใช่คำรับประกัน</li></ul></article>
+          <article class="info-block"><h2>สำหรับผู้ดูแล source</h2><p>ใช้คำสั่งเหล่านี้เพื่อตรวจสอบ repository ใน environment ของคุณ การแสดงคำสั่งไม่ได้หมายความว่าทดสอบถูกรันหรือผ่านแล้ว</p><pre><code>npm run build
+npm test</code></pre><p><a href="https://github.com/AlexDev-TH/axobfus/blob/main/docs/cli-and-mcp.md">อ่าน CLI และ MCP reference</a></p></article>
+        </div>
+      </section>
+
+      <section class="section"><div class="container"><div class="notice"><h2>ขอบเขตการป้องกัน</h2><p>AxObfus เพิ่ม decoys, resource/semantic exhaustion และ analyzer token consumption แต่ไม่รับประกันการป้องกัน reverse engineering แบบสมบูรณ์ เก็บความลับสำคัญไว้ฝั่งเซิร์ฟเวอร์และใช้ defense-in-depth</p></div></div></section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <div data-i18n-html="footer.tagline"><strong>BLA (`bla-agents`)</strong> · Blind LLM Agents · Software Protection MCP &amp; CLI</div>
-        <div><a href="https://github.com/qybaihe/bla">GitHub ★</a> · <a href="../" data-i18n="nav.overview">Overview</a></div>
-      </div>
-    </footer>
-    <script src="../assets/i18n.js"></script>
-    <script src="../assets/main.js"></script>
+    <footer class="site-footer"><div class="container"><div class="footer-grid"><div><div class="footer-brand">AxObfus <span class="orange">/</span> AlexDev</div><p class="footer-note">Defensive Counter-REA toolkit สำหรับ artifact ที่คุณเป็นเจ้าของหรือได้รับอนุญาต</p></div><div class="footer-links"><a href="../">ภาพรวม</a><a href="../faq/">FAQ</a><a href="https://www.npmjs.com/package/axobfus">npm</a><a href="https://github.com/AlexDev-TH/axobfus">GitHub</a></div></div><div class="footer-bottom">MIT LICENSE · ORIGINAL ATTRIBUTION: github.com/qybaihe/bla</div></div></footer>
   </body>
 </html>

@@ -29,7 +29,7 @@ import {
   protectAndroidDexBuffer,
   protectIl2cppMetadataBuffer,
 } from "../src/shields/formats/mobile-game.js";
-import { blaVitePlugin, BlaWebpackPlugin } from "../src/bundler/index.js";
+import { axobfusVitePlugin, AxObfusWebpackPlugin } from "../src/bundler/index.js";
 
 describe("Deep Vertical Shields (Runtime Deception, Electron Fuses, SQLite, AI Models, DEX/IL2CPP, Bundlers)", () => {
   it("executes the Anti-CDP / Anti-Frida 'Truman Show' runtime deception shield without side effects", () => {
@@ -219,8 +219,8 @@ describe("Deep Vertical Shields (Runtime Deception, Electron Fuses, SQLite, AI M
   });
 
   it("integrates seamlessly with Vite / Rollup and Webpack bundler plugins", () => {
-    const vitePlugin = blaVitePlugin({ intensity: "balanced", seed: "vite-seed" });
-    expect(vitePlugin.name).toBe("vite-plugin-bla-shield");
+    const vitePlugin = axobfusVitePlugin({ intensity: "balanced", seed: "vite-seed" });
+    expect(vitePlugin.name).toBe("vite-plugin-axobfus-shield");
     expect(vitePlugin.enforce).toBe("post");
 
     const chunkOut = vitePlugin.renderChunk(
@@ -239,7 +239,7 @@ describe("Deep Vertical Shields (Runtime Deception, Electron Fuses, SQLite, AI M
         size: () => 33,
       },
     };
-    const wp = new BlaWebpackPlugin({ intensity: "stealth", seed: "wp-seed" });
+    const wp = new AxObfusWebpackPlugin({ intensity: "stealth", seed: "wp-seed" });
     wp.apply({
       hooks: {
         compilation: {

@@ -8,8 +8,14 @@ coverage/
 .env.*
 tmp/
 .bla-cache/
+.axobfus-cache/
 
-# Per-project BLA config / seed (local)
+# Per-project AxObfus config / seed (local)
+.axobfusrc
+.axobfusrc.json
+axobfus.config.json
+
+# Legacy per-project BLA config / seed (local)
 .blarc
 .blarc.json
 bla.config.json

@@ -3,7 +3,7 @@ import type { VerificationCheck, VerificationReport } from "../core/types.js";
 import { auditTarget } from "./auditor.js";
 
 /**
- * Verifies a protected artifact against REA's analysis invariants (`bla verify`).
+ * Verifies a protected artifact against REA's analysis invariants (`axobfus verify`).
  */
 export function verifyTarget(
   targetPath: string,
@@ -67,7 +67,7 @@ export function verifyTarget(
       id: "binary-container-shield",
       name: "Binary Container & Custom Section Shield",
       targetReaComponent: `inspect_${afterAudit.detectedFormat.replace("-", "_")}`,
-      passed: afterAudit.protectionStatus === "BLA_PROTECTED",
+      passed: afterAudit.protectionStatus === "AXOBFUS_PROTECTED",
       details: `Container status: ${afterAudit.protectionStatus} (Exposure score: ${afterAudit.exposureScore}/100)`,
     });
   }

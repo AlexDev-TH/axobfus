@@ -8,14 +8,14 @@ import {
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { detectArtifactFormat } from "../core/detector.js";
 import type { ArtifactFormat, ProtectionIntensity } from "../core/types.js";
-import { BLA_IDENTITY } from "../identity.js";
+import { AXOBFUS_IDENTITY } from "../identity.js";
 import {
   defendTarget,
   type OneClickDefenseReport,
 } from "./defender.js";
 
 /** Preferred build-output directory names, searched first under a project root. */
-export const BLA_BUILD_OUTPUT_DIR_NAMES = Object.freeze([
+export const AXOBFUS_BUILD_OUTPUT_DIR_NAMES = Object.freeze([
   "dist",
   "build",
   "out",
@@ -34,7 +34,7 @@ const SKIP_DIR_NAMES = new Set([
   ".git",
   ".hg",
   ".svn",
-  ".bla-hardened",
+  ".axobfus-hardened",
   "coverage",
   ".turbo",
   ".cache",
@@ -50,7 +50,7 @@ const SKIP_DIR_NAMES = new Set([
  */
 const SUPPLEMENTAL_SKIP_DIR_NAMES = new Set([
   ...SKIP_DIR_NAMES,
-  ...BLA_BUILD_OUTPUT_DIR_NAMES,
+  ...AXOBFUS_BUILD_OUTPUT_DIR_NAMES,
   "src",
   "lib",
   "test",
@@ -92,13 +92,13 @@ export interface HardenProjectOptions {
   readonly emitManifest?: boolean;
   readonly llmDirectives?: boolean;
   readonly weaveDecoys?: boolean;
-  /** Optional output root; defaults to `<dir>/.bla-hardened`. */
+  /** Optional output root; defaults to `<dir>/.axobfus-hardened`. */
   readonly outputDirectory?: string;
   readonly maxArtifacts?: number;
 }
 
 export interface HardenProjectReport {
-  readonly blaVersion: string;
+  readonly axobfusVersion: string;
   readonly directory: string;
   readonly intensity: ProtectionIntensity;
   readonly overallSuccess: boolean;
@@ -124,7 +124,7 @@ function resolveSearchRoots(absRoot: string): {
   readonly includeProjectRootSupplemental: boolean;
 } {
   const preferred: string[] = [];
-  for (const name of BLA_BUILD_OUTPUT_DIR_NAMES) {
+  for (const name of AXOBFUS_BUILD_OUTPUT_DIR_NAMES) {
     const candidate = join(absRoot, name);
     try {
       if (statSync(candidate).isDirectory()) preferred.push(candidate);
@@ -180,7 +180,7 @@ function walkCollect(
     if (!isProtectableFormat(format)) continue;
     // Skip already-shielded outputs to avoid re-hardening loops.
     if (/\.shielded(\.|$)/i.test(entry.name)) continue;
-    if (entry.name.endsWith(".bla-manifest.json")) continue;
+    if (entry.name.endsWith(".axobfus-manifest.json")) continue;
     if (entry.name.endsWith(".bunfs-snapshot")) continue;
     out.push({
       path: full,
@@ -247,7 +247,7 @@ function deriveArtifactOutputPath(
   const dest = join(outputRoot, rel);
   const dir = dirname(dest);
   mkdirSync(dir, { recursive: true });
-  // Keep original basename; place under .bla-hardened mirror tree.
+  // Keep original basename; place under .axobfus-hardened mirror tree.
   return dest;
 }
 
@@ -256,14 +256,14 @@ function deriveArtifactOutputPath(
  * under a project/build directory and run the full audit→defend→verify pipeline
  * with the bankrupt profile. Modelled on REA's `npx rea-agents setup` simplicity.
  *
- * Usage: `bla harden .` / MCP `bla_harden` with `{ "directory": "." }`
+ * Usage: `axobfus harden .` / MCP `axobfus_harden` with `{ "directory": "." }`
  */
 export function hardenProject(
   options: HardenProjectOptions = {},
 ): HardenProjectReport {
   const absDir = resolve(options.directory ?? process.cwd());
   const intensity: ProtectionIntensity = options.intensity ?? "bankrupt";
-  // Manifests are opt-in: do not ship `.bla-manifest.json` next to customer artifacts by default.
+  // Manifests are opt-in: do not ship `.axobfus-manifest.json` next to customer artifacts by default.
   const emitManifest = options.emitManifest === true;
   const maxArtifacts = options.maxArtifacts ?? MAX_DISCOVERED_ARTIFACTS;
 
@@ -271,8 +271,8 @@ export function hardenProject(
   const outputRoot = resolve(
     options.outputDirectory ??
       (statSync(absDir).isDirectory()
-        ? join(absDir, ".bla-hardened")
-        : join(dirname(absDir), ".bla-hardened")),
+        ? join(absDir, ".axobfus-hardened")
+        : join(dirname(absDir), ".axobfus-hardened")),
   );
   if (discovered.length > 0) {
     mkdirSync(outputRoot, { recursive: true });
@@ -326,10 +326,10 @@ export function hardenProject(
   if (discovered.length > 0) {
     try {
       writeFileSync(
-        join(outputRoot, "bla-harden-summary.json"),
+        join(outputRoot, "axobfus-harden-summary.json"),
         JSON.stringify(
           {
-            schema: "bla-harden-summary/v1",
+            schema: "axobfus-harden-summary/v1",
             directory: absDir,
             intensity,
             weaveDecoys: options.weaveDecoys === true,
@@ -348,7 +348,7 @@ export function hardenProject(
   const hardenedCount = summaries.filter((s) => s.success).length;
   const failedCount = summaries.length - hardenedCount;
   return {
-    blaVersion: BLA_IDENTITY.version,
+    axobfusVersion: AXOBFUS_IDENTITY.version,
     directory: absDir,
     intensity,
     overallSuccess: summaries.length > 0 && failedCount === 0,
@@ -358,14 +358,14 @@ export function hardenProject(
     outputDirectory: outputRoot,
     artifacts: summaries,
     oneSentenceUsage:
-      'Harden my software against REA — call bla_harden with { "directory": "." } (or `bla harden .`).',
+      'Harden my software against REA — call axobfus_harden with { "directory": "." } (or `axobfus harden .`).',
     weaveDecoys: options.weaveDecoys === true,
   };
 }
 
 export function formatHardenProjectReport(report: HardenProjectReport): string {
   const lines: string[] = [
-    `BLA harden ${report.blaVersion} — ${report.directory}`,
+    `AxObfus harden ${report.axobfusVersion} — ${report.directory}`,
     `Intensity: ${report.intensity} | discovered=${report.discoveredCount} hardened=${report.hardenedCount} failed=${report.failedCount}`,
     `Overall: ${report.overallSuccess ? "SUCCESS" : report.discoveredCount === 0 ? "NO ARTIFACTS" : "PARTIAL/FAILED"}`,
   ];

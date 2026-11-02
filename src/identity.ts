@@ -1,11 +1,9 @@
-export const BLA_IDENTITY = Object.freeze({
-  name: "BLA",
-  fullName: "Blind LLM Agents",
-  packageName: "bla-agents",
-  packageAlias: "bla-shield",
-  cliBinary: "bla",
-  cliAlias: "bla-agents",
-  version: "1.6.4",
+export const AXOBFUS_IDENTITY = Object.freeze({
+  name: "AxObfus",
+  fullName: "AxObfus",
+  packageName: "axobfus",
+  cliBinary: "axobfus",
+  version: "0.1.0",
   slogan: "Poison -> Exhaust -> Hallucinate. Make Reverse Engineering Bankrupt Again.",
   counterpart: {
     name: "REA",
@@ -13,9 +11,9 @@ export const BLA_IDENTITY = Object.freeze({
     packageName: "rea-agents",
     slogan: "Decompile -> Understand -> Recreate",
   },
-  repositoryUrl: "https://github.com/qybaihe/bla",
-  mcpServerName: "bla",
-  skillName: "blind-llm-agents",
+  repositoryUrl: "https://github.com/AlexDev-TH/axobfus",
+  mcpServerName: "axobfus",
+  skillName: "axobfus",
 });
 
 /**

@@ -1,30 +1,45 @@
 # AGENTS.md — Repository Guide for Coding Agents
 
-This repository contains **BLA (`bla-agents` — Blind LLM Agents)**, an open-source adversarial Blue Defense toolkit engineered to protect software artifacts against AI reverse-engineering agents (specifically `morluto/rea`).
+This repository contains **AxObfus (`axobfus`) by AlexDev**, an open-source defensive Counter-REA toolkit for protecting a user's own or explicitly authorized software artifacts against automated AI reverse-engineering agents. It uses format-valid decoys, resource and semantic exhaustion, and increased analyzer token consumption. It must not be presented as absolute protection.
+
+The public repository is `AlexDev-TH/axobfus`. Preserve the original MIT attribution to [qybaihe/bla](https://github.com/qybaihe/bla) in `README.md` and `DISCLAIMER.md`.
 
 ## Project Layout
 
-- `src/identity.ts`: Product metadata (`bla-agents`) and exact `REA_INTERNAL_LIMITS` constants.
+- `src/identity.ts`: Product metadata (`axobfus`) and analyzer resource-limit constants.
 - `src/core/`:
   - `types.ts`: Domain interfaces (`AuditReport`, `ProtectionResult`, `VerificationReport`, `BenchmarkReport`).
-  - `detector.ts`: Magic-byte and file-extension format detection across 19 artifact types (including JS/TS, `.asar`, `.wasm`, `.py`/`.pyc`, ELF/Mach-O/PE, `.sqlite`, `.safetensors`, `.gguf`, `.dex`, and `Il2Cpp` metadata).
+  - `detector.ts`: Magic-byte and file-extension format detection across JavaScript/TypeScript, ASAR, WASM, Python, native binaries, SQLite, model formats, DEX, and IL2CPP metadata.
   - `sqlite-runtime.ts`: Lazy `node:sqlite` `DatabaseSync` loader validating Node `^22.13.0 || >=24.0.0`.
   - `output-path.ts`: Safe output path admission checks (`assertSafeOutputPath`).
-  - `release-exposure.ts`: Bounded read-only source-map & symbol exposure scanner (`inspectReleaseExposure`).
+  - `release-exposure.ts`: Bounded read-only source-map and symbol exposure scanner (`inspectReleaseExposure`).
   - `prng.ts`: Deterministic xorshift/mulberry32 PRNG (`SeededPrng`).
-  - `token-estimator.ts`: Models REA MCP tool turns and token cost across Claude Opus 4, Sonnet 4, and o3.
+  - `token-estimator.ts`: Models analyzer tool turns and token cost; estimates are not universal benchmark results.
 - `src/shields/`:
-  - `exhaustion/`: Surgical Resource-Exhaustion Engine (`rea-budget-matrix.ts`, `obligation-flooder.ts`, `callgraph-labyrinth.ts`, `bpe-token-amplifier.ts`, `wasm-interface-exhaustion.ts`, `cdp-shape-budget-breaker.ts`, `frida-capture-saturation.ts`, `regex-worker-tarpit.ts`, `asar-header-amplifier.ts`).
-  - `deception/`: Surgical Model-Misjudgment Induction & Cognitive-Armor Engine (`shadow-business-logic.ts`, `evidence-contract-poison.ts`, `architecture-mirage.ts`, `semantic-honeypot.ts`, `decompiler-illusion.ts`, `prompt-completion-poison.ts`, `diff-noise-injector.ts`, `crash-trace-decoy.ts`, `canary-honeypot.ts`, `system-diagnostic-decoy.ts`, `cognitive-armor-trigger.ts`, `format-payloads.ts`).
-  - `chaff/chaff-generator.ts`: Generates benign hardware-enclave delegation manifests and decoy offset contracts.
-  - `tarpit/opaque-predicates.ts` & `tarpit-generator.ts`: Number-theoretic opaque predicates ($O(1)$ runtime invariants) and REA Semantic Budget Breakers.
-  - `runtime/runtime-shield.ts` & `runtime/memory-diff-shield.ts`: "Truman Show" Anti-CDP / Anti-Inspector / Anti-Frida dynamic runtime deception shield, plus Synchronized Shadow Heap Churn and Split-Share Rolling XOR memory masking against $M_0 \to M_1$ runtime memory diffing.
-  - `javascript/ast-shield.ts`: Babel AST shield combining opaque ternaries, Electron IPC de-literalization, exhaustion suite, and deception suite.
-  - `formats/`: Format-specific shields for `sourcemap.ts`, `asar.ts`, `electron-fuses.ts`, `wasm.ts`, `python.ts`, `native.ts`, `sqlite.ts`, `model.ts`, `mobile-game.ts`, `apple-plist.ts`, `dotnet-managed.ts`, `headers.ts`, and `archive.ts`.
-- `src/bundler/index.ts`: Vite, Rollup, Webpack, and esbuild bundler plugins (`bla-agents/bundler`).
-- `src/engine/`: `defender.ts` (One-Click 5-Stage `defendTarget`), `auditor.ts`, `protector.ts`, `verifier.ts`, and `benchmark.ts` (8-target showcase benchmark).
-- `src/mcp/server.ts`: JSON-RPC 2.0 MCP stdio server (`bla_defend`, `bla_audit`, `bla_protect`, `bla_verify`, `bla_benchmark`, `bla_emit_headers`, `bla_doctor`).
-- `src/setup/`: Auto-registration for Claude Code, Cursor, Codex, Windsurf, Gemini CLI, and Antigravity.
+  - `exhaustion/`: Resource-exhaustion engines for analyzer budgets, obligations, call graphs, token amplification, WASM interfaces, runtime inspection, ASAR headers, and related formats.
+  - `deception/`: Semantic and evidence decoys, shadow business logic, architecture mirages, semantic honeypots, decompiler illusions, diagnostic decoys, and format payloads.
+  - `chaff/chaff-generator.ts`: Benign delegation manifests and decoy offset contracts.
+  - `tarpit/`: Opaque runtime invariants and semantic budget breakers.
+  - `runtime/`: Dynamic inspection deception and memory-diffing shields.
+  - `javascript/ast-shield.ts`: Babel AST protection combining opaque expressions, IPC de-literalization, exhaustion, and deception.
+  - `formats/`: Format-specific shields for source maps, ASAR, Electron fuses, WASM, Python, native binaries, SQLite, models, mobile games, Apple plists, .NET, headers, and archives.
+- `src/bundler/index.ts`: Vite, Rollup, Webpack, and esbuild plugins (`axobfus/bundler`).
+- `src/engine/`: `defender.ts` (`defendTarget`), `auditor.ts`, `protector.ts`, `verifier.ts`, and `benchmark.ts`.
+- `src/mcp/server.ts`: JSON-RPC 2.0 MCP stdio server (`axobfus_harden`, `axobfus_defend`, `axobfus_audit`, `axobfus_protect`, `axobfus_verify`, `axobfus_benchmark`, `axobfus_emit_headers`, `axobfus_doctor`).
+- `src/setup/`: Auto-registration for supported coding agents.
+- `website/`: Static Thai-first presentation; no build step or remote runtime dependency. Local SVG assets live in `website/assets/`.
+
+## Public Commands
+
+```bash
+npx axobfus setup
+npx axobfus harden .
+axobfus audit ./dist --report ./reports/audit.html
+axobfus defend ./dist --report ./reports/defend.html
+axobfus verify ./dist.protected ./dist
+```
+
+`--report <path>` writes standalone HTML for `audit` and `defend`; reports work offline without scripts or external assets. Support on `harden` is optional. Reports are environment-specific observations and estimates, not security certification. Do not reuse upstream benchmark figures as AxObfus results.
 
 ## Build & Test Commands
 
@@ -34,3 +49,5 @@ npm test
 node dist/cli.js benchmark
 node dist/cli.js defend ./dist --manifest
 ```
+
+Run these checks when changing code and report actual results honestly. Documentation examples alone do not imply that tests or benchmarks have already run.

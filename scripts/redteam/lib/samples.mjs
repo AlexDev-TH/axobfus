@@ -1,58 +1,60 @@
-import { createRequire } from "node:module";
 import { join } from "node:path";
-import { BLA_ROOT } from "./paths.mjs";
+import { pathToFileURL } from "node:url";
+import { AXOBFUS_ROOT } from "./paths.mjs";
 
-const require = createRequire(import.meta.url);
+const importModule = (path) => import(pathToFileURL(path).href);
 
-/** Load BLA compiled modules (dist/). */
-export async function loadBla() {
-  const base = join(BLA_ROOT, "dist/shields/formats");
+/** Load AxObfus compiled modules (dist/). */
+export async function loadAxObfus() {
+  const base = join(AXOBFUS_ROOT, "dist/shields/formats");
   return {
     buildMappedGoFlutterElfFixture: (
-      await import(join(base, "go-flutter-exhaustion.js"))
+      await importModule(join(base, "go-flutter-exhaustion.js"))
     ).buildMappedGoFlutterElfFixture,
-    protectNativeBinary: (await import(join(base, "native.js")))
+    protectNativeBinary: (await importModule(join(base, "native.js")))
       .protectNativeBinary,
-    resolveElf64SectionNames: (await import(join(base, "native.js")))
+    resolveElf64SectionNames: (await importModule(join(base, "native.js")))
       .resolveElf64SectionNames,
-    validateElf64Layout: (await import(join(base, "native.js")))
+    validateElf64Layout: (await importModule(join(base, "native.js")))
       .validateElf64Layout,
-    protectErlangBeamBuffer: (await import(join(base, "erlang-beam.js")))
+    protectErlangBeamBuffer: (await importModule(join(base, "erlang-beam.js")))
       .protectErlangBeamBuffer,
-    protectEvmBytecodeBuffer: (await import(join(base, "evm-bytecode.js")))
+    protectEvmBytecodeBuffer: (await importModule(join(base, "evm-bytecode.js")))
       .protectEvmBytecodeBuffer,
-    protectPcapCaptureBuffer: (await import(join(base, "pcap-capture.js")))
+    protectPcapCaptureBuffer: (await importModule(join(base, "pcap-capture.js")))
       .protectPcapCaptureBuffer,
-    protectGpuPtxText: (await import(join(base, "gpu-ptx.js"))).protectGpuPtxText,
-    buildSafetensorsBuffer: (await import(join(base, "model.js")))
+    protectGpuPtxText: (await importModule(join(base, "gpu-ptx.js"))).protectGpuPtxText,
+    buildSafetensorsBuffer: (await importModule(join(base, "model.js")))
       .buildSafetensorsBuffer,
-    protectSafetensorsBuffer: (await import(join(base, "model.js")))
+    protectSafetensorsBuffer: (await importModule(join(base, "model.js")))
       .protectSafetensorsBuffer,
-    protectGgufBuffer: (await import(join(base, "model.js"))).protectGgufBuffer,
-    packAsarBuffer: (await import(join(base, "asar.js"))).packAsarBuffer,
-    unpackAsarBuffer: (await import(join(base, "asar.js"))).unpackAsarBuffer,
-    protectWasmBinary: (await import(join(base, "wasm.js"))).protectWasmBinary,
-    inspectWasmBinary: (await import(join(base, "wasm.js"))).inspectWasmBinary,
-    protectSqliteBuffer: (await import(join(base, "sqlite.js"))).protectSqliteBuffer,
-    buildSampleSqliteDatabase: (await import(join(base, "sqlite.js")))
+    protectGgufBuffer: (await importModule(join(base, "model.js"))).protectGgufBuffer,
+    packAsarBuffer: (await importModule(join(base, "asar.js"))).packAsarBuffer,
+    unpackAsarBuffer: (await importModule(join(base, "asar.js"))).unpackAsarBuffer,
+    protectWasmBinary: (await importModule(join(base, "wasm.js"))).protectWasmBinary,
+    inspectWasmBinary: (await importModule(join(base, "wasm.js"))).inspectWasmBinary,
+    protectSqliteBuffer: (await importModule(join(base, "sqlite.js"))).protectSqliteBuffer,
+    buildSampleSqliteDatabase: (await importModule(join(base, "sqlite.js")))
       .buildSampleSqliteDatabase,
-    inspectSqliteBuffer: (await import(join(base, "sqlite.js"))).inspectSqliteBuffer,
+    inspectSqliteBuffer: (await importModule(join(base, "sqlite.js"))).inspectSqliteBuffer,
     inspectElectronFusesBuffer: (
-      await import(join(base, "electron-fuses.js"))
+      await importModule(join(base, "electron-fuses.js"))
     ).inspectElectronFusesBuffer,
     planAsarHeaderAmplification: (
-      await import(join(BLA_ROOT, "dist/shields/exhaustion/asar-header-amplifier.js"))
+      await importModule(join(AXOBFUS_ROOT, "dist/shields/exhaustion/asar-header-amplifier.js"))
     ).planAsarHeaderAmplification,
     planWasmInterfaceBudgetExhaustion: (
-      await import(
-        join(BLA_ROOT, "dist/shields/exhaustion/wasm-interface-exhaustion.js")
+      await importModule(
+        join(AXOBFUS_ROOT, "dist/shields/exhaustion/wasm-interface-exhaustion.js")
       )
     ).planWasmInterfaceBudgetExhaustion,
-    SeededPrng: (await import(join(BLA_ROOT, "dist/core/prng.js"))).SeededPrng,
-    REA_INTERNAL_LIMITS: (await import(join(BLA_ROOT, "dist/identity.js")))
+    SeededPrng: (await importModule(join(AXOBFUS_ROOT, "dist/core/prng.js"))).SeededPrng,
+    REA_INTERNAL_LIMITS: (await importModule(join(AXOBFUS_ROOT, "dist/identity.js")))
       .REA_INTERNAL_LIMITS,
+    AXOBFUS_IDENTITY: (await importModule(join(AXOBFUS_ROOT, "dist/identity.js")))
+      .AXOBFUS_IDENTITY,
     transformJavaScriptWithBlaShield: (
-      await import(join(BLA_ROOT, "dist/shields/javascript/ast-shield.js"))
+      await importModule(join(AXOBFUS_ROOT, "dist/shields/javascript/ast-shield.js"))
     ).transformJavaScriptWithBlaShield,
   };
 }
@@ -131,8 +133,8 @@ export function buildMinimalPtx() {
   );
 }
 
-export function buildMinimalSafetensors(bla) {
-  return bla.buildSafetensorsBuffer(
+export function buildMinimalSafetensors(axobfus) {
+  return axobfus.buildSafetensorsBuffer(
     {
       weight: { dtype: "F32", shape: [2, 2], data_offsets: [0, 16] },
       __metadata__: { model: "redteam-demo" },
@@ -154,8 +156,8 @@ export function buildMinimalGguf() {
 
 
 /** Minimal Electron ASAR with package.json + main.js. */
-export function buildMinimalAsar(bla) {
-  return bla.packAsarBuffer([
+export function buildMinimalAsar(axobfus) {
+  return axobfus.packAsarBuffer([
     {
       relativePath: "package.json",
       content: Buffer.from(
@@ -190,49 +192,49 @@ export function buildMinimalWasm() {
  * Build the red-team sample matrix: one entry per empirically runnable format.
  */
 export async function buildSampleMatrix() {
-  const bla = await loadBla();
+  const axobfus = await loadAxObfus();
   const intensity = "bankrupt";
   const seed = "bla-redteam-empirical-v1";
 
-  const elfRaw = bla.buildMappedGoFlutterElfFixture();
-  const elfHard = bla.protectNativeBinary(elfRaw, { intensity, seed });
+  const elfRaw = axobfus.buildMappedGoFlutterElfFixture();
+  const elfHard = axobfus.protectNativeBinary(elfRaw, { intensity, seed });
 
   const beamRaw = buildMinimalBeam();
-  const beamHard = bla.protectErlangBeamBuffer(beamRaw, { intensity, seed });
+  const beamHard = axobfus.protectErlangBeamBuffer(beamRaw, { intensity, seed });
 
   const evmRaw = buildMinimalEvm();
-  const evmHard = bla.protectEvmBytecodeBuffer(evmRaw, { intensity, seed });
+  const evmHard = axobfus.protectEvmBytecodeBuffer(evmRaw, { intensity, seed });
 
   const pcapRaw = buildMinimalPcap();
-  const pcapHard = bla.protectPcapCaptureBuffer(pcapRaw, {
+  const pcapHard = axobfus.protectPcapCaptureBuffer(pcapRaw, {
     intensity,
     seed,
   });
 
   const ptxRaw = buildMinimalPtx();
-  const ptxHard = bla.protectGpuPtxText(ptxRaw.toString('utf8'), { intensity, seed });
+  const ptxHard = axobfus.protectGpuPtxText(ptxRaw.toString('utf8'), { intensity, seed });
 
-  const stRaw = buildMinimalSafetensors(bla);
-  const stHard = bla.protectSafetensorsBuffer(stRaw, { intensity, seed });
+  const stRaw = buildMinimalSafetensors(axobfus);
+  const stHard = axobfus.protectSafetensorsBuffer(stRaw, { intensity, seed });
 
   let ggufRaw = buildMinimalGguf();
   let ggufHard;
   try {
-    ggufHard = bla.protectGgufBuffer(ggufRaw, { intensity, seed });
+    ggufHard = axobfus.protectGgufBuffer(ggufRaw, { intensity, seed });
   } catch (err) {
     ggufHard = { buffer: ggufRaw, error: String(err?.message ?? err) };
   }
 
   // Electron ASAR — densify header past DEFAULT_ASAR_MAX_HEADER_BYTES (16 MiB).
-  const asarRaw = buildMinimalAsar(bla);
-  const asarFiles = [...bla.unpackAsarBuffer(asarRaw)];
-  const asarPlan = bla.planAsarHeaderAmplification(
-    new bla.SeededPrng(`${seed}:asar`),
+  const asarRaw = buildMinimalAsar(axobfus);
+  const asarFiles = [...axobfus.unpackAsarBuffer(asarRaw)];
+  const asarPlan = axobfus.planAsarHeaderAmplification(
+    new axobfus.SeededPrng(`${seed}:asar`),
     intensity,
   );
   for (const decoy of asarPlan.files) asarFiles.push(decoy);
   const asarHard = {
-    buffer: bla.packAsarBuffer(asarFiles),
+    buffer: axobfus.packAsarBuffer(asarFiles),
     decoyFiles: asarPlan.files.length,
     estimatedHeaderBytes: asarPlan.estimatedHeaderBytes,
     exceedsDefaultAdmission: asarPlan.exceedsDefaultAdmission,
@@ -240,7 +242,7 @@ export async function buildSampleMatrix() {
 
   // WASM — bankrupt interface exhaustion past 32 MiB representation budget.
   const wasmRaw = buildMinimalWasm();
-  const wasmHard = bla.protectWasmBinary(wasmRaw, { intensity, seed });
+  const wasmHard = axobfus.protectWasmBinary(wasmRaw, { intensity, seed });
 
   // SQLite — honey tables + canaries (REA inspect is Node 24.15+ gated).
   let sqliteRaw = Buffer.alloc(0);
@@ -251,8 +253,8 @@ export async function buildSampleMatrix() {
     canaryTokensEmbedded: 0,
   };
   try {
-    sqliteRaw = bla.buildSampleSqliteDatabase();
-    sqliteHard = bla.protectSqliteBuffer(sqliteRaw, { intensity, seed });
+    sqliteRaw = axobfus.buildSampleSqliteDatabase();
+    sqliteHard = axobfus.protectSqliteBuffer(sqliteRaw, { intensity, seed });
   } catch (err) {
     sqliteHard = {
       buffer: sqliteRaw,
@@ -288,14 +290,14 @@ function quote(qty, listPrice, margin) {
 module.exports = { balanced, bankrupt, quote, BASE_RATE, VAT_RATE };
 `;
   const jsRaw = Buffer.from(jsRawText, "utf8");
-  const jsHard = bla.transformJavaScriptWithBlaShield(jsRawText, {
+  const jsHard = axobfus.transformJavaScriptWithBlaShield(jsRawText, {
     intensity,
     seed: `${seed}:js`,
     sourceType: "commonjs",
   });
 
   return {
-    bla,
+    axobfus,
     intensity,
     seed,
     samples: {
